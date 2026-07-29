@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { CabecalhoDaPagina } from '@/componentes/layout/CabecalhoDaPagina';
 import { Painel } from '@/componentes/comuns/Painel';
 import { Selo } from '@/componentes/comuns/Selo';
+import { Modal } from '@/componentes/comuns/Modal';
 import { EstadoVazio } from '@/componentes/comuns/Estados';
 import type { TomDoSelo } from '@/lib/rotulos';
 
@@ -26,6 +27,10 @@ function ehSelo(celula: CelulaDeListagem): celula is { selo: { texto: string; to
   return typeof celula === 'object' && celula !== null && 'selo' in celula;
 }
 
+function renderizarCelula(celula: CelulaDeListagem) {
+  return ehSelo(celula) ? <Selo texto={celula.selo.texto} tom={celula.selo.tom} /> : celula;
+}
+
 function textoDaCelula(celula: CelulaDeListagem): string {
   return ehSelo(celula) ? celula.selo.texto : String(celula);
 }
@@ -37,13 +42,14 @@ function normalizar(texto: string): string {
 /**
  * Tela de listagem genérica (tabela + busca + ação de novo cadastro).
  *
- * Alimentada por configuração (ver `src/lib/telas.tsx`), permite materializar
- * dezenas de telas tabulares sem duplicar layout. Os dados são de exemplo até
- * a API expor os recursos correspondentes.
+ * Clicar numa linha abre um modal com todos os campos daquele registro — assim
+ * todas as telas alimentadas por configuração ganham detalhe sem código extra.
+ * Os dados são de exemplo até a API expor os recursos correspondentes.
  */
 export function PaginaDeListagem({ config }: { config: ConfigDeListagem }) {
   const [busca, definirBusca] = useState('');
   const [avisoNovo, definirAvisoNovo] = useState(false);
+  const [selecionada, definirSelecionada] = useState<CelulaDeListagem[] | null>(null);
   const termo = normalizar(busca.trim());
 
   const linhasFiltradas = useMemo(() => {
@@ -92,7 +98,7 @@ export function PaginaDeListagem({ config }: { config: ConfigDeListagem }) {
 
         <Painel
           titulo={config.titulo}
-          descricao="Dados de exemplo"
+          descricao="Dados de exemplo · clique numa linha para ver os detalhes"
           semPreenchimento
           rodape={
             <span className="texto-suave">
@@ -118,11 +124,25 @@ export function PaginaDeListagem({ config }: { config: ConfigDeListagem }) {
                         {coluna.titulo}
                       </th>
                     ))}
+                    <th aria-hidden="true" />
                   </tr>
                 </thead>
                 <tbody>
                   {linhasFiltradas.map((linha, indice) => (
-                    <tr key={indice}>
+                    <tr
+                      key={indice}
+                      className="linha-clicavel"
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`Ver detalhes de ${textoDaCelula(linha[0])}`}
+                      onClick={() => definirSelecionada(linha)}
+                      onKeyDown={(evento) => {
+                        if (evento.key === 'Enter' || evento.key === ' ') {
+                          evento.preventDefault();
+                          definirSelecionada(linha);
+                        }
+                      }}
+                    >
                       {linha.map((celula, coluna) => {
                         const def = config.colunas[coluna];
                         const classe = [
@@ -133,14 +153,13 @@ export function PaginaDeListagem({ config }: { config: ConfigDeListagem }) {
                           .join(' ');
                         return (
                           <td key={coluna} className={classe || undefined}>
-                            {ehSelo(celula) ? (
-                              <Selo texto={celula.selo.texto} tom={celula.selo.tom} />
-                            ) : (
-                              celula
-                            )}
+                            {renderizarCelula(celula)}
                           </td>
                         );
                       })}
+                      <td className="celula-detalhe" aria-hidden="true">
+                        ›
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -149,6 +168,33 @@ export function PaginaDeListagem({ config }: { config: ConfigDeListagem }) {
           )}
         </Painel>
       </div>
+
+      {selecionada && (
+        <Modal
+          titulo={textoDaCelula(selecionada[0])}
+          descricao={config.titulo}
+          aoFechar={() => definirSelecionada(null)}
+          rodape={
+            <div className="linha linha--entre" style={{ width: '100%' }}>
+              <span className="texto-fraco">Registro de exemplo</span>
+              <button type="button" className="botao" onClick={() => definirSelecionada(null)}>
+                Fechar
+              </button>
+            </div>
+          }
+        >
+          <dl className="detalhes">
+            {config.colunas.map((coluna, i) => (
+              <div key={coluna.titulo} className="detalhes__item">
+                <dt>{coluna.titulo}</dt>
+                <dd className={coluna.numerico ? 'numerico' : undefined}>
+                  {selecionada[i] !== undefined ? renderizarCelula(selecionada[i]) : '—'}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </Modal>
+      )}
     </>
   );
 }
