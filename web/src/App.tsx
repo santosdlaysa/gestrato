@@ -14,7 +14,7 @@ import { Relatorios } from '@/paginas/Relatorios';
 import { Clientes } from '@/paginas/Clientes';
 import { Lotes } from '@/paginas/Lotes';
 import { MapaDoLoteamento } from '@/paginas/MapaDoLoteamento';
-import { EmConstrucao } from '@/paginas/EmConstrucao';
+import { Tela } from '@/paginas/Tela';
 import { NaoEncontrada } from '@/paginas/NaoEncontrada';
 import { caminhosUnicos } from '@/lib/navegacao';
 
@@ -54,7 +54,7 @@ export function App() {
           <Route
             key={caminho}
             path={caminho}
-            element={PAGINAS_PRONTAS[caminho] ?? <EmConstrucao />}
+            element={PAGINAS_PRONTAS[caminho] ?? <Tela />}
           />
         ))}
 
