@@ -48,6 +48,19 @@ export const ambiente = {
   armazenamentoDeArquivos: texto('ARMAZENAMENTO_ARQUIVOS', 'local'),
   diretorioDeArquivos: texto('ARMAZENAMENTO_DIRETORIO', './arquivos'),
   ambienteDeExecucao: texto('NODE_ENV', 'development'),
+  /**
+   * Credenciais do Twilio, usadas só quando MENSAGERIA_PROVIDER=twilio.
+   * Ficam com padrão vazio para não travar a subida de quem usa o console;
+   * o adaptador valida a presença ao ser instanciado.
+   */
+  twilio: {
+    accountSid: texto('TWILIO_ACCOUNT_SID', ''),
+    authToken: texto('TWILIO_AUTH_TOKEN', ''),
+    /** Remetente de WhatsApp no Twilio, ex.: +14155238886. Vazio desliga o canal. */
+    whatsappFrom: texto('TWILIO_WHATSAPP_FROM', ''),
+    /** Remetente de SMS no Twilio, ex.: +12025550123. Vazio desliga o canal. */
+    smsFrom: texto('TWILIO_SMS_FROM', ''),
+  },
 } as const;
 
 export function estaEmProducao(): boolean {

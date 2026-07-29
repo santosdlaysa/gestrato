@@ -43,6 +43,9 @@ export function LinhaDeParcela({
   const atraso = diasDeAtraso(parcela);
   const contratoId = idDoContrato(parcela);
   const temDocumento = Boolean(parcela.documentoVigente);
+  // Emitir/cobrar/baixar só fazem sentido em parcela em aberto (não PAGA,
+  // CANCELADA nem RENEGOCIADA); nos demais o backend recusa a operação.
+  const emAberto = estaEmAberto(parcela);
 
   return (
     <tr className={classeDaLinha(parcela, selecionada)}>
@@ -90,7 +93,7 @@ export function LinhaDeParcela({
         )}
       </td>
       <td className="acoes">
-        {permissoes.emitir && (
+        {permissoes.emitir && emAberto && (
           <button
             type="button"
             className="botao botao--fantasma botao--pequeno"
@@ -99,7 +102,7 @@ export function LinhaDeParcela({
             {temDocumento ? 'Reemitir' : 'Emitir'}
           </button>
         )}
-        {permissoes.cobrar && (
+        {permissoes.cobrar && emAberto && (
           <button
             type="button"
             className="botao botao--fantasma botao--pequeno"
@@ -108,7 +111,7 @@ export function LinhaDeParcela({
             Cobrar
           </button>
         )}
-        {permissoes.baixar && parcela.status !== 'PAGA' && (
+        {permissoes.baixar && emAberto && (
           <button
             type="button"
             className="botao botao--fantasma botao--pequeno"

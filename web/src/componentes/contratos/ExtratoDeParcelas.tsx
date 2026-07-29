@@ -1,7 +1,7 @@
 import { Selo } from '@/componentes/comuns/Selo';
 import { formatarData, formatarDinheiro, rotularEnum } from '@/lib/formato';
 import { seloDaSituacaoDaParcela } from '@/lib/rotulos';
-import { classeDaLinha, valorAtualizadoCentavos } from '@/lib/parcela';
+import { classeDaLinha, estaEmAberto, valorAtualizadoCentavos } from '@/lib/parcela';
 import type { Parcela, ParcelaDeCobranca } from '@/tipos/parcela';
 
 interface Props {
@@ -40,7 +40,10 @@ export function ExtratoDeParcelas({
           {parcelas.map((parcela) => {
             const selo = seloDaSituacaoDaParcela(parcela.situacao);
             const atraso = parcela.demonstrativo?.diasDeAtraso ?? 0;
-            const emAberto = parcela.status !== 'PAGA' && parcela.status !== 'RENEGOCIADA';
+            // Só parcela em aberto pode receber documento/baixa. O check tem de
+            // excluir CANCELADA também (contratos cancelados/distratados), senão
+            // o botão "Emitir" aparece e o backend recusa com "não há o que cobrar".
+            const emAberto = estaEmAberto(parcela);
             return (
               <tr key={parcela.id} className={classeDaLinha(parcela, false)}>
                 <td className="numerico">{parcela.numero}</td>

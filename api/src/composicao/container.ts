@@ -39,6 +39,7 @@ import { ambiente } from '../infrastructure/config/ambiente.js';
 import { GeradorDeUuid, RelogioDoSistema } from '../infrastructure/comuns/relogio-do-sistema.js';
 import { GatewayDeCobrancaFake } from '../infrastructure/gateways/gateway-fake.js';
 import { MensageriaConsole } from '../infrastructure/mensageria/mensageria-console.js';
+import { MensageriaTwilio } from '../infrastructure/mensageria/mensageria-twilio.js';
 import { prisma } from '../infrastructure/persistence/prisma/cliente-prisma.js';
 import { ConsultaDeContextoDeCobrancaPrisma } from '../infrastructure/persistence/prisma/consultas/contexto-de-cobranca.consulta.js';
 import { ConsultasDePainelPrisma } from '../infrastructure/persistence/prisma/consultas/painel.consulta.js';
@@ -226,6 +227,8 @@ function escolherMensageria(): Mensageria {
   switch (ambiente.provedorDeMensageria) {
     case 'console':
       return new MensageriaConsole();
+    case 'twilio':
+      return new MensageriaTwilio(ambiente.twilio);
     default:
       throw new Error(
         `Provedor de mensageria "${ambiente.provedorDeMensageria}" nao implementado. ` +
