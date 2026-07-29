@@ -10,12 +10,25 @@ function caminhoDaColecao(escopo: EscopoDeAnexo, donoId: string): string {
   return `/${RECURSO_DO_ESCOPO[escopo]}/${donoId}/anexos`;
 }
 
-export function listarAnexos(
+/**
+ * Resposta do endpoint de listagem de anexos.
+ *
+ * O backend embrulha os itens junto de metadados (categorias e tamanho máximo),
+ * então desembrulhamos aqui para manter o contrato público em `Anexo[]`.
+ */
+interface RespostaDeAnexos {
+  itens: Anexo[];
+  categoriasDisponiveis?: { valor: string; rotulo: string }[];
+  tamanhoMaximoBytes?: number;
+}
+
+export async function listarAnexos(
   escopo: EscopoDeAnexo,
   donoId: string,
   sinal?: AbortSignal,
 ): Promise<Anexo[]> {
-  return requisitar<Anexo[]>(caminhoDaColecao(escopo, donoId), { sinal });
+  const resposta = await requisitar<RespostaDeAnexos>(caminhoDaColecao(escopo, donoId), { sinal });
+  return resposta?.itens ?? [];
 }
 
 export function enviarAnexo(

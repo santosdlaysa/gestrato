@@ -53,7 +53,11 @@ export function ExtratoDeParcelas({
                 </td>
                 <td className="numerico">{formatarDinheiro(parcela.valorPagoCentavos)}</td>
                 <td className="numerico">
-                  {atraso > 0 ? <span className="texto-vencido">{atraso}</span> : '—'}
+                  {atraso > 0 && emAberto ? (
+                    <span className="texto-vencido">{atraso}</span>
+                  ) : (
+                    '—'
+                  )}
                 </td>
                 <td>
                   <Selo texto={selo.texto} tom={selo.tom} />

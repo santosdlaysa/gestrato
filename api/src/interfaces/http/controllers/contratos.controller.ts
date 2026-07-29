@@ -118,13 +118,24 @@ export class ControladorDeContratos {
     );
   };
 
+  // GET /contratos/:id — devolve o contrato "plano" (mesmos campos da listagem)
+  // acrescido de `cliente` e `posicao`. As parcelas ficam no /extrato: quem abre
+  // o detalhe busca as duas coisas em paralelo. Retornar aqui o envelope do
+  // extrato deixava `numero` e `dataAssinatura` aninhados em `.contrato`, e a
+  // tela lia esses campos no topo — dai o "Contrato undefined".
   obter = async (requisicao: RequisicaoAutenticada, resposta: Response): Promise<void> => {
+    const id = esquemaDeIdentificador.parse(requisicao.params.id);
+    const data = esquemaDeFiltroDeContratos.shape.data.parse(requisicao.query.data);
+    const envelope = apresentarExtrato(await this.casosDeUso.obterExtrato.executar(id, data));
+    resposta.json({ ...envelope.contrato, cliente: envelope.cliente, posicao: envelope.posicao });
+  };
+
+  // GET /contratos/:id/extrato — envelope completo, com as parcelas apuradas.
+  extrato = async (requisicao: RequisicaoAutenticada, resposta: Response): Promise<void> => {
     const id = esquemaDeIdentificador.parse(requisicao.params.id);
     const data = esquemaDeFiltroDeContratos.shape.data.parse(requisicao.query.data);
     resposta.json(apresentarExtrato(await this.casosDeUso.obterExtrato.executar(id, data)));
   };
-
-  extrato = this.obter;
 
   atualizar = async (requisicao: RequisicaoAutenticada, resposta: Response): Promise<void> => {
     const id = esquemaDeIdentificador.parse(requisicao.params.id);

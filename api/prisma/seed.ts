@@ -1118,6 +1118,21 @@ interface OpcoesDeParcela {
   renegociacaoId?: string | null;
 }
 
+/** Parte "cobranca" de uma parcela: o que varia por cenario, sem os campos de identidade. */
+type EstadoDaParcela = { status: StatusParcela } & Partial<
+  Pick<
+    OpcoesDeParcela,
+    | 'valorPagoCentavos'
+    | 'jurosRecebidosCentavos'
+    | 'multaRecebidaCentavos'
+    | 'descontoConcedidoCentavos'
+    | 'pagoEm'
+    | 'formaPagamento'
+    | 'renegociacaoOrigemId'
+    | 'renegociacaoId'
+  >
+>;
+
 async function inserirParcela(opcoes: OpcoesDeParcela): Promise<string> {
   const id = identificador(`parcela:${opcoes.numeroContrato}:${opcoes.tipo}:${opcoes.numero}`);
   const dados = {
@@ -1684,7 +1699,7 @@ async function semearCenariosDeStatus(
     for (let indice = 0; indice < qtd; indice += 1) {
       const numeroParcela = indice + 1;
       const venc = vencimentoDoPlano(primeiro, indice, periodicidade);
-      let estado: Partial<OpcoesDeParcela> = { status: 'PENDENTE' };
+      let estado: EstadoDaParcela = { status: 'PENDENTE' };
       if (numeroParcela <= 3) {
         estado = {
           status: 'PAGA',
@@ -1714,7 +1729,7 @@ async function semearCenariosDeStatus(
         valorOriginalCentavos: valorParcela,
         vencimento: venc,
         descricao: `Parcela ${numeroParcela}/${qtd}`,
-        ...(estado as OpcoesDeParcela),
+        ...estado,
       });
       idsDasParcelas.push(parcelaId);
 
@@ -1975,7 +1990,7 @@ async function semearCenariosDeStatus(
     for (let indice = 0; indice < qtd; indice += 1) {
       const numeroParcela = indice + 1;
       const venc = vencimentoDoPlano(primeiro, indice, 'MENSAL');
-      let extra: Partial<OpcoesDeParcela> = { status: 'PENDENTE' };
+      let extra: EstadoDaParcela = { status: 'PENDENTE' };
       if (numeroParcela <= 2) {
         extra = { status: 'PAGA', valorPagoCentavos: valorParcela, pagoEm: venc, formaPagamento: 'PIX' };
       } else if (numeroParcela <= 5) {
@@ -1989,7 +2004,7 @@ async function semearCenariosDeStatus(
         valorOriginalCentavos: valorParcela,
         vencimento: venc,
         descricao: `Parcela ${numeroParcela}/${qtd}`,
-        ...(extra as OpcoesDeParcela),
+        ...extra,
       });
       if (numeroParcela <= 2) {
         await inserirPagamento({

@@ -6,6 +6,7 @@ import {
   classeDaLinha,
   descricaoDoImovel,
   diasDeAtraso,
+  estaEmAberto,
   idDoContrato,
   nomeDoCliente,
   numeroDoContrato,
@@ -72,7 +73,11 @@ export function LinhaDeParcela({
         <strong>{formatarDinheiro(valorAtualizadoCentavos(parcela))}</strong>
       </td>
       <td className="numerico">
-        {atraso > 0 ? <span className="texto-vencido">{atraso}</span> : <span>—</span>}
+        {atraso > 0 && estaEmAberto(parcela) ? (
+          <span className="texto-vencido">{atraso}</span>
+        ) : (
+          <span>—</span>
+        )}
       </td>
       <td>
         <Selo texto={selo.texto} tom={selo.tom} />
