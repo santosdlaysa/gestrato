@@ -589,3 +589,182 @@
   font-size: 12px;
   color: var(--texto-suave);
 }
+
+/* ---------- Em construção ---------- */
+
+.selo--construcao {
+  background: var(--atencao-fundo);
+  color: var(--atencao);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.em-construcao {
+  max-width: 460px;
+  margin: 40px auto;
+  padding: 32px;
+  text-align: center;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  box-shadow: var(--sombra);
+}
+
+.em-construcao__icone {
+  display: inline-grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 16px;
+  border-radius: 14px;
+  color: var(--primaria);
+  background: var(--primaria-clara);
+}
+
+.em-construcao__titulo {
+  margin: 12px 0 8px;
+  font-size: 18px;
+}
+
+.em-construcao__texto {
+  margin: 0 auto 20px;
+  max-width: 40ch;
+  color: var(--texto-suave);
+  font-size: 13px;
+}
+
+/* ---------- Mapa do loteamento ---------- */
+
+.mapa-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+
+.mapa-legenda__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--texto-suave);
+}
+
+.mapa-legenda__item strong {
+  color: var(--texto);
+  font-variant-numeric: tabular-nums;
+}
+
+.mapa-legenda__cor {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.mapa-planta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 16px;
+  align-items: start;
+}
+
+.mapa-quadras {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.mapa-quadra {
+  padding: 12px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+
+.mapa-quadra__titulo {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--texto-suave);
+  margin-bottom: 10px;
+}
+
+.mapa-quadra__lotes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
+  gap: 5px;
+}
+
+.mapa-lote {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+.mapa-lote:hover {
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 2px 8px rgba(16, 32, 48, 0.25);
+}
+
+.mapa-lote--ativo {
+  outline: 3px solid var(--texto);
+  outline-offset: 1px;
+}
+
+.mapa-detalhe {
+  position: sticky;
+  top: 16px;
+  padding: 16px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mapa-detalhe__cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mapa-detalhe__marcador {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  flex: none;
+}
+
+.mapa-detalhe__cabecalho strong {
+  display: block;
+  font-size: 13px;
+}
+
+.mapa-detalhe__cabecalho span {
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .mapa-planta {
+    grid-template-columns: 1fr;
+  }
+  .mapa-detalhe {
+    position: static;
+  }
+}
