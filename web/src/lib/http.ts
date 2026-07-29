@@ -1,10 +1,20 @@
 import type { CorpoDeErro } from '@/tipos/comum';
 import { lerToken, limparSessao } from './armazenamento';
 
-// Em desenvolvimento, o proxy do Vite encaminha "/api" para o servidor local.
-// Em producao (Vercel) defina VITE_API_URL com a URL publica da API, ex.:
-// "https://sua-api.onrender.com/api". A barra final e removida para evitar "//".
-const BASE = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
+// Base das chamadas HTTP. Em desenvolvimento o proxy do Vite encaminha "/api"
+// para o servidor local, entao VITE_API_URL pode ficar vazia. Em producao
+// (Vercel) defina VITE_API_URL com a URL da API.
+//
+// Tolerante de proposito: aceita o host com ou sem "/api" e sempre garante o
+// sufixo "/api" (a API monta todas as rotas sob esse prefixo). Assim tanto
+// "https://sua-api.onrender.com" quanto ".../api" funcionam.
+function resolverBase(): string {
+  const bruto = (import.meta.env.VITE_API_URL ?? '').trim().replace(/\/+$/, '');
+  if (!bruto) return '/api';
+  return /\/api$/.test(bruto) ? bruto : `${bruto}/api`;
+}
+
+const BASE = resolverBase();
 
 export class ErroDaApi extends Error {
   constructor(
