@@ -29,6 +29,33 @@ export interface Modulo {
 
 export const MODULOS: Modulo[] = [
   {
+    id: 'cobrancas',
+    titulo: 'Cobranças',
+    secoes: [
+      {
+        subtitulo: 'Estratégia',
+        itens: [
+          { texto: 'Régua de cobrança', para: '/regua' },
+          { texto: 'Cobrança manual', para: '/cobrancas/manual' },
+          { texto: 'Cobrança automática', para: '/cobrancas/automatica' },
+          { texto: 'Cobrança jurídica', para: '/cobrancas/juridica' },
+          { texto: 'Histórico de envios', para: '/cobrancas' },
+        ],
+      },
+      {
+        subtitulo: 'Canais',
+        itens: [
+          { texto: 'WhatsApp', para: '/cobrancas/whatsapp' },
+          { texto: 'SMS', para: '/cobrancas/sms' },
+          { texto: 'E-mail', para: '/cobrancas/email' },
+          { texto: 'Ligações', para: '/cobrancas/ligacoes' },
+          { texto: 'Cartas', para: '/cobrancas/cartas' },
+          { texto: 'Notificações', para: '/cobrancas/notificacoes' },
+        ],
+      },
+    ],
+  },
+  {
     id: 'dashboard',
     titulo: 'Dashboard',
     secoes: [
@@ -222,33 +249,6 @@ export const MODULOS: Modulo[] = [
           { texto: 'Multa', para: '/parcelas/multa' },
           { texto: 'Correção monetária', para: '/parcelas/correcao' },
           { texto: 'Descontos', para: '/parcelas/descontos' },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'cobrancas',
-    titulo: 'Cobranças',
-    secoes: [
-      {
-        subtitulo: 'Estratégia',
-        itens: [
-          { texto: 'Régua de cobrança', para: '/regua' },
-          { texto: 'Cobrança manual', para: '/cobrancas/manual' },
-          { texto: 'Cobrança automática', para: '/cobrancas/automatica' },
-          { texto: 'Cobrança jurídica', para: '/cobrancas/juridica' },
-          { texto: 'Histórico de envios', para: '/cobrancas' },
-        ],
-      },
-      {
-        subtitulo: 'Canais',
-        itens: [
-          { texto: 'WhatsApp', para: '/cobrancas/whatsapp' },
-          { texto: 'SMS', para: '/cobrancas/sms' },
-          { texto: 'E-mail', para: '/cobrancas/email' },
-          { texto: 'Ligações', para: '/cobrancas/ligacoes' },
-          { texto: 'Cartas', para: '/cobrancas/cartas' },
-          { texto: 'Notificações', para: '/cobrancas/notificacoes' },
         ],
       },
     ],
