@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Gestrato — Manual do Usuário</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm 20mm 16mm;
+  }
+
+  :root {
+    --tinta: #17202a;
+    --tinta-suave: #4a5763;
+    --linha: #d8dee5;
+    --realce: #0f5a8f;
+    --vencido: #b3261e;
+    --hoje: #9a6700;
+    --pago: #1c6b3f;
+    --fundo-suave: #f4f7f9;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: var(--tinta);
+  }
+
+  h1, h2, h3, h4 { line-height: 1.25; margin: 0 0 .4em; }
+  h1 { font-size: 22pt; letter-spacing: -.01em; }
+  h2 {
+    font-size: 15pt;
+    margin-top: 1.6em;
+    padding-bottom: .25em;
+    border-bottom: 2px solid var(--realce);
+    color: var(--realce);
+  }
+  h3 { font-size: 12pt; margin-top: 1.4em; }
+  h4 { font-size: 10.5pt; margin-top: 1.1em; color: var(--tinta-suave); text-transform: uppercase; letter-spacing: .04em; }
+  p { margin: 0 0 .7em; }
+  ul, ol { margin: 0 0 .8em; padding-left: 1.3em; }
+  li { margin-bottom: .3em; }
+  strong { font-weight: 600; }
+  code {
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: .92em;
+    background: var(--fundo-suave);
+    padding: .08em .3em;
+    border-radius: 3px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: .6em 0 1em;
+    font-size: 9.5pt;
+  }
+  th, td {
+    border: 1px solid var(--linha);
+    padding: .45em .6em;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: var(--fundo-suave); font-weight: 600; }
+  td.numero { text-align: right; white-space: nowrap; }
+
+  .capa {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .capa .marca {
+    font-size: 40pt;
+    font-weight: 700;
+    letter-spacing: -.03em;
+    color: var(--realce);
+    margin-bottom: .1em;
+  }
+  .capa .subtitulo { font-size: 16pt; color: var(--tinta-suave); margin-bottom: 2.5em; }
+  .capa .descricao { font-size: 11pt; max-width: 118mm; color: var(--tinta-suave); }
+  .capa .rodape {
+    margin-top: auto;
+    font-size: 9.5pt;
+    color: var(--tinta-suave);
+    border-top: 1px solid var(--linha);
+    padding-top: .8em;
+  }
+
+  .sumario ol { list-style: none; padding: 0; counter-reset: secao; }
+  .sumario > ol > li {
+    counter-increment: secao;
+    padding: .35em 0;
+    border-bottom: 1px dotted var(--linha);
+    font-weight: 600;
+  }
+  .sumario > ol > li::before { content: counter(secao) ". "; color: var(--realce); }
+  .sumario ul { list-style: none; padding-left: 1.4em; margin: .3em 0 .1em; font-weight: 400; font-size: 9.5pt; color: var(--tinta-suave); }
+
+  .aviso, .atencao, .dica {
+    border-left: 4px solid var(--realce);
+    background: var(--fundo-suave);
+    padding: .7em .9em;
+    margin: .9em 0;
+    page-break-inside: avoid;
+  }
+  .atencao { border-left-color: var(--vencido); background: #fdf3f2; }
+  .dica { border-left-color: var(--pago); background: #f2f9f5; }
+  .aviso p:last-child, .atencao p:last-child, .dica p:last-child { margin-bottom: 0; }
+  .rotulo {
+    display: block;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: .25em;
+    color: var(--realce);
+  }
+  .atencao .rotulo { color: var(--vencido); }
+  .dica .rotulo { color: var(--pago); }
+
+  .selo {
+    display: inline-block;
+    font-size: 8.5pt;
+    font-weight: 600;
+    padding: .1em .5em;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .selo--vencido { background: #fbe9e7; color: var(--vencido); }
+  .selo--hoje { background: #fdf4e3; color: var(--hoje); }
+  .selo--pago { background: #e8f5ee; color: var(--pago); }
+  .selo--neutro { background: #eceff2; color: var(--tinta-suave); }
+
+  .passos { counter-reset: passo; list-style: none; padding-left: 0; }
+  .passos > li {
+    counter-increment: passo;
+    position: relative;
+    padding-left: 2.1em;
+    margin-bottom: .55em;
+  }
+  .passos > li::before {
+    content: counter(passo);
+    position: absolute;
+    left: 0;
+    top: .05em;
+    width: 1.5em;
+    height: 1.5em;
+    line-height: 1.5em;
+    text-align: center;
+    background: var(--realce);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 8.5pt;
+    font-weight: 700;
+  }
+
+  h2, h3, h4 { page-break-after: avoid; }
+  table, .passos, .exemplo { page-break-inside: avoid; }
+
+  .exemplo {
+    border: 1px solid var(--linha);
+    border-radius: 4px;
+    padding: .8em 1em;
+    margin: .9em 0;
+    background: #fbfcfd;
+  }
+  .exemplo .titulo-exemplo {
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--tinta-suave);
+    font-weight: 700;
+    margin-bottom: .5em;
+  }
+  .conta { font-family: "Consolas", "Courier New", monospace; font-size: 9.5pt; }
+  .conta div { display: flex; justify-content: space-between; padding: .12em 0; }
+  .conta .total { border-top: 1px solid var(--linha); margin-top: .3em; padding-top: .3em; font-weight: 700; }
+
+  dl { margin: .5em 0 1em; }
+  dt { font-weight: 600; margin-top: .6em; }
+  dd { margin: .15em 0 0 0; color: var(--tinta-suave); }
+
+  /* ------------------------------------------------------------------
+     Tela e impressao pedem coisas diferentes.
+
+     No papel, cada secao comeca em pagina nova e a capa ocupa a folha
+     inteira. Na tela isso nao existe: sem estas regras o documento vira
+     um bloco unico de texto colado nas bordas da janela. Aqui a tela
+     recebe folhas centralizadas, com largura de leitura confortavel e
+     separacao visual entre as secoes.
+     ------------------------------------------------------------------ */
+
+  @media screen {
+    body {
+      background: #e9edf1;
+      padding: 32px 16px 64px;
+      font-size: 11.5pt;
+    }
+
+    body > section {
+      max-width: 190mm;
+      margin: 0 auto 28px;
+      background: #fff;
+      padding: 24mm 20mm;
+      border-radius: 5px;
+      box-shadow: 0 2px 12px rgba(23, 32, 42, .13);
+    }
+
+    .capa {
+      min-height: 148mm;
+      background: linear-gradient(160deg, #fff 55%, var(--fundo-suave));
+    }
+    .capa .rodape { margin-top: 5em; }
+
+    /* Marca discreta de onde comeca cada secao, ja que nao ha quebra de pagina. */
+    .secao > h1 {
+      margin-top: 0;
+      padding-bottom: .3em;
+      border-bottom: 3px solid var(--realce);
+    }
+  }
+
+  @media print {
+    .capa { height: 245mm; page-break-after: always; }
+    .sumario { page-break-after: always; }
+    .secao { page-break-before: always; }
+  }
+</style>
+</head>
+<body>
+
+<section class="capa">
+  <div class="marca">Gestrato</div>
+  <div class="subtitulo">Gestão de Contratos e Cobranças para Loteamentos</div>
+  <p class="descricao">
+    Manual do usuário. Este documento ensina a operar o sistema no dia a dia:
+    cadastrar contratos, acompanhar parcelas, emitir boletos e Pix, configurar a
+    cobrança automática, dar baixa em pagamentos e interpretar os indicadores.
+  </p>
+  <div class="rodape">
+    Versão 1.0 &middot; Documento destinado às equipes financeira, comercial e administrativa
+  </div>
+</section>
+
+<section class="sumario">
+  <h1>Sumário</h1>
+  <ol>
+    <li>Visão geral
+      <ul><li>Para que serve &middot; Como o sistema pensa &middot; Perfis de acesso</li></ul>
+    </li>
+    <li>Primeiro acesso
+      <ul><li>Entrar &middot; O que cada perfil enxerga</li></ul>
+    </li>
+    <li>Painel
+      <ul><li>Indicadores &middot; Faixas de atraso &middot; O que olhar todo dia</li></ul>
+    </li>
+    <li>Cadastros
+      <ul><li>Clientes &middot; Loteamentos, quadras e lotes</li></ul>
+    </li>
+    <li>Contratos
+      <ul><li>Simular &middot; Cadastrar &middot; Geração das parcelas &middot; Extrato</li></ul>
+    </li>
+    <li>Cobrança no dia a dia
+      <ul><li>Tela de parcelas &middot; Filtros &middot; Ações em lote</li></ul>
+    </li>
+    <li>Boleto e Pix
+      <ul><li>Emitir &middot; Reemitir &middot; Por que o valor muda</li></ul>
+    </li>
+    <li>Régua de cobrança
+      <ul><li>Etapas &middot; Modelos de mensagem &middot; Simular e executar</li></ul>
+    </li>
+    <li>Recebimento
+      <ul><li>Baixa total &middot; Baixa parcial &middot; Estorno</li></ul>
+    </li>
+    <li>Renegociação, reajuste e encerramento</li>
+    <li>Relatórios</li>
+    <li>Rotina diária sugerida</li>
+    <li>Perguntas frequentes</li>
+    <li>Limitações da versão atual</li>
+    <li>Glossário</li>
+  </ol>
+</section>
+
+<section class="secao">
+<h1>1. Visão geral</h1>
+
+<h2>Para que serve</h2>
+<p>
+  O Gestrato controla o processo financeiro dos contratos de venda de lotes
+  parcelados. Ele guarda os contratos, gera automaticamente todas as parcelas,
+  acompanha vencimentos, calcula juros e multa, emite boleto e Pix, envia
+  cobrança ao cliente nas datas certas e registra tudo o que foi enviado.
+</p>
+<p>
+  O objetivo prático é reduzir inadimplência e eliminar o controle por planilha:
+  em vez de alguém lembrar de cobrar, o sistema cobra.
+</p>
+
+<h2>Como o sistema pensa</h2>
+<p>Três ideias explicam quase todo o comportamento do Gestrato. Vale entendê-las antes de usar.</p>
+
+<h3>O contrato é o centro</h3>
+<p>
+  Tudo nasce do contrato. Ao salvá-lo, o sistema cria <strong>todas</strong> as
+  parcelas de uma vez — entrada e financiamento, do primeiro ao último
+  vencimento. Não existe parcela solta: se ela existe, veio de um contrato.
+</p>
+
+<h3>"Vencida" é uma consequência do calendário</h3>
+<p>
+  O sistema não precisa de ninguém (nem de rotina noturna) para marcar parcela
+  como atrasada. Uma parcela em aberto cujo vencimento já passou <em>é</em>
+  vencida, ponto. O mesmo vale para o contrato: ele fica inadimplente enquanto
+  tiver parcela vencida, e volta a ficar em dia no instante em que ela é paga.
+</p>
+<div class="dica">
+  <span class="rotulo">Por que isso importa</span>
+  <p>
+    Você nunca vai encontrar um cliente marcado como inadimplente que já pagou,
+    nem um contrato "quitado" com parcela em aberto. O sistema não guarda essa
+    informação — ele a calcula toda vez que você abre a tela.
+  </p>
+</div>
+
+<h3>Valor devido muda todo dia</h3>
+<p>
+  A partir do vencimento, a parcela acumula multa (uma vez) e juros (por dia
+  corrido). Por isso o sistema mostra sempre <strong>dois valores</strong>: o
+  valor original da parcela e o valor atualizado de hoje. É o atualizado que vai
+  para o boleto.
+</p>
+
+<h2>Perfis de acesso</h2>
+<p>Cada usuário tem um perfil, e o perfil decide o que ele pode fazer. Botões que o perfil não permite simplesmente não aparecem.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:24%">O que pode fazer</th>
+      <th>Administrador</th>
+      <th>Financeiro</th>
+      <th>Vendedor</th>
+      <th>Consulta</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Ver painel e relatórios</td><td>Sim</td><td>Sim</td><td>Sim</td><td>Sim</td></tr>
+    <tr><td>Cadastrar clientes e lotes</td><td>Sim</td><td>Sim</td><td>Sim</td><td>—</td></tr>
+    <tr><td>Criar e gerir contratos</td><td>Sim</td><td>Sim</td><td>Sim</td><td>—</td></tr>
+    <tr><td>Emitir boleto e Pix</td><td>Sim</td><td>Sim</td><td>Sim</td><td>—</td></tr>
+    <tr><td>Enviar cobrança</td><td>Sim</td><td>Sim</td><td>—</td><td>—</td></tr>
+    <tr><td>Dar baixa e estornar</td><td>Sim</td><td>Sim</td><td>—</td><td>—</td></tr>
+    <tr><td>Configurar a régua</td><td>Sim</td><td>Sim</td><td>—</td><td>—</td></tr>
+    <tr><td>Renegociar dívida</td><td>Sim</td><td>Sim</td><td>—</td><td>—</td></tr>
+    <tr><td>Gerir usuários</td><td>Sim</td><td>—</td><td>—</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<div class="aviso">
+  <span class="rotulo">Regra de ouro</span>
+  <p>
+    Vendedor não dá baixa. Quem vende não confirma recebimento — é uma separação
+    de responsabilidades que protege a empresa e o próprio vendedor.
+  </p>
+</div>
+</section>
+
+<section class="secao">
+<h1>2. Primeiro acesso</h1>
+
+<ol class="passos">
+  <li>Abra o endereço do sistema no navegador.</li>
+  <li>Informe o e-mail e a senha que o administrador cadastrou para você.</li>
+  <li>Se a mensagem for "E-mail ou senha inválidos", confira os dois campos. O sistema não diz qual dos dois está errado, de propósito — isso evita que alguém descubra quais e-mails existem.</li>
+  <li>Depois de entrar, você cai direto no <strong>Painel</strong>.</li>
+</ol>
+
+<p>
+  A sessão expira após algumas horas de uso. Quando isso acontecer, o sistema
+  devolve você para a tela de entrada — basta entrar novamente, nada se perde.
+</p>
+
+<h2>O menu</h2>
+<dl>
+  <dt>Painel</dt><dd>Fotografia da carteira hoje. É a tela inicial.</dd>
+  <dt>Cobrança</dt><dd>A tela mais usada. Lista as parcelas e concentra todas as ações do dia.</dd>
+  <dt>Contratos</dt><dd>Lista, cadastro e extrato de cada contrato.</dd>
+  <dt>Régua</dt><dd>Configuração da cobrança automática e dos textos enviados.</dd>
+  <dt>Histórico</dt><dd>Tudo que já foi enviado a cada cliente.</dd>
+  <dt>Relatórios</dt><dd>Consultas consolidadas, com exportação para Excel.</dd>
+  <dt>Clientes e Lotes</dt><dd>Cadastros de apoio.</dd>
+</dl>
+</section>
+
+<section class="secao">
+<h1>3. Painel</h1>
+
+<p>O painel responde a uma pergunta: <em>como está a carteira hoje?</em> Cada indicador tem um significado exato — vale conhecê-los para não tirar conclusão errada.</p>
+
+<h2>Indicadores</h2>
+
+<table>
+  <thead><tr><th style="width:30%">Indicador</th><th>O que significa exatamente</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Total a receber</strong></td>
+      <td>Soma do que ainda falta pagar em todas as parcelas em aberto, <em>sem</em> juros e multa. É o tamanho da carteira.</td>
+    </tr>
+    <tr>
+      <td><strong>Total vencido</strong></td>
+      <td>Soma das parcelas já vencidas, <em>com</em> multa e juros de hoje. É o valor que você cobraria se todos pagassem agora.</td>
+    </tr>
+    <tr>
+      <td><strong>Contratos ativos</strong></td>
+      <td>Contratos que ainda geram cobrança. Não inclui quitados, cancelados nem distratados.</td>
+    </tr>
+    <tr>
+      <td><strong>Clientes inadimplentes</strong></td>
+      <td>Clientes distintos com ao menos uma parcela vencida. Um cliente com três contratos atrasados conta uma vez.</td>
+    </tr>
+    <tr>
+      <td><strong>% de inadimplência</strong></td>
+      <td>Fatia da carteira que está vencida: valor vencido dividido pelo total em aberto, <em>ambos sem juros e multa</em>. Fica sempre entre 0% e 100%.</td>
+    </tr>
+    <tr>
+      <td><strong>Taxa de recuperação</strong></td>
+      <td>Das parcelas que <em>venceram nos últimos 30 dias</em>, quanto do valor original já foi recebido. Mede a eficiência da cobrança recente.</td>
+    </tr>
+    <tr>
+      <td><strong>Cobranças enviadas</strong></td>
+      <td>Mensagens enviadas hoje e nos últimos 30 dias. Se aparecer contagem de falhas em âmbar, são mensagens que o provedor recusou e exigem ação manual.</td>
+    </tr>
+    <tr>
+      <td><strong>Recebido no mês</strong></td>
+      <td>Tudo que entrou no caixa na competência atual, incluindo juros e multa recebidos.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="atencao">
+  <span class="rotulo">Cuidado ao comparar</span>
+  <p>
+    A <strong>taxa de recuperação</strong> não sai de nenhum dos outros números.
+    Ela olha um grupo fechado (o que venceu nos últimos 30 dias), enquanto o
+    <strong>% de inadimplência</strong> olha a carteira inteira acumulada. É
+    normal os dois andarem em direções diferentes.
+  </p>
+</div>
+
+<h2>Faixas de atraso</h2>
+<p>
+  A tabela de faixas mostra a distribuição da dívida por tempo de atraso. É o
+  indicador mais útil para decidir prioridade: dívida nova costuma voltar
+  sozinha, dívida antiga não.
+</p>
+
+<table>
+  <thead><tr><th>Faixa</th><th>Leitura</th><th>Ação sugerida</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1 a 5 dias</strong></td><td>Esquecimento, boleto perdido, feriado bancário.</td><td>A régua resolve sozinha. Não interfira.</td></tr>
+    <tr><td><strong>6 a 15 dias</strong></td><td>Aperto de caixa momentâneo.</td><td>Acompanhe. A régua ainda está atuando.</td></tr>
+    <tr><td><strong>16 a 30 dias</strong></td><td>Começa a virar problema.</td><td>Ligação humana. Vale oferecer acordo.</td></tr>
+    <tr><td><strong>31 a 60 dias</strong></td><td>Inadimplência instalada.</td><td>Renegociação ativa.</td></tr>
+    <tr><td><strong>61 a 90 dias</strong></td><td>Risco alto.</td><td>Notificação formal.</td></tr>
+    <tr><td><strong>Mais de 90 dias</strong></td><td>Recuperação difícil.</td><td>Avaliar distrato.</td></tr>
+  </tbody>
+</table>
+</section>
+
+<section class="secao">
+<h1>4. Cadastros</h1>
+
+<p>São cadastros de apoio: existem para o contrato poder existir. Preencha bem os contatos — é por eles que a cobrança sai.</p>
+
+<h2>Clientes</h2>
+<p>Além do nome e do CPF/CNPJ, três campos merecem atenção:</p>
+
+<dl>
+  <dt>WhatsApp</dt>
+  <dd>Precisa ser <strong>celular com DDD</strong> (11 dígitos). É o canal preferido da régua. Sem ele, o cliente não recebe cobrança por WhatsApp.</dd>
+  <dt>E-mail</dt>
+  <dd>Canal alternativo e o único que carrega anexo bem. Sem e-mail e sem WhatsApp, o cliente fica invisível para a cobrança automática.</dd>
+  <dt>Endereço completo</dt>
+  <dd>Vai impresso no boleto. Endereço incompleto pode ser recusado pelo banco na emissão.</dd>
+</dl>
+
+<div class="aviso">
+  <span class="rotulo">Validação</span>
+  <p>
+    O CPF e o CNPJ são conferidos pelos dígitos verificadores. Documento
+    inválido é recusado no cadastro, não depois. E o mesmo documento não pode
+    ser cadastrado duas vezes.
+  </p>
+</div>
+
+<h2>Loteamentos, quadras e lotes</h2>
+<p>A estrutura é hierárquica: <strong>Loteamento → Quadra → Lote</strong>. Cadastre nessa ordem.</p>
+<p>Cada lote tem uma situação, e ela é controlada pelo sistema, não digitada por você:</p>
+
+<table>
+  <thead><tr><th>Situação</th><th>Quando acontece</th></tr></thead>
+  <tbody>
+    <tr><td><span class="selo selo--pago">Disponível</span></td><td>Ao cadastrar. Pode ser vendido.</td></tr>
+    <tr><td><span class="selo selo--hoje">Reservado</span></td><td>Reserva manual. Ainda pode virar contrato.</td></tr>
+    <tr><td><span class="selo selo--neutro">Vendido</span></td><td>Automático, ao criar um contrato para ele.</td></tr>
+  </tbody>
+</table>
+
+<p>
+  Ao cancelar ou distratar um contrato, o lote volta sozinho para
+  <em>Disponível</em>. Você não precisa (nem consegue) mexer nisso à mão.
+</p>
+</section>
+
+<section class="secao">
+<h1>5. Contratos</h1>
+
+<h2>Simule antes de salvar</h2>
+<p>
+  Na tela de novo contrato, conforme você preenche os valores, o sistema mostra
+  <strong>a lista completa das parcelas que serão geradas</strong>, com número,
+  valor e vencimento. Confira essa prévia com o cliente antes de salvar: é
+  exatamente o que será cobrado.
+</p>
+
+<h2>Campos do contrato</h2>
+
+<table>
+  <thead><tr><th style="width:28%">Campo</th><th>Como preencher</th></tr></thead>
+  <tbody>
+    <tr><td>Número do contrato</td><td>O número do contrato físico. Não pode repetir.</td></tr>
+    <tr><td>Cliente e lote</td><td>O lote precisa estar disponível ou reservado.</td></tr>
+    <tr><td>Valor total</td><td>Valor cheio da venda, incluindo a entrada.</td></tr>
+    <tr><td>Entrada e data</td><td>Se houver entrada, a data é obrigatória. Ela vira a <strong>parcela 0</strong>.</td></tr>
+    <tr><td>Quantidade de parcelas</td><td>Só do financiamento — a entrada não conta.</td></tr>
+    <tr><td>Valor da parcela</td><td>Opcional. Deixe em branco para o sistema dividir; preencha se o contrato assinado fixa um valor.</td></tr>
+    <tr><td>Primeiro vencimento</td><td>Vencimento da parcela 1. As demais seguem a periodicidade.</td></tr>
+    <tr><td>Periodicidade</td><td>Mensal, bimestral, trimestral, semestral ou anual.</td></tr>
+    <tr><td>Multa por atraso</td><td>Percentual cobrado <strong>uma vez</strong>. Padrão de mercado: 2%.</td></tr>
+    <tr><td>Juros ao mês</td><td>Percentual mensal cobrado <strong>por dia</strong> de atraso. Padrão: 1%.</td></tr>
+    <tr><td>Dias de carência</td><td>Tolerância antes de cobrar mora. Deixe 0 se não houver.</td></tr>
+    <tr><td>Índice de reajuste</td><td>IGPM, IPCA, INCC, INPC ou nenhum. Só habilita o reajuste; não busca o índice sozinho.</td></tr>
+  </tbody>
+</table>
+
+<h2>Como as parcelas são geradas</h2>
+<p>Ao salvar, o sistema cria todas as parcelas de uma vez, dentro de uma única operação — ou tudo é criado, ou nada é.</p>
+<ul>
+  <li>Havendo entrada, ela vira a <strong>parcela 0</strong>, vencendo na data da entrada.</li>
+  <li>O financiamento vira as parcelas <strong>1 até N</strong>, espaçadas pela periodicidade.</li>
+  <li>A soma de todas as parcelas é <strong>exatamente</strong> o valor total do contrato. Centavos de arredondamento são distribuídos nas últimas parcelas — nunca sobra nem falta um centavo.</li>
+  <li>Vencimento no dia 31 se ajusta ao último dia dos meses mais curtos (31/01 → 28/02).</li>
+</ul>
+
+<div class="exemplo">
+  <div class="titulo-exemplo">Exemplo — R$ 120.000,00 com entrada de R$ 20.000,00 em 7 parcelas</div>
+  <div class="conta">
+    <div><span>Parcela 0 (entrada)</span><span>R$ 20.000,00</span></div>
+    <div><span>Parcelas 1 a 6</span><span>R$ 14.285,71 cada</span></div>
+    <div><span>Parcela 7 (ajuste dos centavos)</span><span>R$ 14.285,74</span></div>
+    <div class="total"><span>Total</span><span>R$ 120.000,00</span></div>
+  </div>
+</div>
+
+<h2>Extrato do contrato</h2>
+<p>O extrato mostra a posição financeira no topo e a lista completa de parcelas abaixo, cada uma com sua situação:</p>
+
+<p>
+  <span class="selo selo--neutro">A vencer</span>
+  <span class="selo selo--hoje">Vence hoje</span>
+  <span class="selo selo--vencido">Vencida</span>
+  <span class="selo selo--pago">Paga</span>
+  <span class="selo selo--hoje">Paga parcial</span>
+  <span class="selo selo--neutro">Cancelada</span>
+  <span class="selo selo--neutro">Renegociada</span>
+</p>
+
+<p>
+  Parcelas <em>canceladas</em> e <em>renegociadas</em> continuam visíveis para
+  auditoria, mas não entram em nenhum total. Elas contam a história do contrato.
+</p>
+</section>
+
+<section class="secao">
+<h1>6. Cobrança no dia a dia</h1>
+
+<p>É a tela onde o financeiro passa o dia. Ela lista parcelas — não contratos — porque cobrança se faz parcela a parcela.</p>
+
+<h2>Filtros</h2>
+<dl>
+  <dt>Vencidas</dt><dd>Tudo em aberto com vencimento no passado. Sua fila de trabalho.</dd>
+  <dt>Vencem hoje</dt><dd>O que precisa de atenção antes do fim do expediente.</dd>
+  <dt>A vencer</dt><dd>O que ainda está no futuro. Útil para previsão.</dd>
+</dl>
+<p>Combine com período, cliente, contrato ou loteamento. Os filtros ficam no endereço da página — dá para salvar nos favoritos ou mandar o link para um colega.</p>
+
+<h2>Colunas que importam</h2>
+<table>
+  <thead><tr><th style="width:26%">Coluna</th><th>Leitura</th></tr></thead>
+  <tbody>
+    <tr><td>Valor original</td><td>O que constava no contrato.</td></tr>
+    <tr><td>Valor atualizado</td><td>Original + multa + juros de hoje. <strong>É esse que o cliente paga.</strong></td></tr>
+    <tr><td>Dias de atraso</td><td>Dias corridos desde o vencimento.</td></tr>
+    <tr><td>Situação</td><td>Calculada agora, não gravada.</td></tr>
+  </tbody>
+</table>
+
+<h2>Ações em lote</h2>
+<p>Selecione várias parcelas pelas caixas à esquerda e aplique a mesma ação a todas: emitir boleto/Pix ou enviar cobrança. É como se resolve uma fila de vencidos rapidamente.</p>
+
+<div class="dica">
+  <span class="rotulo">Boa prática</span>
+  <p>
+    Antes de disparar em lote, filtre por faixa de atraso. Cobrar quem está com
+    2 dias com o mesmo texto de quem está com 60 costuma irritar o cliente bom.
+  </p>
+</div>
+</section>
+
+<section class="secao">
+<h1>7. Boleto e Pix</h1>
+
+<h2>Emitir</h2>
+<p>Na linha da parcela, escolha o tipo de documento:</p>
+<ul>
+  <li><strong>Boleto com Pix</strong> — o mais usado. O cliente escolhe como pagar.</li>
+  <li><strong>Boleto</strong> — só linha digitável e código de barras.</li>
+  <li><strong>Pix</strong> — só o código copia-e-cola.</li>
+</ul>
+<p>O documento é gerado com o <strong>valor atualizado de hoje</strong>, e não com o valor original. Emitir uma parcela vencida pelo valor de contrato seria perdoar a mora sem querer.</p>
+
+<h2>Reemitir</h2>
+<p>Reemitir não altera o boleto anterior: ele é <strong>cancelado</strong> e um novo é criado. O histórico guarda os dois.</p>
+
+<div class="aviso">
+  <span class="rotulo">Por que não editar o boleto antigo</span>
+  <p>
+    Se o cliente pagar um boleto emitido há duas semanas, alguém vai precisar
+    conciliar a diferença. Só é possível fazer isso se o sistema souber
+    exatamente qual documento estava na mão do cliente em cada momento.
+  </p>
+</div>
+
+<h2>Por que o valor muda de um dia para o outro</h2>
+<p>Porque os juros correm por dia. A conta é sempre a mesma:</p>
+
+<div class="exemplo">
+  <div class="titulo-exemplo">Parcela de R$ 833,34 · multa 2% · juros 1% ao mês · 37 dias de atraso</div>
+  <div class="conta">
+    <div><span>Saldo da parcela</span><span>R$ 833,34</span></div>
+    <div><span>Multa — 2% sobre o saldo, cobrada uma única vez</span><span>R$ 16,67</span></div>
+    <div><span>Juros — 1% ÷ 30 dias × 37 dias</span><span>R$ 10,28</span></div>
+    <div class="total"><span>Valor atualizado</span><span>R$ 860,29</span></div>
+  </div>
+</div>
+
+<p>
+  Se o contrato tiver <strong>carência</strong>, os primeiros dias não contam. Com
+  5 dias de carência e 8 dias de atraso, os juros incidem sobre 3 dias — mas a
+  multa, quando aplicada, é integral.
+</p>
+</section>
+
+<section class="secao">
+<h1>8. Régua de cobrança</h1>
+
+<p>
+  A régua é o que faz o sistema cobrar sozinho. Ela é uma lista de etapas:
+  <em>quando</em> avisar, <em>por onde</em> e <em>com que texto</em>.
+</p>
+
+<h2>Etapas padrão</h2>
+<table>
+  <thead><tr><th>Quando</th><th>Canais</th><th>Texto</th></tr></thead>
+  <tbody>
+    <tr><td>5 dias antes do vencimento</td><td>WhatsApp, E-mail</td><td>Lembrete</td></tr>
+    <tr><td>1 dia antes</td><td>WhatsApp, SMS</td><td>Lembrete</td></tr>
+    <tr><td>No dia do vencimento</td><td>WhatsApp, E-mail</td><td>Vencimento</td></tr>
+    <tr><td>1 dia depois</td><td>WhatsApp, SMS</td><td>Atraso</td></tr>
+    <tr><td>5 dias depois</td><td>WhatsApp, E-mail</td><td>Atraso</td></tr>
+    <tr><td>10 dias depois</td><td>WhatsApp, E-mail</td><td>Atraso</td></tr>
+    <tr><td>30 dias depois</td><td>WhatsApp, E-mail</td><td>Atraso grave</td></tr>
+  </tbody>
+</table>
+
+<p>Você pode acrescentar, remover ou desativar etapas à vontade. Cada etapa tem:</p>
+
+<dl>
+  <dt>Canais, em ordem de preferência</dt>
+  <dd>O sistema usa o <strong>primeiro canal para o qual o cliente tem contato</strong>. Se não tem WhatsApp, tenta o próximo. Sem nenhum contato, a parcela aparece como "sem canal" no resultado — e aí alguém precisa ligar.</dd>
+
+  <dt>Emitir boleto/Pix junto</dt>
+  <dd>Ligado (padrão), a régua garante um documento com o valor atualizado <em>antes</em> de mandar a mensagem. É isso que faz o boleto e o Pix chegarem dentro do texto. Desligado, a mensagem sai sem meio de pagamento.</dd>
+
+  <dt>Modelo de mensagem</dt>
+  <dd>Qual texto usar naquela etapa.</dd>
+</dl>
+
+<h2>Textos das mensagens</h2>
+<p>Os textos são editáveis. Dentro deles, você usa variáveis entre chaves duplas, que o sistema troca pelos dados reais de cada cliente:</p>
+
+<table>
+  <thead><tr><th style="width:34%">Variável</th><th>Vira</th></tr></thead>
+  <tbody>
+    <tr><td><code>{{primeiroNome}}</code></td><td>Primeiro nome do cliente</td></tr>
+    <tr><td><code>{{contrato}}</code></td><td>Número do contrato</td></tr>
+    <tr><td><code>{{parcela}}</code> / <code>{{totalDeParcelas}}</code></td><td>Número da parcela e total</td></tr>
+    <tr><td><code>{{vencimento}}</code></td><td>Data no formato DD/MM/AAAA</td></tr>
+    <tr><td><code>{{valor}}</code></td><td>Valor original</td></tr>
+    <tr><td><code>{{valorAtualizado}}</code></td><td>Valor com multa e juros</td></tr>
+    <tr><td><code>{{multa}}</code> / <code>{{juros}}</code></td><td>Cada encargo separado</td></tr>
+    <tr><td><code>{{diasDeAtraso}}</code></td><td>Dias corridos de atraso</td></tr>
+    <tr><td><code>{{linhaDigitavel}}</code> / <code>{{pix}}</code></td><td>Meios de pagamento</td></tr>
+    <tr><td><code>{{loteamento}}</code> / <code>{{quadra}}</code> / <code>{{lote}}</code></td><td>Identificação do imóvel</td></tr>
+    <tr><td><code>{{empresa}}</code> / <code>{{link}}</code></td><td>Nome da loteadora e link de segunda via</td></tr>
+  </tbody>
+</table>
+
+<div class="atencao">
+  <span class="rotulo">Erro de digitação em variável</span>
+  <p>
+    Se você escrever <code>{{valorr}}</code>, o sistema recusa o texto na hora de
+    salvar e diz qual variável não existe. Melhor descobrir ali do que depois de
+    mandar quatrocentas mensagens com um buraco no meio.
+  </p>
+</div>
+
+<h2>Simular antes de disparar</h2>
+<p>
+  O botão <strong>Simular</strong> percorre exatamente o mesmo caminho da
+  execução real e mostra o que <em>seria</em> enviado — para quem, por qual canal,
+  com que valor — <strong>sem enviar nada e sem gravar nada</strong>. Use sempre
+  que mexer na régua.
+</p>
+
+<h2>Executar</h2>
+<p>O ciclo roda automaticamente uma vez por dia. Você também pode disparar manualmente. Ao final, o sistema informa:</p>
+<ul>
+  <li><strong>Enviadas</strong> — mensagens que saíram.</li>
+  <li><strong>Documentos emitidos</strong> — boletos/Pix gerados para acompanhar.</li>
+  <li><strong>Já enviadas antes</strong> — etapas que este cliente já recebeu e foram puladas.</li>
+  <li><strong>Sem canal</strong> — clientes sem contato cadastrado. <em>Exigem ação manual.</em></li>
+  <li><strong>Falhas</strong> — o provedor recusou. <em>Exigem ação manual.</em></li>
+</ul>
+
+<div class="dica">
+  <span class="rotulo">Pode rodar quantas vezes quiser</span>
+  <p>
+    Cada etapa só é enviada uma vez por parcela. Rodar o ciclo duas vezes no
+    mesmo dia, ou reprocessar uma data antiga, <strong>não</strong> manda mensagem
+    repetida ao cliente. Isso é garantido pelo sistema.
+  </p>
+</div>
+
+<h2>Aviso para a equipe</h2>
+<p>
+  Ao final do ciclo diário, a equipe recebe um resumo com quem <strong>entrou em
+  atraso naquele dia</strong> e quais cobranças não foram entregues. É a lista de
+  trabalho manual do dia. Simulações não geram aviso.
+</p>
+</section>
+
+<section class="secao">
+<h1>9. Recebimento</h1>
+
+<h2>Baixa de pagamento</h2>
+<p>Ao dar baixa, o sistema já mostra o demonstrativo do dia — principal, multa, juros e total. Preencha o que efetivamente entrou:</p>
+
+<ol class="passos">
+  <li>Confira o valor atualizado apresentado.</li>
+  <li>Informe quanto entrou de <strong>principal</strong>, de <strong>juros</strong> e de <strong>multa</strong>, separadamente.</li>
+  <li>Se concedeu abatimento, informe em <strong>desconto</strong>.</li>
+  <li>Informe a data do pagamento e a forma (Pix, boleto, dinheiro, transferência…).</li>
+  <li>Salve. O saldo restante aparece na tela na hora.</li>
+</ol>
+
+<div class="aviso">
+  <span class="rotulo">Por que separar os valores</span>
+  <p>
+    Porque o relatório de recebimentos precisa saber quanto foi amortização de
+    dívida e quanto foi receita de mora. Jogar tudo num campo só destrói essa
+    informação e distorce o resultado do mês.
+  </p>
+</div>
+
+<h2>Pagamento parcial</h2>
+<p>
+  O sistema aceita receber menos que o total. A parcela fica
+  <span class="selo selo--hoje">Paga parcial</span>, continua em aberto pelo
+  saldo e <strong>segue na régua de cobrança pelo valor restante</strong>. Juros e
+  multa passam a incidir só sobre o que falta.
+</p>
+
+<h2>Quitação automática do contrato</h2>
+<p>
+  Quando a última parcela em aberto é baixada, o contrato se quita sozinho. Não
+  existe botão de "marcar como quitado" para pular etapas: quitação é
+  consequência de recebimento.
+</p>
+
+<h2>Estorno</h2>
+<p>Errou a digitação, ou o pagamento voltou? O estorno desfaz as baixas da parcela e a devolve para pendente.</p>
+<ul>
+  <li>Os lançamentos <strong>não são apagados</strong> — ficam marcados como estornados. O relatório de caixa preserva a história completa.</li>
+  <li>Um boleto vigente daquela parcela é cancelado.</li>
+  <li>Se o contrato havia sido quitado por causa dela, ele <strong>volta a ativo</strong> — senão a régua deixaria de cobrar exatamente quem voltou a dever.</li>
+</ul>
+</section>
+
+<section class="secao">
+<h1>10. Renegociação, reajuste e encerramento</h1>
+
+<h2>Renegociação</h2>
+<p>Serve para transformar parcelas em atraso em um novo plano acordado com o cliente.</p>
+
+<ol class="passos">
+  <li>No contrato, selecione as parcelas em aberto que entram no acordo.</li>
+  <li>Escolha se os encargos (multa e juros) entram no valor negociado.</li>
+  <li>Informe desconto, se houver.</li>
+  <li>Confira o <strong>valor apurado</strong>. Ele é calculado pelo sistema a partir das parcelas — você não digita o total.</li>
+  <li>Defina entrada, quantidade de parcelas, primeiro vencimento e periodicidade.</li>
+  <li>Confirme.</li>
+</ol>
+
+<div class="aviso">
+  <span class="rotulo">O que acontece com as parcelas antigas</span>
+  <p>
+    Elas não somem: ficam marcadas como <em>Renegociadas</em> e continuam no
+    extrato, apontando para o acordo. As novas parcelas continuam a numeração do
+    contrato. Assim é sempre possível auditar o que virou o quê.
+  </p>
+</div>
+
+<h2>Reajuste</h2>
+<p>
+  Para contratos com índice previsto (IGPM, IPCA, INCC, INPC), informe o
+  percentual e a data a partir da qual ele vale. O sistema aplica apenas nas
+  parcelas <strong>ainda pendentes</strong> com vencimento a partir daquela data.
+  Parcela já paga não é tocada.
+</p>
+<div class="atencao">
+  <span class="rotulo">O percentual é digitado, não buscado</span>
+  <p>
+    O sistema não consulta o índice automaticamente. Qual índice, qual acumulado
+    e qual data-base são decisões contratuais que variam por contrato e precisam
+    de conferência humana.
+  </p>
+</div>
+
+<h2>Encerrar um contrato</h2>
+<table>
+  <thead><tr><th style="width:22%">Ação</th><th>Quando usar</th><th>O que o sistema faz</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Quitar</strong></td>
+      <td>Todas as parcelas foram pagas.</td>
+      <td>Marca como quitado. Recusa se houver parcela em aberto.</td>
+    </tr>
+    <tr>
+      <td><strong>Cancelar</strong></td>
+      <td>Venda desfeita antes de vigorar.</td>
+      <td>Cancela as parcelas em aberto e devolve o lote ao estoque.</td>
+    </tr>
+    <tr>
+      <td><strong>Distratar</strong></td>
+      <td>Rescisão formal de contrato em andamento.</td>
+      <td>Igual ao cancelamento, com registro distinto para relatório.</td>
+    </tr>
+  </tbody>
+</table>
+<p>Nos três casos a cobrança automática para imediatamente — o sistema nunca cobra contrato encerrado.</p>
+</section>
+
+<section class="secao">
+<h1>11. Relatórios</h1>
+
+<p>Todos podem ser exportados em CSV, que abre direto no Excel com acentuação correta.</p>
+
+<dl>
+  <dt>Inadimplência</dt>
+  <dd>Por loteamento, com distribuição por faixa de atraso. Responde: <em>onde está concentrado o problema?</em></dd>
+
+  <dt>Recebimentos</dt>
+  <dd>Por competência, separando principal, juros, multa e desconto, e quebrando por forma de pagamento. Base para conciliar o caixa.</dd>
+
+  <dt>Fluxo previsto</dt>
+  <dd>Quanto entra por mês daqui para frente, considerando as parcelas em aberto.</dd>
+
+  <dt>Clientes em atraso</dt>
+  <dd>Lista com contatos, valor atualizado e maior atraso, ordenada por valor. É a fila de ligação.</dd>
+
+  <dt>Cobranças realizadas</dt>
+  <dd>Tudo que foi enviado no período, com quebra por canal e por etapa da régua. Serve para comprovar que o cliente foi notificado e para medir a eficiência de cada canal.</dd>
+
+  <dt>Contratos</dt>
+  <dd>Lista com cliente, lote, valor, saldo e situação.</dd>
+
+  <dt>Comissões</dt>
+  <dd>Por corretor, com valor vendido e comissão prevista no período.</dd>
+</dl>
+</section>
+
+<section class="secao">
+<h1>12. Rotina diária sugerida</h1>
+
+<ol class="passos">
+  <li><strong>Abra o painel.</strong> Olhe o total vencido e a faixa de atraso. Dois minutos.</li>
+  <li><strong>Leia o aviso do ciclo.</strong> Ele traz quem entrou em atraso ontem e o que não foi entregue.</li>
+  <li><strong>Resolva as falhas e os "sem canal".</strong> São os únicos casos que o sistema não consegue tratar sozinho: atualize o contato ou ligue.</li>
+  <li><strong>Abra Cobrança, filtre por vencidas de 16 a 30 dias.</strong> É a faixa onde a ligação humana ainda faz diferença. Ofereça acordo.</li>
+  <li><strong>Dê baixa nos pagamentos do dia</strong> que não vieram por conciliação automática.</li>
+  <li><strong>Uma vez por semana</strong>, revise a faixa acima de 60 dias e decida entre renegociação e distrato.</li>
+</ol>
+
+<div class="dica">
+  <span class="rotulo">O que não fazer</span>
+  <p>
+    Não cobre manualmente quem está com poucos dias de atraso — a régua já está
+    cuidando disso, e a cobrança duplicada desgasta o cliente bom sem ganho
+    nenhum.
+  </p>
+</div>
+</section>
+
+<section class="secao">
+<h1>13. Perguntas frequentes</h1>
+
+<h3>O cliente diz que não recebeu a cobrança. Como confirmo?</h3>
+<p>Abra o <strong>Histórico</strong> e filtre pelo cliente. Cada envio aparece com data, canal, número ou e-mail de destino, o texto exato enviado e o status. Se houve falha, o motivo está registrado.</p>
+
+<h3>Emiti o boleto errado. E agora?</h3>
+<p>Reemita. O anterior é cancelado automaticamente e o novo sai com o valor correto do dia.</p>
+
+<h3>O cliente pagou um boleto antigo, com valor menor. O que faço?</h3>
+<p>Dê baixa pelo valor efetivamente recebido. A parcela fica como paga parcial e continua sendo cobrada pela diferença.</p>
+
+<h3>Rodei a régua duas vezes. Mandei mensagem repetida?</h3>
+<p>Não. Cada etapa é enviada uma única vez por parcela, e o sistema controla isso sozinho.</p>
+
+<h3>Por que um cliente aparece como "sem canal"?</h3>
+<p>Porque não há WhatsApp nem e-mail cadastrado — ou o número informado não é um celular válido. Corrija no cadastro do cliente.</p>
+
+<h3>Mudei a régua. Vale para os contratos que já existem?</h3>
+<p>Sim. A régua é uma configuração global, avaliada todo dia contra todas as parcelas em aberto.</p>
+
+<h3>Consigo cobrar antes de emitir o boleto?</h3>
+<p>Consegue, mas não deveria. Com a opção "Emitir boleto/Pix junto" ligada (padrão), o sistema resolve isso sozinho e a mensagem já sai com o meio de pagamento.</p>
+
+<h3>O contrato foi quitado por engano. Dá para voltar?</h3>
+<p>Sim. Estorne a baixa da parcela: o contrato volta a ativo automaticamente.</p>
+</section>
+
+<section class="secao">
+<h1>14. Limitações da versão atual</h1>
+
+<div class="atencao">
+  <span class="rotulo">Leia antes de usar em produção</span>
+  <p>
+    Os pontos abaixo dependem de contratação externa e ainda não estão ativos.
+    O restante do sistema funciona normalmente.
+  </p>
+</div>
+
+<dl>
+  <dt>Boletos e Pix não são pagáveis</dt>
+  <dd>
+    Os documentos gerados têm estrutura correta — linha digitável, código de
+    barras e código Pix válidos em formato — mas usam um banco fictício.
+    Nenhum pagamento cai em conta. É necessário contratar um gateway (Asaas,
+    Cora, Banco Inter ou similar) e conectá-lo.
+  </dd>
+
+  <dt>Mensagens não são enviadas de verdade</dt>
+  <dd>
+    Todo o fluxo funciona — escolha de canal, montagem do texto, histórico, controle
+    de duplicidade — mas o envio ainda não chega ao cliente. É necessário contratar
+    um provedor de WhatsApp, SMS e e-mail.
+  </dd>
+
+  <dt>Conciliação bancária automática</dt>
+  <dd>Depende do gateway. Enquanto isso, a baixa é manual.</dd>
+
+  <dt>Não existe ainda</dt>
+  <dd>
+    Área de acesso do cliente, recibos e termo de quitação em PDF, assinatura
+    eletrônica de acordos, aplicativo e cadastro de corretores pela tela.
+  </dd>
+</dl>
+</section>
+
+<section class="secao">
+<h1>15. Glossário</h1>
+
+<dl>
+  <dt>Carência</dt>
+  <dd>Dias de tolerância após o vencimento antes de começar a cobrar juros.</dd>
+
+  <dt>Demonstrativo</dt>
+  <dd>Detalhamento do que o cliente deve hoje: saldo, multa, juros e total.</dd>
+
+  <dt>Distrato</dt>
+  <dd>Rescisão formal de um contrato em andamento. Libera o lote.</dd>
+
+  <dt>Faixa de atraso</dt>
+  <dd>Agrupamento da dívida por tempo de atraso, usado para priorizar a cobrança.</dd>
+
+  <dt>Mora</dt>
+  <dd>Multa e juros cobrados pelo atraso.</dd>
+
+  <dt>Pro rata die</dt>
+  <dd>"Proporcional ao dia". Os juros mensais são divididos por 30 e cobrados por dia corrido de atraso.</dd>
+
+  <dt>Régua de cobrança</dt>
+  <dd>A sequência configurada de avisos automáticos em torno do vencimento.</dd>
+
+  <dt>Situação</dt>
+  <dd>Estado calculado na hora (vencida, em dia, inadimplente), diferente do status gravado.</dd>
+
+  <dt>Taxa de recuperação</dt>
+  <dd>Das parcelas vencidas nos últimos 30 dias, quanto já foi recebido.</dd>
+</dl>
+
+<p style="margin-top:3em; padding-top:1em; border-top:1px solid var(--linha); color:var(--tinta-suave); font-size:9pt;">
+  Gestrato — Manual do Usuário &middot; Versão 1.0<br>
+  Em caso de dúvida não coberta por este manual, procure o administrador do sistema.
+</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,97 @@
+.rolagem-horizontal {
+  width: 100%;
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.tabela th,
+.tabela td {
+  padding: 7px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--borda);
+  vertical-align: middle;
+}
+
+.tabela thead th {
+  background: var(--superficie-suave);
+  color: var(--texto-suave);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-bottom: 1px solid var(--borda-forte);
+}
+
+.tabela tbody tr:hover {
+  background: var(--primaria-clara);
+}
+
+.tabela tbody tr.linha--selecionada {
+  background: #dfeaf5;
+}
+
+.tabela td.numerico,
+.tabela th.numerico {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * O cabeçalho precisa acompanhar as células, como acontece em .numerico logo
+ * acima. Alinhar só o td deixava o título "Ações" à esquerda e os botões à
+ * direita, dando a impressão de coluna torta.
+ */
+.tabela td.acoes,
+.tabela th.acoes {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tabela .celula-larga {
+  white-space: normal;
+  min-width: 180px;
+}
+
+.tabela--compacta th,
+.tabela--compacta td {
+  padding: 5px 8px;
+}
+
+.tabela tbody tr.linha--vencida td:first-child {
+  box-shadow: inset 3px 0 0 var(--vencido);
+}
+
+.tabela tbody tr.linha--vence-hoje td:first-child {
+  box-shadow: inset 3px 0 0 var(--atencao);
+}
+
+.tabela tbody tr.linha--paga {
+  color: var(--texto-suave);
+}
+
+.selecao {
+  width: 34px;
+  text-align: center;
+}
+
+.barra-de-lote {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 14px;
+  background: var(--info-fundo);
+  border-bottom: 1px solid var(--borda);
+  font-size: 12.5px;
+}

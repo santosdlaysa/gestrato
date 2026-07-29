@@ -1,0 +1,49 @@
+# Infraestrutura local do Gestrato.
+#
+# Aqui sobe SOMENTE o banco de dados. A API (`api/`) e o front-end (`web/`)
+# rodam fora do container, com `npm run dev`, para manter o ciclo de
+# desenvolvimento rapido (hot reload, breakpoints no editor, tsx watch).
+#
+#   docker compose up -d      sobe o Postgres em background
+#   docker compose logs -f db  acompanha os logs
+#   docker compose down        para o banco (os dados ficam no volume)
+#   docker compose down -v     para o banco E APAGA os dados
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: gestrato-db
+    restart: unless-stopped
+
+    # Credenciais casadas com o DATABASE_URL de api/.env.example:
+    # postgresql://gestrato:gestrato@localhost:5432/gestrato?schema=public
+    environment:
+      POSTGRES_USER: gestrato
+      POSTGRES_PASSWORD: gestrato
+      POSTGRES_DB: gestrato
+      # Colacao pt-BR para ordenacao de nomes com acento fazer sentido.
+      LANG: pt_BR.utf8
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+
+    # 5432 exposto no host porque a aplicacao roda fora do Docker.
+    # Se a porta ja estiver ocupada por outro Postgres, troque para "5433:5432"
+    # e ajuste a porta no DATABASE_URL do .env.
+    ports:
+      - "5432:5432"
+
+    # Volume nomeado: os dados sobrevivem a `docker compose down` e a
+    # recriacao do container. So somem com `docker compose down -v`.
+    volumes:
+      - gestrato-postgres:/var/lib/postgresql/data
+
+    # `pg_isready` responde quando o banco realmente aceita conexao — evita
+    # rodar `prisma migrate` contra um Postgres que ainda esta iniciando.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gestrato -d gestrato"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  gestrato-postgres:

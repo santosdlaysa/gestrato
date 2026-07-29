@@ -1,0 +1,174 @@
+.aplicacao {
+  display: flex;
+  min-height: 100vh;
+}
+
+.barra-lateral {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--largura-sidebar);
+  background: #12293f;
+  color: #cfdbe6;
+  display: flex;
+  flex-direction: column;
+  z-index: 20;
+}
+
+.barra-lateral__marca {
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.barra-lateral__marca strong {
+  display: block;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.barra-lateral__marca span {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7d94ab;
+}
+
+.barra-lateral__grupo {
+  padding: 12px 12px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6d859c;
+}
+
+.barra-lateral__navegacao {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 12px;
+}
+
+.barra-lateral__link {
+  display: block;
+  padding: 7px 16px;
+  color: #cfdbe6;
+  font-size: 13px;
+  border-left: 3px solid transparent;
+}
+
+.barra-lateral__link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+  color: #fff;
+}
+
+.barra-lateral__link--ativo {
+  background: rgba(255, 255, 255, 0.1);
+  border-left-color: #4d94d8;
+  color: #fff;
+  font-weight: 600;
+}
+
+.barra-lateral__rodape {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+}
+
+.barra-lateral__usuario {
+  color: #fff;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barra-lateral__papel {
+  color: #7d94ab;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.barra-lateral__sair {
+  margin-top: 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #cfdbe6;
+  width: 100%;
+}
+
+.barra-lateral__sair:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+
+.conteudo {
+  flex: 1;
+  margin-left: var(--largura-sidebar);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cabecalho-da-pagina {
+  background: var(--superficie);
+  border-bottom: 1px solid var(--borda);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cabecalho-da-pagina__descricao {
+  color: var(--texto-suave);
+  font-size: 12.5px;
+  margin: 2px 0 0;
+}
+
+.corpo-da-pagina {
+  padding: 16px 20px 40px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- Login ---------- */
+
+.tela-de-login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(160deg, #12293f 0%, #1d4f7c 100%);
+  padding: 24px;
+}
+
+.cartao-de-login {
+  width: 100%;
+  max-width: 360px;
+  background: var(--superficie);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(8, 20, 32, 0.35);
+  padding: 28px;
+}
+
+.cartao-de-login__marca {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.cartao-de-login__marca strong {
+  display: block;
+  font-size: 24px;
+  letter-spacing: 0.06em;
+  color: var(--primaria);
+}
+
+.cartao-de-login__marca span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--texto-fraco);
+}

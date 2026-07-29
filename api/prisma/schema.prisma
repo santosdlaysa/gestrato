@@ -1,0 +1,575 @@
+// Persistencia — detalhe de infraestrutura.
+//
+// O dominio (src/domain) nao importa nada daqui: os mappers em
+// src/infrastructure/persistence/prisma traduzem estas linhas para entidades.
+//
+// Convencoes:
+//   - dinheiro sempre em centavos inteiros (sufixo *Centavos), nunca float;
+//   - datas de negocio (vencimento, assinatura) usam @db.Date, sem hora e sem
+//     fuso, porque "vence dia 10" nao pode mudar com o timezone do servidor;
+//   - carimbos de auditoria (criadoEm, enviadaEm) usam DateTime, pois sao
+//     instantes de verdade.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------- acesso
+
+enum PapelUsuario {
+  ADMINISTRADOR
+  FINANCEIRO
+  VENDEDOR
+  CONSULTA
+}
+
+model Usuario {
+  id           String       @id @default(uuid())
+  nome         String
+  email        String       @unique
+  senhaHash    String
+  papel        PapelUsuario @default(CONSULTA)
+  ativo        Boolean      @default(true)
+  ultimoAcesso DateTime?
+  criadoEm     DateTime     @default(now())
+  atualizadoEm DateTime     @updatedAt
+
+  @@map("usuarios")
+}
+
+// ---------------------------------------------------------------- cadastros
+
+enum TipoPessoa {
+  FISICA
+  JURIDICA
+}
+
+model Cliente {
+  id             String     @id @default(uuid())
+  nome           String
+  documento      String     @unique
+  tipoPessoa     TipoPessoa
+  email          String?
+  telefone       String?
+  whatsapp       String?
+  dataNascimento DateTime?  @db.Date
+  logradouro     String     @default("")
+  numero         String     @default("")
+  complemento    String?
+  bairro         String     @default("")
+  cidade         String     @default("")
+  uf             String     @default("")
+  cep            String     @default("")
+  observacoes    String?
+  ativo          Boolean    @default(true)
+  criadoEm       DateTime   @default(now())
+  atualizadoEm   DateTime   @updatedAt
+
+  contratos Contrato[]
+  cobrancas Cobranca[]
+
+  @@index([nome])
+  @@map("clientes")
+}
+
+model Loteamento {
+  id                  String   @id @default(uuid())
+  nome                String
+  cidade              String
+  uf                  String
+  registroImobiliario String?
+  ativo               Boolean  @default(true)
+  criadoEm            DateTime @default(now())
+  atualizadoEm        DateTime @updatedAt
+
+  quadras Quadra[]
+
+  @@map("loteamentos")
+}
+
+model Quadra {
+  id           String   @id @default(uuid())
+  loteamentoId String
+  nome         String
+  criadoEm     DateTime @default(now())
+
+  loteamento Loteamento @relation(fields: [loteamentoId], references: [id], onDelete: Cascade)
+  lotes      Lote[]
+
+  @@unique([loteamentoId, nome])
+  @@map("quadras")
+}
+
+enum SituacaoLote {
+  DISPONIVEL
+  RESERVADO
+  VENDIDO
+  INDISPONIVEL
+}
+
+model Lote {
+  id                    String       @id @default(uuid())
+  quadraId              String
+  numero                String
+  areaEmMetrosQuadrados Float
+  valorDeTabelaCentavos Int?
+  situacao              SituacaoLote @default(DISPONIVEL)
+  descricao             String?
+  criadoEm              DateTime     @default(now())
+  atualizadoEm          DateTime     @updatedAt
+
+  quadra    Quadra     @relation(fields: [quadraId], references: [id], onDelete: Cascade)
+  contratos Contrato[]
+
+  @@unique([quadraId, numero])
+  @@index([situacao])
+  @@map("lotes")
+}
+
+/// Fora do nucleo de cobranca: guardado apenas para o relatorio de comissao.
+model Corretor {
+  id                    String   @id @default(uuid())
+  nome                  String
+  documento             String?  @unique
+  email                 String?
+  telefone              String?
+  percentualDeComissao  Float    @default(0)
+  ativo                 Boolean  @default(true)
+  criadoEm              DateTime @default(now())
+  atualizadoEm          DateTime @updatedAt
+
+  contratos Contrato[]
+
+  @@map("corretores")
+}
+
+// ---------------------------------------------------------------- contratos
+
+enum Periodicidade {
+  MENSAL
+  BIMESTRAL
+  TRIMESTRAL
+  SEMESTRAL
+  ANUAL
+}
+
+enum StatusContrato {
+  ATIVO
+  QUITADO
+  CANCELADO
+  DISTRATADO
+}
+
+enum IndiceReajuste {
+  NENHUM
+  IGPM
+  IPCA
+  INCC
+  INPC
+}
+
+enum FormaPagamento {
+  DINHEIRO
+  PIX
+  BOLETO
+  TRANSFERENCIA
+  CARTAO
+  CHEQUE
+  PERMUTA
+}
+
+model Contrato {
+  id         String  @id @default(uuid())
+  numero     String  @unique
+  clienteId  String
+  loteId     String
+  corretorId String?
+
+  // Condicoes comerciais — a fonte de onde as parcelas nascem.
+  valorTotalCentavos     Int
+  valorEntradaCentavos   Int             @default(0)
+  dataEntrada            DateTime?       @db.Date
+  formaPagamentoEntrada  FormaPagamento?
+  quantidadeDeParcelas   Int             @default(0)
+  valorDaParcelaCentavos Int?
+  primeiroVencimento     DateTime?       @db.Date
+  periodicidade          Periodicidade   @default(MENSAL)
+
+  // Politica de mora aplicada as parcelas deste contrato.
+  multaPorAtrasoPercentual Float @default(2)
+  jurosAoMesPercentual     Float @default(1)
+  diasDeCarencia           Int   @default(0)
+
+  indiceReajuste IndiceReajuste @default(NENHUM)
+  status         StatusContrato @default(ATIVO)
+  dataAssinatura DateTime       @db.Date
+  observacoes    String?
+  criadoEm       DateTime       @default(now())
+  atualizadoEm   DateTime       @updatedAt
+
+  cliente       Cliente        @relation(fields: [clienteId], references: [id])
+  lote          Lote           @relation(fields: [loteId], references: [id])
+  corretor      Corretor?      @relation(fields: [corretorId], references: [id])
+  parcelas      Parcela[]
+  pagamentos    Pagamento[]
+  cobrancas     Cobranca[]
+  documentos    DocumentoDeCobranca[]
+  renegociacoes Renegociacao[]
+  reajustes     Reajuste[]
+
+  @@index([clienteId])
+  @@index([status])
+  @@map("contratos")
+}
+
+enum StatusParcela {
+  PENDENTE
+  PAGA
+  PAGA_PARCIAL
+  CANCELADA
+  RENEGOCIADA
+}
+
+enum TipoParcela {
+  ENTRADA
+  FINANCIAMENTO
+  RENEGOCIACAO
+}
+
+model Parcela {
+  id         String      @id @default(uuid())
+  contratoId String
+  numero     Int
+  tipo       TipoParcela @default(FINANCIAMENTO)
+
+  valorOriginalCentavos Int
+  vencimento            DateTime @db.Date
+
+  status                   StatusParcela   @default(PENDENTE)
+  valorPagoCentavos        Int             @default(0)
+  jurosRecebidosCentavos   Int             @default(0)
+  multaRecebidaCentavos    Int             @default(0)
+  descontoConcedidoCentavos Int            @default(0)
+  pagoEm                   DateTime?       @db.Date
+  formaPagamento           FormaPagamento?
+  descricao                String?
+
+  /// Preenchido quando esta parcela foi substituida por um acordo.
+  renegociacaoOrigemId String?
+  /// Preenchido quando esta parcela nasceu de um acordo.
+  renegociacaoId       String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  contrato     Contrato              @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  renegociacao Renegociacao?         @relation("ParcelasGeradas", fields: [renegociacaoId], references: [id])
+  origemDe     Renegociacao?         @relation("ParcelasSubstituidas", fields: [renegociacaoOrigemId], references: [id])
+  pagamentos   Pagamento[]
+  cobrancas    Cobranca[]
+  documentos   DocumentoDeCobranca[]
+
+  @@unique([contratoId, numero, tipo])
+  // Indice que sustenta a regua de cobranca e os paineis de inadimplencia:
+  // "todas as parcelas em aberto que vencem/venceram em tal data".
+  @@index([status, vencimento])
+  @@index([contratoId, vencimento])
+  @@map("parcelas")
+}
+
+/// Historico de baixas. Uma parcela pode receber varias (pagamento parcial).
+model Pagamento {
+  id         String @id @default(uuid())
+  parcelaId  String
+  contratoId String
+
+  valorPrincipalCentavos Int
+  valorJurosCentavos     Int      @default(0)
+  valorMultaCentavos     Int      @default(0)
+  valorDescontoCentavos  Int      @default(0)
+  valorTotalCentavos     Int
+  pagoEm                 DateTime @db.Date
+  formaPagamento         FormaPagamento
+
+  /// "MANUAL" ou o nome do provedor que confirmou (webhook de conciliacao).
+  origem       String  @default("MANUAL")
+  documentoId  String?
+  registradoPor String?
+  observacoes  String?
+  estornado    Boolean  @default(false)
+  criadoEm     DateTime @default(now())
+
+  parcela  Parcela  @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
+  contrato Contrato @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+
+  @@index([contratoId, pagoEm])
+  @@index([pagoEm])
+  @@map("pagamentos")
+}
+
+// ---------------------------------------------------------------- cobranca
+
+enum Gatilho {
+  ANTES_DO_VENCIMENTO
+  NO_VENCIMENTO
+  APOS_O_VENCIMENTO
+}
+
+enum Canal {
+  WHATSAPP
+  SMS
+  EMAIL
+}
+
+enum StatusCobranca {
+  PENDENTE
+  ENVIADA
+  FALHA
+  CANCELADA
+}
+
+/// Configuracao da regua. Uma linha por etapa ("5 dias antes", "10 dias depois").
+model EventoDeRegua {
+  id        String   @id @default(uuid())
+  gatilho   Gatilho
+  dias      Int      @default(0)
+  canais    Canal[]
+  modelo    String
+  /// Garante boleto/Pix atualizado antes de enviar a mensagem desta etapa.
+  emitirDocumento Boolean       @default(true)
+  tipoDeDocumento TipoDocumento @default(BOLETO_COM_PIX)
+  ativo     Boolean  @default(true)
+  criadoEm  DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@unique([gatilho, dias])
+  @@map("eventos_de_regua")
+}
+
+/// Escala de inadimplencia da loteadora. Tabela de linha unica (id "padrao").
+/// Ausente, o sistema usa 8 dias para inadimplencia e 90 para retomada do lote.
+model PoliticaDeInadimplencia {
+  id                     String   @id @default("padrao")
+  diasParaInadimplencia  Int      @default(8)
+  diasParaRetomadaDoLote Int      @default(90)
+  atualizadoEm           DateTime @updatedAt
+
+  @@map("politica_de_inadimplencia")
+}
+
+/// Texto enviado em cada etapa. Editavel pela loteadora sem mexer em codigo.
+model ModeloDeMensagem {
+  id           String   @id @default(uuid())
+  chave        String   @unique
+  descricao    String
+  assunto      String?
+  corpo        String
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@map("modelos_de_mensagem")
+}
+
+/// Historico completo de cobrancas enviadas — a prova de que o cliente foi notificado.
+model Cobranca {
+  id         String @id @default(uuid())
+  contratoId String
+  parcelaId  String
+  clienteId  String
+
+  /// `parcelaId:GATILHO:dias` — impede a regua de mandar a mesma etapa duas vezes.
+  chaveDeIdempotencia String @unique
+
+  gatilho             Gatilho
+  dias                Int            @default(0)
+  canal               Canal
+  destino             String
+  assunto             String?
+  mensagem            String
+  valorCobradoCentavos Int
+  dataDeReferencia    DateTime       @db.Date
+  status              StatusCobranca @default(PENDENTE)
+  tentativas          Int            @default(0)
+  ultimoErro          String?
+  identificadorNoProvedor String?
+  criadaEm            DateTime       @default(now())
+  enviadaEm           DateTime?
+
+  contrato Contrato @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  parcela  Parcela  @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
+  cliente  Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  @@index([contratoId, criadaEm])
+  @@index([parcelaId])
+  @@index([status, dataDeReferencia])
+  @@map("cobrancas")
+}
+
+enum TipoDocumento {
+  BOLETO
+  PIX
+  BOLETO_COM_PIX
+}
+
+enum StatusDocumento {
+  EMITIDO
+  PAGO
+  CANCELADO
+  EXPIRADO
+  FALHA
+}
+
+/// Boleto/Pix emitido. Reemissao cria um novo e cancela o anterior.
+model DocumentoDeCobranca {
+  id         String @id @default(uuid())
+  contratoId String
+  parcelaId  String
+
+  tipo                 TipoDocumento
+  provedor             String
+  identificadorExterno String
+  nossoNumero          String?
+  linhaDigitavel       String?
+  codigoDeBarras       String?
+  pixCopiaECola        String?
+  pixQrCodeBase64      String?
+  urlDoDocumento       String?
+  valorCentavos        Int
+  vencimento           DateTime        @db.Date
+  status               StatusDocumento @default(EMITIDO)
+  emitidoEm            DateTime        @default(now())
+  baixadoEm            DateTime?
+
+  contrato Contrato @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  parcela  Parcela  @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
+
+  @@unique([provedor, identificadorExterno])
+  @@index([parcelaId, status])
+  @@map("documentos_de_cobranca")
+}
+
+/// Eventos crus recebidos do provedor. Guardados antes de processar, para que
+/// uma falha de conciliacao possa ser reprocessada sem perder o webhook.
+model EventoDeWebhook {
+  id                  String    @id @default(uuid())
+  provedor            String
+  identificadorExterno String
+  tipo                String
+  cargaUtil           Json
+  processadoEm        DateTime?
+  erro                String?
+  recebidoEm          DateTime  @default(now())
+
+  @@unique([provedor, identificadorExterno, tipo])
+  @@index([processadoEm])
+  @@map("eventos_de_webhook")
+}
+
+// ---------------------------------------------------------------- acordos
+
+enum StatusRenegociacao {
+  VIGENTE
+  CUMPRIDA
+  ROMPIDA
+  CANCELADA
+}
+
+model Renegociacao {
+  id         String @id @default(uuid())
+  contratoId String
+
+  saldoOriginalCentavos   Int
+  encargosCentavos        Int                @default(0)
+  descontoCentavos        Int                @default(0)
+  valorNegociadoCentavos  Int
+  entradaCentavos         Int                @default(0)
+  dataEntrada             DateTime?          @db.Date
+  quantidadeDeParcelas    Int
+  primeiroVencimento      DateTime           @db.Date
+  periodicidade           Periodicidade      @default(MENSAL)
+  status                  StatusRenegociacao @default(VIGENTE)
+  motivo                  String?
+  acordadoEm              DateTime           @db.Date
+  registradoPor           String?
+  criadoEm                DateTime           @default(now())
+  atualizadoEm            DateTime           @updatedAt
+
+  contrato             Contrato  @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  parcelasGeradas      Parcela[] @relation("ParcelasGeradas")
+  parcelasSubstituidas Parcela[] @relation("ParcelasSubstituidas")
+
+  @@index([contratoId])
+  @@map("renegociacoes")
+}
+
+// ---------------------------------------------------------------- anexos
+
+enum EscopoDoAnexo {
+  CLIENTE
+  CONTRATO
+}
+
+enum CategoriaDeAnexo {
+  RG
+  CPF
+  COMPROVANTE_RESIDENCIA
+  COMPROVANTE_RENDA
+  CERTIDAO
+  CONTRATO_ASSINADO
+  ADITIVO
+  TERMO_DE_RENEGOCIACAO
+  DISTRATO
+  TERMO_DE_QUITACAO
+  COMPROVANTE_PAGAMENTO
+  OUTRO
+}
+
+/// Arquivo enviado pela equipe: contrato assinado, RG, comprovante.
+///
+/// `donoId` e polimorfico (aponta para cliente OU contrato, conforme `escopo`),
+/// entao nao ha chave estrangeira — a existencia do dono e conferida no caso de
+/// uso. A alternativa seria duas colunas opcionais com dois FKs, o que espalha
+/// `null` por toda consulta em troca de pouca garantia.
+///
+/// O binario NAO fica aqui: o banco guarda so os metadados e a chave usada para
+/// recuperar o conteudo no armazenamento. Guardar arquivo em coluna infla o
+/// backup e derruba a performance do resto.
+model Anexo {
+  id                   String           @id @default(uuid())
+  escopo               EscopoDoAnexo
+  donoId               String
+  categoria            CategoriaDeAnexo
+  nomeOriginal         String
+  chaveNoArmazenamento String           @unique
+  tipoMime             String
+  tamanhoBytes         Int
+  descricao            String?
+  enviadoPor           String?
+  enviadoEm            DateTime         @default(now())
+
+  @@index([escopo, donoId])
+  @@map("anexos")
+}
+
+/// Reajuste anual aplicado as parcelas futuras (IGPM, IPCA, INCC...).
+model Reajuste {
+  id         String @id @default(uuid())
+  contratoId String
+
+  indice              IndiceReajuste
+  percentual          Float
+  aplicadoAPartirDe   DateTime       @db.Date
+  parcelasAfetadas    Int
+  registradoPor       String?
+  criadoEm            DateTime       @default(now())
+
+  contrato Contrato @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+
+  @@index([contratoId])
+  @@map("reajustes")
+}
