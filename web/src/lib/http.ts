@@ -1,7 +1,10 @@
 import type { CorpoDeErro } from '@/tipos/comum';
 import { lerToken, limparSessao } from './armazenamento';
 
-const BASE = '/api';
+// Em desenvolvimento, o proxy do Vite encaminha "/api" para o servidor local.
+// Em producao (Vercel) defina VITE_API_URL com a URL publica da API, ex.:
+// "https://sua-api.onrender.com/api". A barra final e removida para evitar "//".
+const BASE = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
 
 export class ErroDaApi extends Error {
   constructor(
