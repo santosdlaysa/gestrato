@@ -215,6 +215,8 @@ Foi criada a base de migração incremental:
 - `ImportacaoSienge` e `RegistroImportacaoSienge` para auditoria e relatório de erros;
 - comando `npm run migrar:sienge` na API;
 - importação de `ecadempreend`, `ecadcliente`, `evndunidade`, `evndcontrato`, `ecrcparcela` e `ecrcbaixa`;
+- importação de `ecadcredor`, `ecpgparcela` e `ecpgbaixa` para contas a pagar;
+- modelos `Fornecedor`, `ContaAPagar` e `PagamentoContaAPagar`, com vencimento, saldo e histórico de baixas;
 - reexecução segura por chave de origem, sem duplicar registros.
 
 O comando lê uma base PostgreSQL restaurada do dump, não o arquivo `.dmpc` diretamente:
@@ -231,3 +233,55 @@ antes da operação definitiva.
 
 Para validar o fluxo com poucos registros antes da carga completa, use `SIENGE_LIMITE=10`. Sem esse
 limite, a carga considera as 448.495 parcelas e 267.660 baixas encontradas no backup.
+
+### Execução da carga completa
+
+A carga definitiva deve ser feita primeiro em uma cópia do banco de produção:
+
+```powershell
+& 'C:\Program Files\PostgreSQL\17\bin\pg_restore.exe' `
+  -U usuario_sienge -p 5432 -d sie-10607-1 `
+  --no-owner --no-privileges `
+  'C:\caminho\sie-10607-1-28072026-diario2.dmpc'
+
+$env:DATABASE_URL = 'postgresql://usuario:senha@localhost:5432/gestrato'
+npx prisma migrate deploy
+$env:SIENGE_DATABASE_URL = 'postgresql://usuario_sienge:senha@localhost:5432/sie-10607-1'
+Remove-Item Env:SIENGE_LIMITE -ErrorAction SilentlyContinue
+npm run migrar:sienge
+```
+
+O comando não apaga registros do Gestrato. Clientes sem documento válido e contratos sem cliente/lote
+válidos ficam no relatório da execução como `IGNORADO`; devem ser tratados antes de considerar a
+migração financeira encerrada.
+
+Também foi acrescentado o cadastro de empresas (`ecadempresa` -> `empresas`), com vínculo opcional
+das contas a pagar à empresa de origem. Essa base será reutilizada nos próximos módulos de filiais,
+fiscal, centros de custo e estoque.
+
+As tabelas `ecadobra` e `ecadcentrocusto` também passaram a ser importadas para `obras` e
+`centros_de_custo`, preservando situação, área, orçamento, controles de estoque e código do projeto
+de origem. A API expõe consultas paginadas em `/obras` e `/centros-de-custo`.
+
+O primeiro núcleo de estoque também foi implementado: `ecadunidademedida`, `ecstgrupoinsumo`,
+`ecstinsumo` e `ecstprecoinsumo` são importados para unidades, grupos, insumos e preços. Os preços
+com quatro casas decimais do Sienge são normalizados para centavos, conforme a convenção financeira
+do Gestrato, e as chaves de tabela/código são preservadas em `origemSiengeId`. A API consulta esses
+dados em `/unidades-medida`, `/grupos-insumo`, `/insumos` e `/insumos/:id/precos`.
+
+O núcleo fiscal foi preparado com documentos e itens (`efisinfofiscal` e `efisitemnotafiscal`),
+incluindo valores de ICMS, IPI, ISS, INSS, IR, PIS e COFINS, além dos vínculos com empresa,
+fornecedor e cliente. A API expõe `/documentos-fiscais` e `/documentos-fiscais/:id`. Na cópia deste
+backup, as tabelas fiscais consultadas estão vazias; por isso a validação confirma o fluxo e o
+esquema, mas não produz documentos importados.
+
+O núcleo operacional foi preparado para compras e estoque: `eadcpedidocompra`/`eadcitempedido`
+alimentam pedidos de compra, enquanto `eesttipomovimento`, `eestmovimento` e
+`eestitemmovimento` alimentam tipos e movimentos de estoque. A API expõe `/pedidos-compra` e
+`/movimentos-estoque`. Nesta cópia do backup havia 7 tipos de movimento, mas zero pedidos e zero
+movimentos registrados.
+
+Foi acrescentada a consulta calculada de saldo em `/estoque/saldos`, que soma entradas e subtrai
+saídas por insumo, sem exigir uma tabela de saldo duplicada. A tela correspondente está disponível
+em `/estoque/saldos`. Para custos operacionais, `/obras/:id/resumo-custos` consolida pedidos de
+compra, valores e fornecedores vinculados à obra.

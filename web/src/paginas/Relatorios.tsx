@@ -6,6 +6,8 @@ import { RelatorioDeFluxoPrevisto } from '@/componentes/relatorios/RelatorioDeFl
 import { RelatorioDeClientesEmAtraso } from '@/componentes/relatorios/RelatorioDeClientesEmAtraso';
 import { RelatorioDeCobrancasRealizadas } from '@/componentes/relatorios/RelatorioDeCobrancasRealizadas';
 import { RelatorioDeLotesARetomar } from '@/componentes/relatorios/RelatorioDeLotesARetomar';
+import { RelatorioDeContratos } from '@/componentes/relatorios/RelatorioDeContratos';
+import { RelatorioDeComissoes } from '@/componentes/relatorios/RelatorioDeComissoes';
 
 type Aba =
   | 'inadimplencia'
@@ -13,7 +15,9 @@ type Aba =
   | 'recebimentos'
   | 'fluxo'
   | 'clientes'
-  | 'cobrancas';
+  | 'cobrancas'
+  | 'contratos'
+  | 'comissoes';
 
 const ABAS: { chave: Aba; texto: string }[] = [
   { chave: 'inadimplencia', texto: 'Inadimplência por loteamento' },
@@ -22,6 +26,8 @@ const ABAS: { chave: Aba; texto: string }[] = [
   { chave: 'fluxo', texto: 'Fluxo previsto' },
   { chave: 'clientes', texto: 'Clientes em atraso' },
   { chave: 'cobrancas', texto: 'Cobranças realizadas' },
+  { chave: 'contratos', texto: 'Contratos' },
+  { chave: 'comissoes', texto: 'Comissões' },
 ];
 
 const ABA_PADRAO: Aba = 'inadimplencia';
@@ -62,6 +68,8 @@ export function Relatorios() {
         {aba === 'fluxo' && <RelatorioDeFluxoPrevisto />}
         {aba === 'clientes' && <RelatorioDeClientesEmAtraso />}
         {aba === 'cobrancas' && <RelatorioDeCobrancasRealizadas />}
+        {aba === 'contratos' && <RelatorioDeContratos />}
+        {aba === 'comissoes' && <RelatorioDeComissoes />}
       </div>
     </>
   );

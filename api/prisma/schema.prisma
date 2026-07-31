@@ -44,6 +44,367 @@ model Usuario {
 
 // ---------------------------------------------------------------- cadastros
 
+model Empresa {
+  id             String   @id @default(uuid())
+  origemSiengeId String?  @unique
+  nome           String
+  nomeFantasia   String?
+  documento      String?
+  email          String?
+  telefone       String?
+  cidade         String?
+  uf             String?
+  ativa          Boolean  @default(true)
+  observacoes    String?
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  contasAPagar ContaAPagar[]
+  obras       Obra[]
+  centrosDeCusto CentroDeCusto[]
+  documentosFiscais DocumentoFiscal[]
+
+  @@index([nome])
+  @@map("empresas")
+}
+
+model Obra {
+  id                  String   @id @default(uuid())
+  origemSiengeId      String?  @unique
+  empresaId           String?
+  nome                String
+  situacaoOrigem      String?
+  tipoObraOrigem      Int?
+  areaTotal           Float?
+  areaTerreno         Float?
+  pavimentos          Int?
+  orcamentoBaseCentavos Int?
+  inicio              DateTime? @db.Date
+  termino             DateTime? @db.Date
+  enderecoEntrega     String?
+  bairroEntrega       String?
+  cepEntrega          String?
+  observacoes         String?
+  ativa               Boolean  @default(true)
+  criadoEm            DateTime @default(now())
+  atualizadoEm        DateTime @updatedAt
+
+  empresa       Empresa?        @relation(fields: [empresaId], references: [id])
+  centrosDeCusto CentroDeCusto[]
+  pedidosCompra PedidoCompra[]
+
+  @@index([empresaId])
+  @@index([nome])
+  @@map("obras")
+}
+
+model CentroDeCusto {
+  id             String   @id @default(uuid())
+  origemSiengeId String?  @unique
+  empresaId      String?
+  obraId         String?
+  nome           String
+  categoria      String?
+  situacaoOrigem String?
+  usaNaObra      Boolean  @default(false)
+  controlaEstoque Boolean @default(false)
+  percentualAdministracao Float?
+  observacoes    String?
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  empresa Empresa? @relation(fields: [empresaId], references: [id])
+  obra    Obra?    @relation(fields: [obraId], references: [id])
+  pedidosCompra PedidoCompra[]
+
+  @@index([empresaId])
+  @@index([obraId])
+  @@map("centros_de_custo")
+}
+
+model UnidadeMedida {
+  id             String   @id @default(uuid())
+  origemSiengeId String?  @unique
+  nome           String
+  simbolo        String
+  grandeza       String?
+  ativa          Boolean  @default(true)
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  insumos Insumo[]
+
+  @@index([simbolo])
+  @@map("unidades_medida")
+}
+
+model GrupoInsumo {
+  id             String   @id @default(uuid())
+  origemSiengeId String?  @unique
+  nome           String
+  referencia     String?
+  tipoOrigem     Int?
+  ativo          Boolean  @default(true)
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  insumos Insumo[]
+
+  @@map("grupos_insumo")
+}
+
+model Insumo {
+  id                    String   @id @default(uuid())
+  origemSiengeId        String?  @unique
+  tabelaOrigem          Int
+  codigoOrigem          Int
+  unidadeId             String?
+  grupoId               String?
+  nome                  String
+  sinonimo              String?
+  classificacaoFiscal   String?
+  tempoEntregaDias      Int?
+  ativo                 Boolean  @default(true)
+  controlaPreco         Boolean  @default(false)
+  controlaQuantidade    Boolean  @default(false)
+  controlaEstoque       Boolean  @default(true)
+  observacoes           String?
+  criadoEm              DateTime @default(now())
+  atualizadoEm          DateTime @updatedAt
+
+  unidade UnidadeMedida? @relation(fields: [unidadeId], references: [id])
+  grupo   GrupoInsumo?    @relation(fields: [grupoId], references: [id])
+  precos  PrecoInsumo[]
+  itensPedidosCompra ItemPedidoCompra[]
+  itensMovimentosEstoque ItemMovimentoEstoque[]
+
+  @@index([nome])
+  @@index([grupoId])
+  @@index([unidadeId])
+  @@map("insumos")
+}
+
+model PrecoInsumo {
+  id                   String   @id @default(uuid())
+  origemSiengeId       String?  @unique
+  insumoId             String
+  codigoPrecoOrigem    Int
+  valorCentavos        Int
+  precoAutorizadoCentavos Int @default(0)
+  custoMedioCentavos   Int      @default(0)
+  ultimoCustoCentavos  Int      @default(0)
+  dataPreco            DateTime? @db.Date
+  dataAutorizacao      DateTime? @db.Date
+  dataUltimoCusto      DateTime? @db.Date
+  orcado               Boolean  @default(true)
+  criadoEm             DateTime @default(now())
+  atualizadoEm         DateTime @updatedAt
+
+  insumo Insumo @relation(fields: [insumoId], references: [id], onDelete: Cascade)
+
+  @@index([insumoId, dataPreco])
+  @@map("precos_insumo")
+}
+
+model DocumentoFiscal {
+  id             String   @id @default(uuid())
+  origemSiengeId String?  @unique
+  origemTabela   String
+  lancamentoOrigem Int
+  empresaId      String?
+  fornecedorId   String?
+  clienteId      String?
+  numero         String
+  serie          String
+  tipoOrigem     Int
+  origemCodigo   String
+  emitidoEm      DateTime @db.Date
+  registradoEm   DateTime @db.Date
+  valorContabilCentavos Int @default(0)
+  descontoCentavos Int @default(0)
+  freteCentavos  Int @default(0)
+  seguroCentavos Int @default(0)
+  outrasDespesasCentavos Int @default(0)
+  baseIcmsCentavos Int @default(0)
+  icmsCentavos   Int @default(0)
+  ipiCentavos    Int @default(0)
+  issCentavos    Int @default(0)
+  inssCentavos   Int @default(0)
+  irCentavos     Int @default(0)
+  pisCentavos    Int @default(0)
+  cofinsCentavos Int @default(0)
+  statusOrigem   String?
+  chaveAcesso    String?
+  observacoes    String?
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  empresa    Empresa?    @relation(fields: [empresaId], references: [id])
+  fornecedor Fornecedor? @relation(fields: [fornecedorId], references: [id])
+  cliente    Cliente?    @relation(fields: [clienteId], references: [id])
+  itens      ItemDocumentoFiscal[]
+
+  @@index([emitidoEm])
+  @@index([empresaId])
+  @@index([fornecedorId])
+  @@index([clienteId])
+  @@map("documentos_fiscais")
+}
+
+model ItemDocumentoFiscal {
+  id             String   @id @default(uuid())
+  origemSiengeId String?  @unique
+  documentoId   String
+  sequenciaOrigem Int
+  produto        String?
+  ncm            String?
+  cfop           String?
+  unidadeOrigem Int?
+  quantidade     Float    @default(0)
+  precoUnitarioCentavos Int @default(0)
+  totalCentavos  Int      @default(0)
+  descontoCentavos Int    @default(0)
+  freteCentavos  Int      @default(0)
+  seguroCentavos Int      @default(0)
+  baseIcmsCentavos Int    @default(0)
+  icmsCentavos   Int      @default(0)
+  ipiCentavos    Int      @default(0)
+  pisCentavos    Int      @default(0)
+  cofinsCentavos Int      @default(0)
+  observacoes    String?
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  documento DocumentoFiscal @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+
+  @@index([documentoId])
+  @@map("itens_documentos_fiscais")
+}
+
+model PedidoCompra {
+  id             String   @id @default(uuid())
+  origemSiengeId String?  @unique
+  fornecedorId   String?
+  obraId         String?
+  centroDeCustoId String?
+  numeroOrigem   Int
+  pedidoEm       DateTime @db.Date
+  situacaoOrigem String?
+  autorizado     Boolean  @default(false)
+  valorItensCentavos Int @default(0)
+  descontoCentavos Int @default(0)
+  outrasDespesasCentavos Int @default(0)
+  freteCentavos  Int @default(0)
+  valorTotalCentavos Int @default(0)
+  condicaoPagamento String?
+  enderecoEntrega String?
+  observacoes    String?
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  fornecedor Fornecedor? @relation(fields: [fornecedorId], references: [id])
+  obra       Obra?       @relation(fields: [obraId], references: [id])
+  centroDeCusto CentroDeCusto? @relation(fields: [centroDeCustoId], references: [id])
+  itens      ItemPedidoCompra[]
+
+  @@index([pedidoEm])
+  @@index([fornecedorId])
+  @@index([obraId])
+  @@map("pedidos_compra")
+}
+
+model ItemPedidoCompra {
+  id             String   @id @default(uuid())
+  origemSiengeId String?  @unique
+  pedidoId       String
+  sequenciaOrigem Int
+  insumoId       String?
+  descricao      String
+  quantidade     Float    @default(0)
+  precoUnitarioCentavos Int @default(0)
+  descontoCentavos Int @default(0)
+  freteUnitarioCentavos Int @default(0)
+  precoEstimadoCentavos Int @default(0)
+  observacoes    String?
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  pedido PedidoCompra @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  insumo Insumo?      @relation(fields: [insumoId], references: [id], onDelete: SetNull)
+
+  @@index([pedidoId])
+  @@index([insumoId])
+  @@map("itens_pedidos_compra")
+}
+
+model TipoMovimentoEstoque {
+  id             String   @id @default(uuid())
+  origemSiengeId String?  @unique
+  nome           String
+  movimentoOrigem String?
+  entrada        Boolean  @default(false)
+  saida          Boolean  @default(false)
+  calculaCusto   Boolean  @default(false)
+  ativo          Boolean  @default(true)
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  movimentos MovimentoEstoque[]
+
+  @@map("tipos_movimento_estoque")
+}
+
+model MovimentoEstoque {
+  id             String   @id @default(uuid())
+  origemSiengeId String?  @unique
+  documento      String
+  numeroOrigem   String
+  tipoId         String?
+  fornecedorId   String?
+  obraOrigemId   Int?
+  centroOrigemId Int?
+  obraDestinoId  Int?
+  centroDestinoId Int?
+  movimentoEm    DateTime @db.Date
+  consistente    Boolean  @default(false)
+  observacoes    String?
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  tipo       TipoMovimentoEstoque? @relation(fields: [tipoId], references: [id])
+  fornecedor Fornecedor?           @relation(fields: [fornecedorId], references: [id])
+  itens      ItemMovimentoEstoque[]
+
+  @@index([movimentoEm])
+  @@index([tipoId])
+  @@index([fornecedorId])
+  @@map("movimentos_estoque")
+}
+
+model ItemMovimentoEstoque {
+  id             String   @id @default(uuid())
+  origemSiengeId String?  @unique
+  movimentoId    String
+  sequenciaOrigem Int
+  insumoId       String?
+  unidadeMovOrigem Int
+  descricao      String
+  quantidade     Float    @default(0)
+  precoUnitarioCentavos Int @default(0)
+  contaOrigem    String?
+  contaDestino   String?
+  observacoes    String?
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  movimento MovimentoEstoque @relation(fields: [movimentoId], references: [id], onDelete: Cascade)
+  insumo    Insumo?          @relation(fields: [insumoId], references: [id], onDelete: SetNull)
+
+  @@index([movimentoId])
+  @@index([insumoId])
+  @@map("itens_movimentos_estoque")
+}
+
 enum TipoPessoa {
   FISICA
   JURIDICA
@@ -73,6 +434,7 @@ model Cliente {
 
   contratos Contrato[]
   cobrancas Cobranca[]
+  documentosFiscais DocumentoFiscal[]
 
   @@index([nome])
   @@map("clientes")
@@ -149,6 +511,101 @@ model Corretor {
   contratos Contrato[]
 
   @@map("corretores")
+}
+
+/// Parceiros comerciais que podem indicar vendas, sem vínculo obrigatório com contrato.
+model Parceiro {
+  id           String   @id @default(uuid())
+  nome         String
+  documento    String?  @unique
+  email        String?
+  telefone     String?
+  tipo         String   @default("OUTRO")
+  observacoes  String?
+  ativo        Boolean  @default(true)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@map("parceiros")
+}
+
+// ---------------------------------------------------------------- contas a pagar
+
+model Fornecedor {
+  id             String   @id @default(uuid())
+  origemSiengeId String?  @unique
+  nome           String
+  documento      String?  @unique
+  email          String?
+  telefone       String?
+  ativo          Boolean  @default(true)
+  observacoes    String?
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  contasAPagar ContaAPagar[]
+  documentosFiscais DocumentoFiscal[]
+  pedidosCompra PedidoCompra[]
+  movimentosEstoque MovimentoEstoque[]
+
+  @@index([nome])
+  @@map("fornecedores")
+}
+
+enum StatusContaAPagar {
+  PENDENTE
+  PAGA
+  PAGA_PARCIAL
+  CANCELADA
+}
+
+model ContaAPagar {
+  id             String          @id @default(uuid())
+  origemSiengeId String?         @unique
+  fornecedorId   String?
+  empresaId      String?
+  numeroDocumento String?
+  descricao      String?
+  valorOriginalCentavos Int
+  valorPagoCentavos     Int             @default(0)
+  jurosCentavos         Int             @default(0)
+  multaCentavos         Int             @default(0)
+  descontoCentavos      Int             @default(0)
+  vencimento            DateTime        @db.Date
+  status                StatusContaAPagar @default(PENDENTE)
+  pagoEm               DateTime?       @db.Date
+  formaPagamento       FormaPagamento?
+  observacoes          String?
+  criadoEm             DateTime        @default(now())
+  atualizadoEm         DateTime        @updatedAt
+
+  fornecedor Fornecedor?          @relation(fields: [fornecedorId], references: [id])
+  empresa    Empresa?             @relation(fields: [empresaId], references: [id])
+  pagamentos PagamentoContaAPagar[]
+
+  @@index([vencimento, status])
+  @@index([fornecedorId])
+  @@index([empresaId])
+  @@map("contas_a_pagar")
+}
+
+model PagamentoContaAPagar {
+  id             String   @id @default(uuid())
+  origemSiengeId String?  @unique
+  contaId        String
+  valorCentavos  Int
+  jurosCentavos  Int      @default(0)
+  multaCentavos  Int      @default(0)
+  descontoCentavos Int    @default(0)
+  pagoEm         DateTime @db.Date
+  formaPagamento FormaPagamento?
+  observacoes    String?
+  criadoEm       DateTime @default(now())
+
+  conta ContaAPagar @relation(fields: [contaId], references: [id], onDelete: Cascade)
+
+  @@index([contaId, pagoEm])
+  @@map("pagamentos_contas_a_pagar")
 }
 
 // ---------------------------------------------------------------- contratos

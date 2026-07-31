@@ -70,4 +70,16 @@ export interface Loteamento {
 export interface Corretor {
   id: string;
   nome: string;
+  documento: string | null;
+  email: string | null;
+  telefone: string | null;
+  percentualDeComissao: number;
+  ativo: boolean;
 }
+
+export interface Parceiro {
+  id: string; nome: string; documento: string | null; email: string | null; telefone: string | null;
+  tipo: string; observacoes: string | null; ativo: boolean;
+}
+export interface EntradaDeCorretor { nome: string; documento: string | null; email: string | null; telefone: string | null; percentualDeComissao: number; ativo: boolean; }
+export interface EntradaDeParceiro { nome: string; documento: string | null; email: string | null; telefone: string | null; tipo: string; observacoes: string | null; ativo: boolean; }

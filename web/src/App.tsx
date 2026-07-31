@@ -15,7 +15,13 @@ import { Clientes } from '@/paginas/Clientes';
 import { Lotes } from '@/paginas/Lotes';
 import { Loteamentos } from '@/paginas/Loteamentos';
 import { MapaDoLoteamento } from '@/paginas/MapaDoLoteamento';
+import { Acesso } from '@/paginas/Acesso';
+import { Intermediarios } from '@/paginas/Intermediarios';
 import { Tela } from '@/paginas/Tela';
+import { Documentos } from '@/paginas/Documentos';
+import { ContasAPagar } from '@/paginas/ContasAPagar';
+import { Fornecedores } from '@/paginas/Fornecedores';
+import { Estoque } from '@/paginas/Estoque';
 import { NaoEncontrada } from '@/paginas/NaoEncontrada';
 import { caminhosUnicos } from '@/lib/navegacao';
 
@@ -36,6 +42,21 @@ const PAGINAS_PRONTAS: Record<string, ReactElement> = {
   '/lotes': <Lotes />,
   '/loteamentos': <Loteamentos />,
   '/mapa': <MapaDoLoteamento />,
+  '/cadastros/usuarios': <Acesso />,
+  '/cadastros/perfis': <Acesso />,
+  '/cadastros/permissoes': <Acesso />,
+  '/cadastros/corretores': <Intermediarios tipo="corretor" />,
+  '/cadastros/parceiros': <Intermediarios tipo="parceiro" />,
+  '/documentos/contratos': <Documentos modo="contratos" />,
+  '/documentos/termos': <Documentos modo="termos" />,
+  '/documentos/boletos': <Documentos modo="cobranca" />,
+  '/documentos/recibos': <Documentos modo="cobranca" />,
+  '/documentos/declaracoes': <Documentos modo="contratos" />,
+  '/documentos/pdf': <Documentos modo="contratos" />,
+  '/documentos/assinatura': <Documentos modo="contratos" />,
+  '/financeiro/contas-a-pagar': <ContasAPagar />,
+  '/financeiro/fornecedores': <Fornecedores />,
+  '/estoque/saldos': <Estoque />,
 };
 
 export function App() {

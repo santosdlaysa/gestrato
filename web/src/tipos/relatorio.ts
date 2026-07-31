@@ -145,3 +145,52 @@ export interface ClienteEmAtraso {
   /** Nome alternativo aceito para o valor vencido. */
   totalVencidoCentavos?: number;
 }
+
+export type StatusDoContratoDoRelatorio = string;
+
+export interface ContratoDoRelatorio {
+  contratoId: string;
+  numero: string;
+  dataAssinatura: string;
+  clienteId: string;
+  cliente: string;
+  documento: string;
+  loteamento: string;
+  quadra: string;
+  lote: string;
+  valorTotalCentavos: number;
+  totalRecebidoCentavos: number;
+  saldoDevedorCentavos: number;
+  parcelasEmAberto: number;
+  parcelasVencidas: number;
+  diasDeAtrasoMaximo: number;
+  status: StatusDoContratoDoRelatorio;
+  situacao: string;
+}
+
+export interface RelatorioDeContratos {
+  data: string;
+  status: StatusDoContratoDoRelatorio | null;
+  itens: ContratoDoRelatorio[];
+  totalDeContratos: number;
+  valorTotalCentavos: number;
+  saldoDevedorCentavos: number;
+}
+
+export interface ComissaoDoRelatorio {
+  corretorId: string;
+  corretor: string;
+  documento: string | null;
+  contratos: number;
+  valorVendidoCentavos: number;
+  percentualDeComissao: number;
+  comissaoPrevistaCentavos: number;
+}
+
+export interface RelatorioDeComissoes {
+  de: string;
+  ate: string;
+  itens: ComissaoDoRelatorio[];
+  valorVendidoCentavos: number;
+  comissaoPrevistaCentavos: number;
+}

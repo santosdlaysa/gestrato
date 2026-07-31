@@ -33,6 +33,11 @@ export interface Modulo {
 
 const MODULOS_BASE: Modulo[] = [
   {
+    id: 'estoque',
+    titulo: 'Estoque',
+    secoes: [{ itens: [{ texto: 'Saldo de estoque', para: '/estoque/saldos' }] }],
+  },
+  {
     id: 'cobrancas',
     titulo: 'Cobranças',
     secoes: [

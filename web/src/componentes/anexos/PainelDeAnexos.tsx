@@ -21,6 +21,7 @@ interface Props {
   titulo?: string;
   descricao?: string;
   acoes?: ReactNode;
+  filtroDeCategoria?: string[];
 }
 
 const TITULO_PADRAO: Record<EscopoDeAnexo, string> = {
@@ -28,13 +29,15 @@ const TITULO_PADRAO: Record<EscopoDeAnexo, string> = {
   CONTRATO: 'Documentos do contrato',
 };
 
-export function PainelDeAnexos({ escopo, donoId, categorias, titulo, descricao, acoes }: Props) {
+export function PainelDeAnexos({ escopo, donoId, categorias, titulo, descricao, acoes, filtroDeCategoria }: Props) {
   const papel = usePapel();
   const [aRemover, definirARemover] = useState<Anexo | null>(null);
   const download = useAcao();
   const remocao = useAcao();
 
   const requisicao = useRequisicao((sinal) => listarAnexos(escopo, donoId, sinal), [escopo, donoId]);
+  const filtrarAnexos = (itens: Anexo[]) =>
+    filtroDeCategoria ? itens.filter((item) => filtroDeCategoria.includes(item.categoria)) : itens;
 
   async function confirmarRemocao() {
     if (!aRemover) return;
@@ -65,13 +68,13 @@ export function PainelDeAnexos({ escopo, donoId, categorias, titulo, descricao, 
 
         <ConteudoDaRequisicao
           requisicao={requisicao}
-          vazio={(itens) => itens.length === 0}
+          vazio={(itens) => filtrarAnexos(itens).length === 0}
           tituloDoVazio="Sem documentos"
           descricaoDoVazio="Nenhum arquivo anexado até agora."
         >
           {(itens) => (
             <TabelaDeAnexos
-              anexos={itens}
+              anexos={filtrarAnexos(itens)}
               podeRemover={podeRemoverAnexo(papel)}
               ocupado={download.emAndamento}
               aoBaixar={(anexo) => void download.executar(() => baixarAnexo(anexo))}

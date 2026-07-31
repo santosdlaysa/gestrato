@@ -14,6 +14,15 @@ import { criarRotasDeContratos } from './rotas/contratos.rotas.js';
 import { criarRotasDePaineis } from './rotas/paineis.rotas.js';
 import { criarRotasDeAnexos } from './rotas/anexos.rotas.js';
 import { ControladorDeAnexos } from './controllers/anexos.controller.js';
+import { criarRotasDeCorretoresEParceiros } from './rotas/corretores-parceiros.rotas.js';
+import { ControladorDeAcesso } from './controllers/acesso.controller.js';
+import { criarRotasDeAcesso } from './rotas/acesso.rotas.js';
+import { criarRotasDeConfiguracoesEIntegracoes } from './rotas/configuracoes-integracoes.rotas.js';
+import { criarRotasDeContasAPagar } from './rotas/contas-a-pagar.rotas.js';
+import { criarRotasDeObrasECentrosDeCusto } from './rotas/obras-centros-custo.rotas.js';
+import { criarRotasDeEstoque } from './rotas/estoque.rotas.js';
+import { criarRotasFiscais } from './rotas/fiscal.rotas.js';
+import { criarRotasDeComprasEEstoque } from './rotas/compras-estoque.rotas.js';
 
 /**
  * Prefixos que exigem token. Mantenha em sincronia com os routers protegidos —
@@ -25,6 +34,7 @@ const PREFIXOS_PROTEGIDOS = [
   '/loteamentos',
   '/lotes',
   '/corretores',
+  '/parceiros',
   '/contratos',
   '/parcelas',
   '/cobrancas',
@@ -34,6 +44,22 @@ const PREFIXOS_PROTEGIDOS = [
   '/dashboard',
   '/relatorios',
   '/anexos',
+  '/usuarios',
+  '/perfis',
+  '/permissoes',
+  '/configuracoes',
+  '/integracoes',
+  '/fornecedores',
+  '/contas-a-pagar',
+  '/obras',
+  '/centros-de-custo',
+  '/unidades-medida',
+  '/grupos-insumo',
+  '/insumos',
+  '/estoque',
+  '/documentos-fiscais',
+  '/pedidos-compra',
+  '/movimentos-estoque',
 ] as const;
 
 /** Aplica o middleware apenas quando o caminho pertence a um dos prefixos. */
@@ -87,9 +113,17 @@ export function criarAplicacao(container: Container, rotasAdicionais: Router[] =
       repositorios: container.repositorios,
       geradorDeIdentificador: container.geradorDeIdentificador,
     }),
+    criarRotasDeCorretoresEParceiros(),
     criarRotasDeContratos(controladorDeContratos),
     criarRotasDeCobranca(controladorDeCobranca),
     criarRotasDeAnexos(new ControladorDeAnexos(container.casosDeUsoDeAnexos)),
+    criarRotasDeAcesso(new ControladorDeAcesso(container.repositorios.usuarios, container.servicoDeSenha, container.geradorDeIdentificador)),
+    criarRotasDeConfiguracoesEIntegracoes(container),
+    criarRotasDeContasAPagar(),
+    criarRotasDeObrasECentrosDeCusto(),
+    criarRotasDeEstoque(),
+    criarRotasFiscais(),
+    criarRotasDeComprasEEstoque(),
     criarRotasDePaineis({
       consultasDePainel: container.consultasDePainel,
       consultasDeRelatorio: container.consultasDeRelatorio,

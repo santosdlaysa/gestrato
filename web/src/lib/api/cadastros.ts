@@ -3,9 +3,12 @@ import type { RespostaPaginada } from '@/tipos/comum';
 import type {
   Cliente,
   Corretor,
+  EntradaDeCorretor,
+  EntradaDeParceiro,
   EntradaDeCliente,
   Lote,
   Loteamento,
+  Parceiro,
 } from '@/tipos/cadastros';
 
 export interface FiltrosDeClientes extends Parametros {
@@ -89,6 +92,13 @@ export function criarQuadra(loteamentoId: string, nome: string): Promise<Quadra>
 
 export function listarCorretores(
   sinal?: AbortSignal,
-): Promise<Corretor[] | RespostaPaginada<Corretor>> {
-  return requisitar('/corretores', { parametros: { porPagina: 200 }, sinal });
+  filtros: { busca?: string; ativo?: string; pagina?: number; porPagina?: number } = { porPagina: 200 },
+): Promise<RespostaPaginada<Corretor>> {
+  return requisitar('/corretores', { parametros: filtros, sinal });
 }
+
+export function criarCorretor(entrada: EntradaDeCorretor): Promise<Corretor> { return requisitar('/corretores', { metodo: 'POST', corpo: entrada }); }
+export function atualizarCorretor(id: string, entrada: EntradaDeCorretor): Promise<Corretor> { return requisitar(`/corretores/${id}`, { metodo: 'PUT', corpo: entrada }); }
+export function listarParceiros(filtros: { busca?: string; ativo?: string; pagina?: number; porPagina?: number }, sinal?: AbortSignal): Promise<RespostaPaginada<Parceiro>> { return requisitar('/parceiros', { parametros: filtros, sinal }); }
+export function criarParceiro(entrada: EntradaDeParceiro): Promise<Parceiro> { return requisitar('/parceiros', { metodo: 'POST', corpo: entrada }); }
+export function atualizarParceiro(id: string, entrada: EntradaDeParceiro): Promise<Parceiro> { return requisitar(`/parceiros/${id}`, { metodo: 'PUT', corpo: entrada }); }
