@@ -13,6 +13,7 @@ import { DetalheDoContrato } from '@/paginas/DetalheDoContrato';
 import { Relatorios } from '@/paginas/Relatorios';
 import { Clientes } from '@/paginas/Clientes';
 import { Lotes } from '@/paginas/Lotes';
+import { Loteamentos } from '@/paginas/Loteamentos';
 import { MapaDoLoteamento } from '@/paginas/MapaDoLoteamento';
 import { Tela } from '@/paginas/Tela';
 import { NaoEncontrada } from '@/paginas/NaoEncontrada';
@@ -26,12 +27,14 @@ import { caminhosUnicos } from '@/lib/navegacao';
 const PAGINAS_PRONTAS: Record<string, ReactElement> = {
   '/': <Dashboard />,
   '/parcelas': <Parcelas />,
+  '/cobrancas/manual': <Parcelas modo="manual" />,
   '/regua': <Regua />,
   '/cobrancas': <Cobrancas />,
   '/contratos': <Contratos />,
   '/relatorios': <Relatorios />,
   '/clientes': <Clientes />,
   '/lotes': <Lotes />,
+  '/loteamentos': <Loteamentos />,
   '/mapa': <MapaDoLoteamento />,
 };
 

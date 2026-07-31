@@ -108,7 +108,7 @@ export function LinhaDeParcela({
             className="botao botao--fantasma botao--pequeno"
             onClick={() => aoCobrar(parcela)}
           >
-            Cobrar
+            Enviar cobrança
           </button>
         )}
         {permissoes.baixar && emAberto && (

@@ -1,0 +1,14 @@
+Vendor Name	LAYSA SANTOS
+Start Date	05/31/2026
+End Date	06/27/2026
+Transaction Date	Settlement Date	Apple Identifier	SKU	Title	Developer Name	Product Type Identifier	Country of Sale	Quantity	Partner Share	Extended Partner Share	Partner Share Currency	Customer Price	Customer Currency	Sale or Return	Promo Code	Order Type	Region
+06/06/2026	06/07/2026	6761918329	premium_monthly	Premium Mensal		IAY	BR	1	10.06	10.06	BRL	14.900	BRL	S				
+06/17/2026	06/17/2026	6761918329	premium_monthly	Premium Mensal		IAY	BR	-1	12.22	-12.22	BRL	-14.900	BRL	R				
+06/27/2026	06/27/2026	6761918329	premium_monthly	Premium Mensal		IAY	BR	1	12.22	12.22	BRL	14.900	BRL	S				
+06/13/2026	06/13/2026	6761918329	premium_monthly	Premium Mensal		IAY	BR	1	12.22	12.22	BRL	14.900	BRL	S				
+06/03/2026	06/03/2026	6761918329	premium_monthly	Premium Mensal		IAY	BR	2	10.06	20.12	BRL	14.900	BRL	S				
+06/16/2026	06/16/2026	6761918329	premium_monthly	Premium Mensal		IAY	BR	1	12.22	12.22	BRL	14.900	BRL	S				
+06/04/2026	06/04/2026	6761918329	premium_monthly	Premium Mensal		IAY	BR	1	10.06	10.06	BRL	14.900	BRL	S				
+06/11/2026	06/11/2026	6761918329	premium_monthly	Premium Mensal		IAY	BR	1	10.06	10.06	BRL	14.900	BRL	S				
+Country Of Sale	Partner Share Currency	Quantity	Extended Partner Share
+BR	BRL	7	74.74

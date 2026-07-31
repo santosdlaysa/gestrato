@@ -63,6 +63,8 @@ export interface Loteamento {
   nome: string;
   cidade?: string | null;
   uf?: string | null;
+  registroImobiliario?: string | null;
+  ativo?: boolean;
 }
 
 export interface Corretor {

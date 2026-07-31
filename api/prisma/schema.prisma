@@ -51,6 +51,7 @@ enum TipoPessoa {
 
 model Cliente {
   id             String     @id @default(uuid())
+  origemSiengeId String?    @unique
   nome           String
   documento      String     @unique
   tipoPessoa     TipoPessoa
@@ -79,6 +80,7 @@ model Cliente {
 
 model Loteamento {
   id                  String   @id @default(uuid())
+  origemSiengeId      String?  @unique
   nome                String
   cidade              String
   uf                  String
@@ -114,6 +116,7 @@ enum SituacaoLote {
 
 model Lote {
   id                    String       @id @default(uuid())
+  origemSiengeId        String?      @unique
   quadraId              String
   numero                String
   areaEmMetrosQuadrados Float
@@ -185,6 +188,7 @@ enum FormaPagamento {
 
 model Contrato {
   id         String  @id @default(uuid())
+  origemSiengeId String? @unique
   numero     String  @unique
   clienteId  String
   loteId     String
@@ -243,6 +247,7 @@ enum TipoParcela {
 
 model Parcela {
   id         String      @id @default(uuid())
+  origemSiengeId String?  @unique
   contratoId String
   numero     Int
   tipo       TipoParcela @default(FINANCIAMENTO)
@@ -285,6 +290,7 @@ model Parcela {
 /// Historico de baixas. Uma parcela pode receber varias (pagamento parcial).
 model Pagamento {
   id         String @id @default(uuid())
+  origemSiengeId String? @unique
   parcelaId  String
   contratoId String
 
@@ -572,4 +578,63 @@ model Reajuste {
 
   @@index([contratoId])
   @@map("reajustes")
+}
+
+// ---------------------------------------------------------------- migracao Sienge
+
+enum StatusImportacaoSienge {
+  PREVIA
+  EXECUTANDO
+  CONCLUIDA
+  CONCLUIDA_COM_ERROS
+  FALHA
+}
+
+/// Auditoria de cada execucao de migracao. A migracao e reexecutavel: os ids
+/// de origem nos modelos acima impedem duplicar o que ja foi importado.
+model ImportacaoSienge {
+  id              String               @id @default(uuid())
+  arquivo         String
+  bancoOrigem     String?
+  backupEm        DateTime?
+  status          StatusImportacaoSienge @default(PREVIA)
+  iniciadaEm      DateTime?
+  finalizadaEm    DateTime?
+  totalLidos      Int                  @default(0)
+  totalImportados Int                  @default(0)
+  totalIgnorados  Int                  @default(0)
+  totalErros      Int                  @default(0)
+  resumo          Json?
+  criadoEm        DateTime             @default(now())
+
+  registros RegistroImportacaoSienge[]
+
+  @@index([status, criadoEm])
+  @@map("importacoes_sienge")
+}
+
+enum StatusRegistroImportacaoSienge {
+  IMPORTADO
+  IGNORADO
+  ERRO
+}
+
+/// Linha de auditoria do de-para. Guarda a chave original e o motivo de uma
+/// eventual rejeicao, sem armazenar documentos pessoais em texto de log.
+model RegistroImportacaoSienge {
+  id           String                         @id @default(uuid())
+  importacaoId String
+  tabela       String
+  chaveOrigem  String
+  entidade     String?
+  idDestino    String?
+  status       StatusRegistroImportacaoSienge
+  mensagem     String?
+  criadoEm     DateTime                       @default(now())
+
+  importacao ImportacaoSienge @relation(fields: [importacaoId], references: [id], onDelete: Cascade)
+
+  @@unique([importacaoId, tabela, chaveOrigem])
+  @@index([tabela, status])
+  @@map("registros_importacao_sienge")
 }

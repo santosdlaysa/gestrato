@@ -59,6 +59,34 @@ export function listarLoteamentos(
   return requisitar('/loteamentos', { parametros: { porPagina: 200 }, sinal });
 }
 
+export interface EntradaDeLoteamento {
+  nome: string;
+  cidade: string;
+  uf: string;
+  registroImobiliario?: string | null;
+}
+
+export function criarLoteamento(entrada: EntradaDeLoteamento): Promise<Loteamento> {
+  return requisitar<Loteamento>('/loteamentos', { metodo: 'POST', corpo: entrada });
+}
+
+export interface Quadra {
+  id: string;
+  loteamentoId: string;
+  nome: string;
+}
+
+export function listarQuadras(loteamentoId: string, sinal?: AbortSignal): Promise<Quadra[]> {
+  return requisitar<Quadra[]>(`/loteamentos/${loteamentoId}/quadras`, { sinal });
+}
+
+export function criarQuadra(loteamentoId: string, nome: string): Promise<Quadra> {
+  return requisitar<Quadra>(`/loteamentos/${loteamentoId}/quadras`, {
+    metodo: 'POST',
+    corpo: { nome },
+  });
+}
+
 export function listarCorretores(
   sinal?: AbortSignal,
 ): Promise<Corretor[] | RespostaPaginada<Corretor>> {

@@ -1,3 +1,5 @@
+import type { Papel } from '@/tipos/usuario';
+
 /**
  * Mapa de navegação do Gestrato.
  *
@@ -25,17 +27,24 @@ export interface Modulo {
   id: string;
   titulo: string;
   secoes: Secao[];
+  /** Quando informado, o módulo só aparece para esses papéis. */
+  papeis?: Papel[];
 }
 
-export const MODULOS: Modulo[] = [
+const MODULOS_BASE: Modulo[] = [
   {
     id: 'cobrancas',
     titulo: 'Cobranças',
     secoes: [
       {
-        subtitulo: 'Estratégia',
+        subtitulo: 'Configuração',
         itens: [
           { texto: 'Régua de cobrança', para: '/regua' },
+        ],
+      },
+      {
+        subtitulo: 'Operação',
+        itens: [
           { texto: 'Cobrança manual', para: '/cobrancas/manual' },
           { texto: 'Cobrança automática', para: '/cobrancas/automatica' },
           { texto: 'Cobrança jurídica', para: '/cobrancas/juridica' },
@@ -95,16 +104,12 @@ export const MODULOS: Modulo[] = [
         itens: [
           { texto: 'Empresas', para: '/cadastros/empresas' },
           { texto: 'Filiais', para: '/cadastros/filiais' },
-          { texto: 'Loteamentos', para: '/cadastros/loteamentos' },
           { texto: 'Empreendimentos', para: '/cadastros/empreendimentos' },
-          { texto: 'Quadras', para: '/cadastros/quadras' },
-          { texto: 'Lotes', para: '/lotes' },
         ],
       },
       {
         subtitulo: 'Pessoas',
         itens: [
-          { texto: 'Clientes', para: '/clientes' },
           { texto: 'Corretores', para: '/cadastros/corretores' },
           { texto: 'Parceiros', para: '/cadastros/parceiros' },
         ],
@@ -416,11 +421,6 @@ export const MODULOS: Modulo[] = [
     ],
   },
   {
-    id: 'mapa',
-    titulo: 'Mapa do loteamento',
-    secoes: [{ itens: [{ texto: 'Mapa interativo', para: '/mapa' }] }],
-  },
-  {
     id: 'portal-cliente',
     titulo: 'Portal do cliente',
     secoes: [
@@ -491,8 +491,6 @@ export const MODULOS: Modulo[] = [
         itens: [
           { texto: 'Integrações', para: '/integracoes' },
           { texto: 'APIs', para: '/configuracoes/apis' },
-          { texto: 'Usuários', para: '/cadastros/usuarios' },
-          { texto: 'Permissões', para: '/cadastros/permissoes' },
           { texto: 'Logs', para: '/configuracoes/logs' },
           { texto: 'Auditoria', para: '/auditoria' },
         ],
@@ -577,6 +575,68 @@ export const MODULOS: Modulo[] = [
     ],
   },
 ];
+
+function moduloBase(id: string): Modulo {
+  const modulo = MODULOS_BASE.find((item) => item.id === id);
+  if (!modulo) throw new Error(`Módulo de navegação não encontrado: ${id}`);
+  return modulo;
+}
+
+function combinarModulos(
+  id: string,
+  titulo: string,
+  ...modulos: string[]
+): Modulo {
+  return {
+    id,
+    titulo,
+    secoes: modulos.flatMap((modulo) => moduloBase(modulo).secoes),
+  };
+}
+
+/**
+ * Organização funcional da barra lateral. Cada módulo reúne o assunto que
+ * pertence ao mesmo processo, mesmo quando nasceu de telas diferentes.
+ */
+const MODULOS_ORGANIZADOS: Modulo[] = [
+  moduloBase('dashboard'),
+  moduloBase('comercial'),
+  moduloBase('clientes'),
+  moduloBase('contratos'),
+  moduloBase('loteamentos'),
+  combinarModulos('cobrancas', 'Cobranças', 'cobrancas', 'parcelas', 'boletos'),
+  moduloBase('financeiro'),
+  combinarModulos('documentos', 'Documentos e relatórios', 'documentos', 'relatorios'),
+  moduloBase('crm'),
+  moduloBase('cadastros'),
+  moduloBase('mobile'),
+  moduloBase('portal-cliente'),
+  moduloBase('portal-corretor'),
+  moduloBase('auditoria'),
+  combinarModulos('configuracoes', 'Configurações', 'configuracoes', 'integracoes'),
+];
+
+const PAPEIS_POR_MODULO: Record<string, Papel[]> = {
+  comercial: ['ADMINISTRADOR', 'VENDEDOR'],
+  clientes: ['ADMINISTRADOR', 'VENDEDOR', 'FINANCEIRO', 'CONSULTA'],
+  contratos: ['ADMINISTRADOR', 'VENDEDOR', 'FINANCEIRO', 'CONSULTA'],
+  loteamentos: ['ADMINISTRADOR', 'VENDEDOR', 'FINANCEIRO', 'CONSULTA'],
+  cobrancas: ['ADMINISTRADOR', 'FINANCEIRO', 'CONSULTA'],
+  financeiro: ['ADMINISTRADOR', 'FINANCEIRO', 'CONSULTA'],
+  documentos: ['ADMINISTRADOR', 'VENDEDOR', 'FINANCEIRO', 'CONSULTA'],
+  crm: ['ADMINISTRADOR', 'VENDEDOR'],
+  cadastros: ['ADMINISTRADOR'],
+  mobile: ['ADMINISTRADOR', 'VENDEDOR', 'FINANCEIRO'],
+  'portal-cliente': ['ADMINISTRADOR', 'VENDEDOR', 'FINANCEIRO'],
+  'portal-corretor': ['ADMINISTRADOR', 'VENDEDOR'],
+  auditoria: ['ADMINISTRADOR'],
+  configuracoes: ['ADMINISTRADOR'],
+};
+
+export const MODULOS: Modulo[] = MODULOS_ORGANIZADOS.map((modulo) => ({
+  ...modulo,
+  papeis: PAPEIS_POR_MODULO[modulo.id],
+}));
 
 /** Todas as folhas do mapa, achatadas — usado para gerar rotas. */
 export function todasAsFolhas(): Folha[] {

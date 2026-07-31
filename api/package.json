@@ -13,7 +13,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "seed": "tsx prisma/seed.ts",
-    "job:cobranca": "tsx src/jobs/ciclo-de-cobranca.ts"
+    "job:cobranca": "tsx src/jobs/ciclo-de-cobranca.ts",
+    "migrar:sienge": "tsx scripts/importar-sienge.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -26,6 +27,7 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
+    "pg": "^8.22.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -35,6 +37,7 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/multer": "^2.2.0",
     "@types/node": "^20.17.9",
+    "@types/pg": "^8.20.0",
     "prisma": "^5.22.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"

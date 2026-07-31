@@ -4,6 +4,7 @@ import { useAutenticacao } from '@/contextos/AutenticacaoContexto';
 import { rotuloDoPapel } from '@/lib/permissoes';
 import { MODULOS, moduloDoCaminho } from '@/lib/navegacao';
 import type { Modulo } from '@/lib/navegacao';
+import type { Papel } from '@/tipos/usuario';
 import { IconeDoModulo } from './IconeDoModulo';
 
 function classeDoLink({ isActive }: { isActive: boolean }): string {
@@ -17,8 +18,17 @@ function normalizar(texto: string): string {
     .replace(/[̀-ͯ]/g, '');
 }
 
+function moduloDisponivel(modulo: Modulo, papel: Papel | undefined): boolean {
+  return !modulo.papeis || (papel !== undefined && modulo.papeis.includes(papel));
+}
+
 /** Filtra um módulo pelos itens que casam com o termo de busca. */
-function filtrarModulo(modulo: Modulo, termo: string): Modulo | null {
+function filtrarModulo(
+  modulo: Modulo,
+  termo: string,
+  papel: Papel | undefined,
+): Modulo | null {
+  if (!moduloDisponivel(modulo, papel)) return null;
   if (!termo) return modulo;
   const secoes = modulo.secoes
     .map((secao) => ({
@@ -42,8 +52,11 @@ export function BarraLateral() {
   );
 
   const modulosVisiveis = useMemo(
-    () => MODULOS.map((modulo) => filtrarModulo(modulo, termo)).filter((m): m is Modulo => m !== null),
-    [termo],
+    () =>
+      MODULOS.map((modulo) => filtrarModulo(modulo, termo, usuario?.papel)).filter(
+        (m): m is Modulo => m !== null,
+      ),
+    [termo, usuario?.papel],
   );
 
   function alternar(id: string) {

@@ -206,3 +206,28 @@ ecadcliente (cliente) >── evndclicontrato ──< (titular/cônjuge do contr
 
 - PostgreSQL 17 rodando localmente (serviço `postgresql-x64-17`, porta 5432), mas **sem credenciais** conhecidas.
 - Para consultas SQL reais (JOINs, agregações), é preciso: a senha do `postgres` local, OU criar uma instância/container temporário e restaurar o dump com `pg_restore -d <db>`.
+
+## 9. Primeira camada aplicada no Gestrato
+
+Foi criada a base de migração incremental:
+
+- `origemSiengeId` nos clientes, empreendimentos, lotes, contratos, parcelas e pagamentos;
+- `ImportacaoSienge` e `RegistroImportacaoSienge` para auditoria e relatório de erros;
+- comando `npm run migrar:sienge` na API;
+- importação de `ecadempreend`, `ecadcliente`, `evndunidade`, `evndcontrato`, `ecrcparcela` e `ecrcbaixa`;
+- reexecução segura por chave de origem, sem duplicar registros.
+
+O comando lê uma base PostgreSQL restaurada do dump, não o arquivo `.dmpc` diretamente:
+
+```bash
+SIENGE_DATABASE_URL=postgresql://usuario:senha@localhost:55432/sie-10607-1 npm run migrar:sienge
+```
+
+Clientes sem CPF/CNPJ válido são preservados como `IGNORADO` no relatório da importação, pois o
+modelo atual do Gestrato exige documento válido para cobrança. As baixas recebem temporariamente
+`TRANSFERENCIA` como forma de pagamento e preservam os códigos originais no campo de observação;
+o catálogo de formas do dump não coincide diretamente com o enum do Gestrato e deve ser revisado
+antes da operação definitiva.
+
+Para validar o fluxo com poucos registros antes da carga completa, use `SIENGE_LIMITE=10`. Sem esse
+limite, a carga considera as 448.495 parcelas e 267.660 baixas encontradas no backup.

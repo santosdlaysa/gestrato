@@ -34,7 +34,11 @@ const CHAVES: readonly ChaveDeFiltroDeParcela[] = [
 
 const POR_PAGINA = 25;
 
-export function Parcelas() {
+interface Props {
+  modo?: 'padrao' | 'manual';
+}
+
+export function Parcelas({ modo = 'padrao' }: Props) {
   const papel = usePapel();
   const controle = useFiltrosNaUrl<ChaveDeFiltroDeParcela>(CHAVES);
   const { filtros, definirFiltro } = controle;
@@ -97,8 +101,12 @@ export function Parcelas() {
   return (
     <>
       <CabecalhoDaPagina
-        titulo="Cobrança · Parcelas"
-        descricao="Emissão de documentos, envio de cobrança e baixa de parcelas"
+        titulo={modo === 'manual' ? 'Cobrança manual' : 'Cobrança · Parcelas'}
+        descricao={
+          modo === 'manual'
+            ? 'Selecione uma parcela e envie a cobrança diretamente ao cliente'
+            : 'Emissão de documentos, envio de cobrança e baixa de parcelas'
+        }
         acoes={
           <button type="button" className="botao" onClick={requisicao.recarregar}>
             Atualizar
@@ -107,14 +115,17 @@ export function Parcelas() {
       />
 
       <div className="corpo-da-pagina pilha">
-        <Painel>
+        <Painel
+          titulo={modo === 'manual' ? 'Operação' : undefined}
+          descricao={modo === 'manual' ? 'Filtre as parcelas e envie a cobrança ao cliente' : undefined}
+        >
           <FiltrosDeParcelas controle={controle} loteamentos={loteamentos} clientes={clientes} />
         </Painel>
 
         <AvisoDeErro mensagem={lote.erro} />
 
         <Painel
-          titulo="Parcelas"
+          titulo={modo === 'manual' ? 'Parcelas para cobrança' : 'Parcelas'}
           descricao={
             requisicao.dados
               ? `${requisicao.dados.total} parcela(s) · ${formatarDinheiro(somarValoresAtualizados(parcelas))} atualizados nesta página`
