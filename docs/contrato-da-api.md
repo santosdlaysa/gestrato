@@ -156,7 +156,7 @@ Separar `EM_ATRASO` de `INADIMPLENTE` não é preciosismo: quem esqueceu o bolet
 | POST | `/parcelas/:id/documentos` | `{ tipo: "BOLETO"|"PIX"|"BOLETO_COM_PIX" }` — emite. |
 | POST | `/parcelas/:id/documentos/reemitir` | Cancela o vigente e emite outro com valor atualizado. |
 | GET | `/parcelas/:id/documentos` | Histórico de emissões. |
-| POST | `/parcelas/:id/cobrar` | `{ canal?, modelo? }` — envia cobrança avulsa agora. |
+| POST | `/parcelas/:id/cobrar` | `{ canais?: Canal[], modelo?, data? }` — envia cobrança avulsa agora. |
 | GET | `/cobrancas` | `?contratoId=&parcelaId=&clienteId=&status=&de=&ate=&pagina=` — histórico de envios. |
 
 Baixa manual:
@@ -172,6 +172,12 @@ Baixa manual:
   "observacoes": "Comprovante enviado no WhatsApp"
 }
 ```
+
+Envio avulso (`POST /parcelas/:id/cobrar`) — o corpo aceita `canais` (lista; ex.: `["WHATSAPP"]`), `modelo` (chave do modelo) e `data`; todos opcionais. Sem `canais`, usa o canal padrão do cliente. A resposta indica o desfecho:
+
+- **`201`** `{ "situacao": "ENVIADA", "cobranca": { id, canal, destino, enviadaEm, ... } }` — mensagem saiu.
+- **`502`** `{ "situacao": "FALHA", "cobranca": {...}, "motivo": "..." }` — registrada, mas o canal não entregou; `motivo` traz a razão.
+- **`422`** `{ "erro": { "tipo": "ErroDeRegraDeNegocio", "mensagem": "..." } }` — cliente sem canal de contato para o(s) canal(is) pedido(s).
 
 ## Régua de cobrança
 
@@ -282,6 +288,33 @@ A listagem devolve `{ itens, categoriasDisponiveis: [{ valor, rotulo }], tamanho
 ## Webhook de conciliação
 
 `POST /webhooks/cobranca/:provedor` — sem JWT. Grava o evento cru e dá baixa automática na parcela correspondente. Responde `200 { "recebido": true }` mesmo para evento repetido (idempotente).
+
+## Fluxo de caixa (tesouraria)
+
+Cadastros-base do controle de fluxo de caixa que substitui as planilhas financeiras (Fase 0). Todos paginados, com filtros `?busca=&ativo=true|false`. Leitura para qualquer autenticado; escrita (`POST`/`PUT`) exige a permissão `CADASTRAR`.
+
+| Método | Rota | Observação |
+| --- | --- | --- |
+| GET/POST | `/contas-bancarias` | contas da empresa (Sicoob, Sicredi…) |
+| PUT | `/contas-bancarias/:id` | |
+| GET/POST | `/socios-aportadores` | sócios que aportam capital |
+| PUT | `/socios-aportadores/:id` | |
+| GET/POST | `/empreendimentos-financeiros` | centros de custo; aceita `loteamentoId` opcional |
+| PUT | `/empreendimentos-financeiros/:id` | |
+| GET/POST | `/categorias-financeiras` | plano de rubricas; filtros extra `?tipo=ENTRADA|SAIDA&natureza=` |
+| PUT | `/categorias-financeiras/:id` | |
+
+`ContaBancaria`: `{ id, nome, instituicao, agencia, numero, saldoInicialCentavos, ativa, observacoes }`
+
+`SocioAportador`: `{ id, nome, documento, ativo, observacoes }`
+
+`EmpreendimentoFinanceiro`: `{ id, nome, loteamentoId, loteamento: { id, nome } | null, ativo, observacoes }`
+
+`CategoriaFinanceira`: `{ id, nome, tipo, natureza, ordem, ativa, observacoes }`
+- `tipo`: `ENTRADA | SAIDA` — decorre da `natureza` (recebível/aporte = `ENTRADA`; demais = `SAIDA`).
+- `natureza`: `RECEBIVEL_VENDA | APORTE | TRANSFERENCIA | DESPESA_FIXA | DESPESA_VARIAVEL | CUSTO_OBRA | OUTRO`.
+
+Os cadastros iniciais saem do seed isolado `npm run seed:fluxo` (3 contas, 4 sócios, 5 empreendimentos, 59 categorias). Diferente de `npm run seed`, ele **não** injeta massa de demonstração — é seguro contra um banco com dados reais.
 
 ## Dashboard
 

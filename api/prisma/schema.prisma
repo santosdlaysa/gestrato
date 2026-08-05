@@ -793,8 +793,18 @@ enum Canal {
 enum StatusCobranca {
   PENDENTE
   ENVIADA
+  ENTREGUE
+  LIDA
+  NAO_ENTREGUE
   FALHA
   CANCELADA
+}
+
+/// Quem originou a transição de uma cobrança: o próprio sistema (envio, falha
+/// interna) ou o provedor de mensagens (Twilio, via StatusCallback).
+enum OrigemDaTransicao {
+  SISTEMA
+  PROVEDOR
 }
 
 /// Configuracao da regua. Uma linha por etapa ("5 dias antes", "10 dias depois").
@@ -868,10 +878,30 @@ model Cobranca {
   parcela  Parcela  @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
   cliente  Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
 
+  transicoes TransicaoDeCobranca[]
+
   @@index([contratoId, criadaEm])
   @@index([parcelaId])
   @@index([status, dataDeReferencia])
   @@map("cobrancas")
+}
+
+/// Linha do tempo append-only de uma cobrança: cada mudança de estado — envio,
+/// falha, e as confirmações de entrega/leitura vindas do Twilio — vira uma
+/// transição, para responder "a mensagem chegou ao cliente?" sem sair do sistema.
+model TransicaoDeCobranca {
+  id             String            @id @default(uuid())
+  cobrancaId     String
+  status         StatusCobranca
+  statusProvedor String?
+  detalhe        String?
+  origem         OrigemDaTransicao @default(SISTEMA)
+  ocorridoEm     DateTime          @default(now())
+
+  cobranca Cobranca @relation(fields: [cobrancaId], references: [id], onDelete: Cascade)
+
+  @@index([cobrancaId, ocorridoEm])
+  @@map("transicoes_de_cobranca")
 }
 
 enum TipoDocumento {

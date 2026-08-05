@@ -228,7 +228,12 @@ function escolherMensageria(): Mensageria {
     case 'console':
       return new MensageriaConsole();
     case 'twilio':
-      return new MensageriaTwilio(ambiente.twilio);
+      return new MensageriaTwilio({
+        ...ambiente.twilio,
+        statusCallbackUrl: ambiente.urlBaseApi
+          ? `${ambiente.urlBaseApi.replace(/\/+$/, '')}/api/webhooks/mensageria/twilio`
+          : '',
+      });
     default:
       throw new Error(
         `Provedor de mensageria "${ambiente.provedorDeMensageria}" nao implementado. ` +

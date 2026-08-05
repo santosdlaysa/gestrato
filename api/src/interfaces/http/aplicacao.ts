@@ -24,6 +24,7 @@ import { criarRotasDeEstoque } from './rotas/estoque.rotas.js';
 import { criarRotasFiscais } from './rotas/fiscal.rotas.js';
 import { criarRotasDeComprasEEstoque } from './rotas/compras-estoque.rotas.js';
 import { criarRotasDeFluxoDeCaixa } from './rotas/fluxo-de-caixa.rotas.js';
+import { criarRotasDeWebhookDeMensageria, criarRotasDeTransicoesDeCobranca } from './rotas/mensageria.rotas.js';
 
 /**
  * Prefixos que exigem token. Mantenha em sincronia com os routers protegidos —
@@ -109,6 +110,8 @@ export function criarAplicacao(container: Container, rotasAdicionais: Router[] =
 
   // Publico: o provedor de pagamento nao tem token do sistema.
   aplicacao.use('/api', criarRotasDeWebhook(controladorDeCobranca));
+  // Publico: o Twilio chama o StatusCallback sem token do sistema.
+  aplicacao.use('/api', criarRotasDeWebhookDeMensageria());
 
   const exigirAutenticacao = criarExigirAutenticacao(container.servicoDeToken);
   aplicacao.use('/api', criarRotasDeAutenticacao(controladorDeAutenticacao, exigirAutenticacao));
@@ -130,6 +133,7 @@ export function criarAplicacao(container: Container, rotasAdicionais: Router[] =
     criarRotasFiscais(),
     criarRotasDeComprasEEstoque(),
     criarRotasDeFluxoDeCaixa(),
+    criarRotasDeTransicoesDeCobranca(),
     criarRotasDePaineis({
       consultasDePainel: container.consultasDePainel,
       consultasDeRelatorio: container.consultasDeRelatorio,

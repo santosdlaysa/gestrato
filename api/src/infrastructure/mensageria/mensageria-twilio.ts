@@ -12,6 +12,11 @@ export interface ConfiguracaoTwilio {
   readonly whatsappFrom: string;
   /** Remetente de SMS no Twilio (ex.: +12025550123). Vazio desliga o canal. */
   readonly smsFrom: string;
+  /**
+   * URL absoluta que o Twilio chama a cada mudança de status da mensagem
+   * (enviada → entregue → lida, ou não entregue). Vazio desliga a confirmação.
+   */
+  readonly statusCallbackUrl?: string;
 }
 
 /**
@@ -67,6 +72,9 @@ export class MensageriaTwilio implements Mensageria {
     }
 
     const corpo = new URLSearchParams({ From: rota.de, To: rota.para, Body: mensagem.corpo });
+    // Pede ao Twilio que avise cada mudança de status (entregue/lida/falhou) no
+    // webhook do sistema — é o que alimenta a linha do tempo da cobrança.
+    if (this.config.statusCallbackUrl) corpo.set('StatusCallback', this.config.statusCallbackUrl);
 
     try {
       const resposta = await fetch(this.url, {

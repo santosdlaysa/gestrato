@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { CabecalhoDaPagina } from '@/componentes/layout/CabecalhoDaPagina';
 import { Painel } from '@/componentes/comuns/Painel';
 import { Paginacao } from '@/componentes/comuns/Paginacao';
 import { ConteudoDaRequisicao } from '@/componentes/comuns/ConteudoDaRequisicao';
 import { CampoDeSelecao, CampoDeTexto } from '@/componentes/comuns/Campo';
 import { TabelaDeCobrancas } from '@/componentes/cobrancas/TabelaDeCobrancas';
+import { ModalDeTransicoes } from '@/componentes/cobrancas/ModalDeTransicoes';
 import { useFiltrosNaUrl } from '@/ganchos/useFiltrosNaUrl';
 import { useRequisicao } from '@/ganchos/useRequisicao';
 import { useOpcoesDeClientes } from '@/ganchos/useOpcoesDeCadastro';
@@ -28,6 +30,7 @@ export function Cobrancas() {
   const { filtros, definirFiltro, limpar, algumPreenchido } = useFiltrosNaUrl<Chave>(CHAVES);
   const clientes = useOpcoesDeClientes();
   const pagina = Number(filtros.pagina || 1);
+  const [detalheId, definirDetalheId] = useState<string | null>(null);
 
   const requisicao = useRequisicao(
     (sinal) =>
@@ -127,10 +130,12 @@ export function Cobrancas() {
             tituloDoVazio="Nenhuma cobrança enviada"
             descricaoDoVazio="Nenhum envio corresponde aos filtros selecionados."
           >
-            {(dados) => <TabelaDeCobrancas cobrancas={dados.itens ?? []} />}
+            {(dados) => <TabelaDeCobrancas cobrancas={dados.itens ?? []} aoVerDetalhes={definirDetalheId} />}
           </ConteudoDaRequisicao>
         </Painel>
       </div>
+
+      {detalheId && <ModalDeTransicoes cobrancaId={detalheId} aoFechar={() => definirDetalheId(null)} />}
     </>
   );
 }

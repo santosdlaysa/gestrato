@@ -433,6 +433,48 @@
   min-width: 200px;
 }
 
+/* Detalhe de cobrança: item empilhado (cabeçalho + descrição) sem afetar a régua. */
+.linha-do-tempo__corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.linha-do-tempo__cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.linha-do-tempo__detalhe {
+  margin: 0;
+  color: var(--texto-suave);
+  font-size: 13px;
+}
+
+/* Ficha de dados (rótulo em cima, valor embaixo). */
+.ficha dt {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.ficha dd {
+  margin: 0 0 8px;
+  word-break: break-word;
+}
+
+.bloco-de-mensagem {
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--superficie-suave);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+
 /* ---------- Abas ---------- */
 
 .abas {

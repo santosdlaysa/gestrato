@@ -4,7 +4,12 @@ import { formatarDataHora } from '@/lib/formato';
 import { rotuloDoCanal, tomDoStatusDeCobranca } from '@/lib/rotulos';
 import type { Cobranca } from '@/tipos/cobranca';
 
-export function TabelaDeCobrancas({ cobrancas }: { cobrancas: Cobranca[] }) {
+interface Props {
+  cobrancas: Cobranca[];
+  aoVerDetalhes?: (id: string) => void;
+}
+
+export function TabelaDeCobrancas({ cobrancas, aoVerDetalhes }: Props) {
   return (
     <div className="rolagem-horizontal">
       <table className="tabela">
@@ -18,6 +23,7 @@ export function TabelaDeCobrancas({ cobrancas }: { cobrancas: Cobranca[] }) {
             <th>Evento</th>
             <th>Status</th>
             <th>Erro</th>
+            {aoVerDetalhes && <th className="acoes">Ações</th>}
           </tr>
         </thead>
         <tbody>
@@ -39,6 +45,13 @@ export function TabelaDeCobrancas({ cobrancas }: { cobrancas: Cobranca[] }) {
                 <Selo texto={cobranca.status} tom={tomDoStatusDeCobranca(cobranca.status)} />
               </td>
               <td className="celula-larga texto-vencido">{cobranca.erro ?? ''}</td>
+              {aoVerDetalhes && (
+                <td className="acoes">
+                  <button type="button" className="botao botao--fantasma botao--pequeno" onClick={() => aoVerDetalhes(cobranca.id)}>
+                    Detalhes
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

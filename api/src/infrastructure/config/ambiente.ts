@@ -43,6 +43,12 @@ export const ambiente = {
   fusoHorario: texto('TZ_NEGOCIO', 'America/Sao_Paulo'),
   nomeDaEmpresa: texto('NOME_DA_EMPRESA', 'Gestrato Loteamentos'),
   urlPublica: texto('URL_PUBLICA', 'http://localhost:5173'),
+  /**
+   * URL pública da própria API (ex.: https://gestrato-api.onrender.com), usada
+   * para montar o StatusCallback que o Twilio chama ao atualizar a entrega.
+   * Vazio desliga o callback: o envio continua, só não recebe confirmação.
+   */
+  urlBaseApi: texto('URL_BASE_API', ''),
   /** Quem recebe o resumo do ciclo diario. Vazio desliga o alerta da equipe. */
   emailsDaEquipe: listaDeTextos('EMAILS_DA_EQUIPE'),
   armazenamentoDeArquivos: texto('ARMAZENAMENTO_ARQUIVOS', 'local'),

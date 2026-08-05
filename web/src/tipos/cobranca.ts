@@ -32,6 +32,42 @@ export interface Cobranca {
   cliente?: string | null;
 }
 
+/** Status detalhado do ciclo de vida da mensagem, como grava o back-end. */
+export type StatusCobrancaDetalhado =
+  | 'PENDENTE'
+  | 'ENVIADA'
+  | 'ENTREGUE'
+  | 'LIDA'
+  | 'NAO_ENTREGUE'
+  | 'FALHA'
+  | 'CANCELADA';
+
+export interface TransicaoDeCobranca {
+  status: StatusCobrancaDetalhado;
+  statusProvedor: string | null;
+  detalhe: string | null;
+  origem: 'SISTEMA' | 'PROVEDOR';
+  ocorridoEm: string;
+}
+
+export interface DetalheDeCobranca {
+  cobranca: {
+    id: string;
+    canal: Canal;
+    destino: string;
+    status: StatusCobrancaDetalhado;
+    assunto: string | null;
+    mensagem: string;
+    valorCobradoCentavos: number;
+    identificadorNoProvedor: string | null;
+    tentativas: number;
+    ultimoErro: string | null;
+    criadaEm: string;
+    enviadaEm: string | null;
+  };
+  transicoes: TransicaoDeCobranca[];
+}
+
 export type GatilhoDaRegua = 'ANTES_DO_VENCIMENTO' | 'NO_VENCIMENTO' | 'APOS_O_VENCIMENTO';
 
 export const GATILHOS: GatilhoDaRegua[] = [
