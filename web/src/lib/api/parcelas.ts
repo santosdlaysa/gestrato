@@ -61,13 +61,20 @@ export function listarDocumentos(
   return requisitar(`/parcelas/${id}/documentos`, { sinal });
 }
 
+export interface ResultadoDeCobranca {
+  situacao: 'ENVIADA' | 'FALHA';
+  cobranca: { id: string; canal: string; destino: string; enviadaEm: string | null };
+  motivo?: string;
+}
+
 export function cobrarAgora(
   id: string,
   canal?: string,
   modelo?: string,
-): Promise<unknown> {
-  return requisitar(`/parcelas/${id}/cobrar`, {
+): Promise<ResultadoDeCobranca> {
+  // A API espera `canais` (lista); um único canal é enviado como lista de um.
+  return requisitar<ResultadoDeCobranca>(`/parcelas/${id}/cobrar`, {
     metodo: 'POST',
-    corpo: { canal: canal || undefined, modelo: modelo || undefined },
+    corpo: { canais: canal ? [canal] : undefined, modelo: modelo || undefined },
   });
 }

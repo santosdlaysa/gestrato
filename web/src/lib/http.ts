@@ -82,11 +82,16 @@ async function lerErro(resposta: Response): Promise<ErroDaApi> {
   let mensagem = `Falha na requisição (HTTP ${resposta.status}).`;
   let detalhes: unknown[] = [];
   try {
-    const corpo = (await resposta.json()) as Partial<CorpoDeErro>;
+    const corpo = (await resposta.json()) as Partial<CorpoDeErro> & { motivo?: string; mensagem?: string; situacao?: string };
     if (corpo?.erro) {
       tipo = corpo.erro.tipo ?? tipo;
       mensagem = corpo.erro.mensagem ?? mensagem;
       detalhes = corpo.erro.detalhes ?? [];
+    } else if (typeof corpo?.motivo === 'string' || typeof corpo?.mensagem === 'string') {
+      // Respostas que sinalizam falha fora do envelope padrão de erro — por
+      // exemplo o envio de cobrança, que responde { situacao: 'FALHA', motivo }.
+      if (corpo.situacao) tipo = corpo.situacao;
+      mensagem = corpo.motivo ?? corpo.mensagem ?? mensagem;
     }
   } catch {
     /* resposta sem corpo JSON: mantém a mensagem padrão */
