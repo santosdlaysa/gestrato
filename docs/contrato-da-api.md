@@ -158,6 +158,7 @@ Separar `EM_ATRASO` de `INADIMPLENTE` não é preciosismo: quem esqueceu o bolet
 | GET | `/parcelas/:id/documentos` | Histórico de emissões. |
 | POST | `/parcelas/:id/cobrar` | `{ canais?: Canal[], modelo?, data? }` — envia cobrança avulsa agora. |
 | GET | `/cobrancas` | `?contratoId=&parcelaId=&clienteId=&status=&de=&ate=&pagina=` — histórico de envios. |
+| GET | `/cobrancas/:id/transicoes` | Detalhe + linha do tempo (criada → enviada → entregue → lida / não entregue). |
 
 Baixa manual:
 
@@ -178,6 +179,10 @@ Envio avulso (`POST /parcelas/:id/cobrar`) — o corpo aceita `canais` (lista; e
 - **`201`** `{ "situacao": "ENVIADA", "cobranca": { id, canal, destino, enviadaEm, ... } }` — mensagem saiu.
 - **`502`** `{ "situacao": "FALHA", "cobranca": {...}, "motivo": "..." }` — registrada, mas o canal não entregou; `motivo` traz a razão.
 - **`422`** `{ "erro": { "tipo": "ErroDeRegraDeNegocio", "mensagem": "..." } }` — cliente sem canal de contato para o(s) canal(is) pedido(s).
+
+Status de uma cobrança: `PENDENTE → ENVIADA → ENTREGUE → LIDA`, ou `NAO_ENTREGUE`/`FALHA`; `CANCELADA` fecha o ciclo. `ENVIADA` = aceita pelo provedor (não confirma que o cliente recebeu); `ENTREGUE`/`LIDA`/`NAO_ENTREGUE` vêm do provedor via webhook (ver abaixo).
+
+`GET /cobrancas/:id/transicoes` → `{ cobranca: { id, canal, destino, status, mensagem, valorCobradoCentavos, identificadorNoProvedor, tentativas, ultimoErro, criadaEm, enviadaEm }, transicoes: [{ status, statusProvedor, detalhe, origem: "SISTEMA"|"PROVEDOR", ocorridoEm }] }`. A linha do tempo soma os marcos internos (criada/enviada) às confirmações do provedor.
 
 ## Régua de cobrança
 
@@ -288,6 +293,8 @@ A listagem devolve `{ itens, categoriasDisponiveis: [{ valor, rotulo }], tamanho
 ## Webhook de conciliação
 
 `POST /webhooks/cobranca/:provedor` — sem JWT. Grava o evento cru e dá baixa automática na parcela correspondente. Responde `200 { "recebido": true }` mesmo para evento repetido (idempotente).
+
+`POST /webhooks/mensageria/twilio` — sem JWT, `application/x-www-form-urlencoded` (StatusCallback do Twilio). Casa a cobrança pelo `MessageSid` (= `identificadorNoProvedor`), grava a transição e avança o status sem retroceder: `delivered→ENTREGUE`, `read→LIDA`, `failed`/`undelivered→NAO_ENTREGUE`. Responde `200` sempre (inclusive quando o SID não casa, para o Twilio não reenviar em laço). Requer `URL_BASE_API` configurada para o Twilio saber a URL.
 
 ## Fluxo de caixa (tesouraria)
 
