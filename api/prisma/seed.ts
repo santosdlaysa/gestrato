@@ -37,6 +37,7 @@ import type {
 } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { config as carregarEnv } from 'dotenv';
+import { semearFluxoDeCaixa } from './dados/fluxo-de-caixa.js';
 
 carregarEnv();
 
@@ -2304,6 +2305,9 @@ async function main(): Promise<void> {
 
   await semearCenariosDeStatus(clientes, lotes);
   console.log('  cenários de status (cobertura completa dos enums) ok');
+
+  const fluxo = await semearFluxoDeCaixa(prisma);
+  console.log(`  fluxo de caixa: ${fluxo.contas} contas, ${fluxo.socios} sócios, ${fluxo.empreendimentos} empreendimentos, ${fluxo.categorias} categorias ok`);
 
   await imprimirResumo(resumo);
 }

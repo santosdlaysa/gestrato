@@ -325,6 +325,15 @@ const MODULOS_BASE: Modulo[] = [
         ],
       },
       {
+        subtitulo: 'Fluxo de caixa',
+        itens: [
+          { texto: 'Contas bancárias', para: '/financeiro/contas-bancarias' },
+          { texto: 'Sócios (aportes)', para: '/financeiro/socios' },
+          { texto: 'Empreendimentos', para: '/financeiro/empreendimentos' },
+          { texto: 'Categorias financeiras', para: '/financeiro/categorias' },
+        ],
+      },
+      {
         subtitulo: 'Caixa',
         itens: [
           { texto: 'Caixa diário', para: '/financeiro/caixa-diario' },

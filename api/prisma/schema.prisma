@@ -59,9 +59,9 @@ model Empresa {
   criadoEm       DateTime @default(now())
   atualizadoEm   DateTime @updatedAt
 
-  contasAPagar ContaAPagar[]
-  obras       Obra[]
-  centrosDeCusto CentroDeCusto[]
+  contasAPagar      ContaAPagar[]
+  obras             Obra[]
+  centrosDeCusto    CentroDeCusto[]
   documentosFiscais DocumentoFiscal[]
 
   @@index([nome])
@@ -69,29 +69,29 @@ model Empresa {
 }
 
 model Obra {
-  id                  String   @id @default(uuid())
-  origemSiengeId      String?  @unique
-  empresaId           String?
-  nome                String
-  situacaoOrigem      String?
-  tipoObraOrigem      Int?
-  areaTotal           Float?
-  areaTerreno         Float?
-  pavimentos          Int?
+  id                    String    @id @default(uuid())
+  origemSiengeId        String?   @unique
+  empresaId             String?
+  nome                  String
+  situacaoOrigem        String?
+  tipoObraOrigem        Int?
+  areaTotal             Float?
+  areaTerreno           Float?
+  pavimentos            Int?
   orcamentoBaseCentavos Int?
-  inicio              DateTime? @db.Date
-  termino             DateTime? @db.Date
-  enderecoEntrega     String?
-  bairroEntrega       String?
-  cepEntrega          String?
-  observacoes         String?
-  ativa               Boolean  @default(true)
-  criadoEm            DateTime @default(now())
-  atualizadoEm        DateTime @updatedAt
+  inicio                DateTime? @db.Date
+  termino               DateTime? @db.Date
+  enderecoEntrega       String?
+  bairroEntrega         String?
+  cepEntrega            String?
+  observacoes           String?
+  ativa                 Boolean   @default(true)
+  criadoEm              DateTime  @default(now())
+  atualizadoEm          DateTime  @updatedAt
 
-  empresa       Empresa?        @relation(fields: [empresaId], references: [id])
+  empresa        Empresa?        @relation(fields: [empresaId], references: [id])
   centrosDeCusto CentroDeCusto[]
-  pedidosCompra PedidoCompra[]
+  pedidosCompra  PedidoCompra[]
 
   @@index([empresaId])
   @@index([nome])
@@ -99,22 +99,22 @@ model Obra {
 }
 
 model CentroDeCusto {
-  id             String   @id @default(uuid())
-  origemSiengeId String?  @unique
-  empresaId      String?
-  obraId         String?
-  nome           String
-  categoria      String?
-  situacaoOrigem String?
-  usaNaObra      Boolean  @default(false)
-  controlaEstoque Boolean @default(false)
+  id                      String   @id @default(uuid())
+  origemSiengeId          String?  @unique
+  empresaId               String?
+  obraId                  String?
+  nome                    String
+  categoria               String?
+  situacaoOrigem          String?
+  usaNaObra               Boolean  @default(false)
+  controlaEstoque         Boolean  @default(false)
   percentualAdministracao Float?
-  observacoes    String?
-  criadoEm       DateTime @default(now())
-  atualizadoEm   DateTime @updatedAt
+  observacoes             String?
+  criadoEm                DateTime @default(now())
+  atualizadoEm            DateTime @updatedAt
 
-  empresa Empresa? @relation(fields: [empresaId], references: [id])
-  obra    Obra?    @relation(fields: [obraId], references: [id])
+  empresa       Empresa?       @relation(fields: [empresaId], references: [id])
+  obra          Obra?          @relation(fields: [obraId], references: [id])
   pedidosCompra PedidoCompra[]
 
   @@index([empresaId])
@@ -154,28 +154,28 @@ model GrupoInsumo {
 }
 
 model Insumo {
-  id                    String   @id @default(uuid())
-  origemSiengeId        String?  @unique
-  tabelaOrigem          Int
-  codigoOrigem          Int
-  unidadeId             String?
-  grupoId               String?
-  nome                  String
-  sinonimo              String?
-  classificacaoFiscal   String?
-  tempoEntregaDias      Int?
-  ativo                 Boolean  @default(true)
-  controlaPreco         Boolean  @default(false)
-  controlaQuantidade    Boolean  @default(false)
-  controlaEstoque       Boolean  @default(true)
-  observacoes           String?
-  criadoEm              DateTime @default(now())
-  atualizadoEm          DateTime @updatedAt
+  id                  String   @id @default(uuid())
+  origemSiengeId      String?  @unique
+  tabelaOrigem        Int
+  codigoOrigem        Int
+  unidadeId           String?
+  grupoId             String?
+  nome                String
+  sinonimo            String?
+  classificacaoFiscal String?
+  tempoEntregaDias    Int?
+  ativo               Boolean  @default(true)
+  controlaPreco       Boolean  @default(false)
+  controlaQuantidade  Boolean  @default(false)
+  controlaEstoque     Boolean  @default(true)
+  observacoes         String?
+  criadoEm            DateTime @default(now())
+  atualizadoEm        DateTime @updatedAt
 
-  unidade UnidadeMedida? @relation(fields: [unidadeId], references: [id])
-  grupo   GrupoInsumo?    @relation(fields: [grupoId], references: [id])
-  precos  PrecoInsumo[]
-  itensPedidosCompra ItemPedidoCompra[]
+  unidade                UnidadeMedida?         @relation(fields: [unidadeId], references: [id])
+  grupo                  GrupoInsumo?           @relation(fields: [grupoId], references: [id])
+  precos                 PrecoInsumo[]
+  itensPedidosCompra     ItemPedidoCompra[]
   itensMovimentosEstoque ItemMovimentoEstoque[]
 
   @@index([nome])
@@ -185,20 +185,20 @@ model Insumo {
 }
 
 model PrecoInsumo {
-  id                   String   @id @default(uuid())
-  origemSiengeId       String?  @unique
-  insumoId             String
-  codigoPrecoOrigem    Int
-  valorCentavos        Int
-  precoAutorizadoCentavos Int @default(0)
-  custoMedioCentavos   Int      @default(0)
-  ultimoCustoCentavos  Int      @default(0)
-  dataPreco            DateTime? @db.Date
-  dataAutorizacao      DateTime? @db.Date
-  dataUltimoCusto      DateTime? @db.Date
-  orcado               Boolean  @default(true)
-  criadoEm             DateTime @default(now())
-  atualizadoEm         DateTime @updatedAt
+  id                      String    @id @default(uuid())
+  origemSiengeId          String?   @unique
+  insumoId                String
+  codigoPrecoOrigem       Int
+  valorCentavos           Int
+  precoAutorizadoCentavos Int       @default(0)
+  custoMedioCentavos      Int       @default(0)
+  ultimoCustoCentavos     Int       @default(0)
+  dataPreco               DateTime? @db.Date
+  dataAutorizacao         DateTime? @db.Date
+  dataUltimoCusto         DateTime? @db.Date
+  orcado                  Boolean   @default(true)
+  criadoEm                DateTime  @default(now())
+  atualizadoEm            DateTime  @updatedAt
 
   insumo Insumo @relation(fields: [insumoId], references: [id], onDelete: Cascade)
 
@@ -207,41 +207,41 @@ model PrecoInsumo {
 }
 
 model DocumentoFiscal {
-  id             String   @id @default(uuid())
-  origemSiengeId String?  @unique
-  origemTabela   String
-  lancamentoOrigem Int
-  empresaId      String?
-  fornecedorId   String?
-  clienteId      String?
-  numero         String
-  serie          String
-  tipoOrigem     Int
-  origemCodigo   String
-  emitidoEm      DateTime @db.Date
-  registradoEm   DateTime @db.Date
-  valorContabilCentavos Int @default(0)
-  descontoCentavos Int @default(0)
-  freteCentavos  Int @default(0)
-  seguroCentavos Int @default(0)
-  outrasDespesasCentavos Int @default(0)
-  baseIcmsCentavos Int @default(0)
-  icmsCentavos   Int @default(0)
-  ipiCentavos    Int @default(0)
-  issCentavos    Int @default(0)
-  inssCentavos   Int @default(0)
-  irCentavos     Int @default(0)
-  pisCentavos    Int @default(0)
-  cofinsCentavos Int @default(0)
-  statusOrigem   String?
-  chaveAcesso    String?
-  observacoes    String?
-  criadoEm       DateTime @default(now())
-  atualizadoEm   DateTime @updatedAt
+  id                     String   @id @default(uuid())
+  origemSiengeId         String?  @unique
+  origemTabela           String
+  lancamentoOrigem       Int
+  empresaId              String?
+  fornecedorId           String?
+  clienteId              String?
+  numero                 String
+  serie                  String
+  tipoOrigem             Int
+  origemCodigo           String
+  emitidoEm              DateTime @db.Date
+  registradoEm           DateTime @db.Date
+  valorContabilCentavos  Int      @default(0)
+  descontoCentavos       Int      @default(0)
+  freteCentavos          Int      @default(0)
+  seguroCentavos         Int      @default(0)
+  outrasDespesasCentavos Int      @default(0)
+  baseIcmsCentavos       Int      @default(0)
+  icmsCentavos           Int      @default(0)
+  ipiCentavos            Int      @default(0)
+  issCentavos            Int      @default(0)
+  inssCentavos           Int      @default(0)
+  irCentavos             Int      @default(0)
+  pisCentavos            Int      @default(0)
+  cofinsCentavos         Int      @default(0)
+  statusOrigem           String?
+  chaveAcesso            String?
+  observacoes            String?
+  criadoEm               DateTime @default(now())
+  atualizadoEm           DateTime @updatedAt
 
-  empresa    Empresa?    @relation(fields: [empresaId], references: [id])
-  fornecedor Fornecedor? @relation(fields: [fornecedorId], references: [id])
-  cliente    Cliente?    @relation(fields: [clienteId], references: [id])
+  empresa    Empresa?              @relation(fields: [empresaId], references: [id])
+  fornecedor Fornecedor?           @relation(fields: [fornecedorId], references: [id])
+  cliente    Cliente?              @relation(fields: [clienteId], references: [id])
   itens      ItemDocumentoFiscal[]
 
   @@index([emitidoEm])
@@ -252,28 +252,28 @@ model DocumentoFiscal {
 }
 
 model ItemDocumentoFiscal {
-  id             String   @id @default(uuid())
-  origemSiengeId String?  @unique
-  documentoId   String
-  sequenciaOrigem Int
-  produto        String?
-  ncm            String?
-  cfop           String?
-  unidadeOrigem Int?
-  quantidade     Float    @default(0)
-  precoUnitarioCentavos Int @default(0)
-  totalCentavos  Int      @default(0)
-  descontoCentavos Int    @default(0)
-  freteCentavos  Int      @default(0)
-  seguroCentavos Int      @default(0)
-  baseIcmsCentavos Int    @default(0)
-  icmsCentavos   Int      @default(0)
-  ipiCentavos    Int      @default(0)
-  pisCentavos    Int      @default(0)
-  cofinsCentavos Int      @default(0)
-  observacoes    String?
-  criadoEm       DateTime @default(now())
-  atualizadoEm   DateTime @updatedAt
+  id                    String   @id @default(uuid())
+  origemSiengeId        String?  @unique
+  documentoId           String
+  sequenciaOrigem       Int
+  produto               String?
+  ncm                   String?
+  cfop                  String?
+  unidadeOrigem         Int?
+  quantidade            Float    @default(0)
+  precoUnitarioCentavos Int      @default(0)
+  totalCentavos         Int      @default(0)
+  descontoCentavos      Int      @default(0)
+  freteCentavos         Int      @default(0)
+  seguroCentavos        Int      @default(0)
+  baseIcmsCentavos      Int      @default(0)
+  icmsCentavos          Int      @default(0)
+  ipiCentavos           Int      @default(0)
+  pisCentavos           Int      @default(0)
+  cofinsCentavos        Int      @default(0)
+  observacoes           String?
+  criadoEm              DateTime @default(now())
+  atualizadoEm          DateTime @updatedAt
 
   documento DocumentoFiscal @relation(fields: [documentoId], references: [id], onDelete: Cascade)
 
@@ -282,30 +282,30 @@ model ItemDocumentoFiscal {
 }
 
 model PedidoCompra {
-  id             String   @id @default(uuid())
-  origemSiengeId String?  @unique
-  fornecedorId   String?
-  obraId         String?
-  centroDeCustoId String?
-  numeroOrigem   Int
-  pedidoEm       DateTime @db.Date
-  situacaoOrigem String?
-  autorizado     Boolean  @default(false)
-  valorItensCentavos Int @default(0)
-  descontoCentavos Int @default(0)
-  outrasDespesasCentavos Int @default(0)
-  freteCentavos  Int @default(0)
-  valorTotalCentavos Int @default(0)
-  condicaoPagamento String?
-  enderecoEntrega String?
-  observacoes    String?
-  criadoEm       DateTime @default(now())
-  atualizadoEm   DateTime @updatedAt
+  id                     String   @id @default(uuid())
+  origemSiengeId         String?  @unique
+  fornecedorId           String?
+  obraId                 String?
+  centroDeCustoId        String?
+  numeroOrigem           Int
+  pedidoEm               DateTime @db.Date
+  situacaoOrigem         String?
+  autorizado             Boolean  @default(false)
+  valorItensCentavos     Int      @default(0)
+  descontoCentavos       Int      @default(0)
+  outrasDespesasCentavos Int      @default(0)
+  freteCentavos          Int      @default(0)
+  valorTotalCentavos     Int      @default(0)
+  condicaoPagamento      String?
+  enderecoEntrega        String?
+  observacoes            String?
+  criadoEm               DateTime @default(now())
+  atualizadoEm           DateTime @updatedAt
 
-  fornecedor Fornecedor? @relation(fields: [fornecedorId], references: [id])
-  obra       Obra?       @relation(fields: [obraId], references: [id])
-  centroDeCusto CentroDeCusto? @relation(fields: [centroDeCustoId], references: [id])
-  itens      ItemPedidoCompra[]
+  fornecedor    Fornecedor?        @relation(fields: [fornecedorId], references: [id])
+  obra          Obra?              @relation(fields: [obraId], references: [id])
+  centroDeCusto CentroDeCusto?     @relation(fields: [centroDeCustoId], references: [id])
+  itens         ItemPedidoCompra[]
 
   @@index([pedidoEm])
   @@index([fornecedorId])
@@ -314,20 +314,20 @@ model PedidoCompra {
 }
 
 model ItemPedidoCompra {
-  id             String   @id @default(uuid())
-  origemSiengeId String?  @unique
-  pedidoId       String
-  sequenciaOrigem Int
-  insumoId       String?
-  descricao      String
-  quantidade     Float    @default(0)
-  precoUnitarioCentavos Int @default(0)
-  descontoCentavos Int @default(0)
-  freteUnitarioCentavos Int @default(0)
-  precoEstimadoCentavos Int @default(0)
-  observacoes    String?
-  criadoEm       DateTime @default(now())
-  atualizadoEm   DateTime @updatedAt
+  id                    String   @id @default(uuid())
+  origemSiengeId        String?  @unique
+  pedidoId              String
+  sequenciaOrigem       Int
+  insumoId              String?
+  descricao             String
+  quantidade            Float    @default(0)
+  precoUnitarioCentavos Int      @default(0)
+  descontoCentavos      Int      @default(0)
+  freteUnitarioCentavos Int      @default(0)
+  precoEstimadoCentavos Int      @default(0)
+  observacoes           String?
+  criadoEm              DateTime @default(now())
+  atualizadoEm          DateTime @updatedAt
 
   pedido PedidoCompra @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
   insumo Insumo?      @relation(fields: [insumoId], references: [id], onDelete: SetNull)
@@ -338,16 +338,16 @@ model ItemPedidoCompra {
 }
 
 model TipoMovimentoEstoque {
-  id             String   @id @default(uuid())
-  origemSiengeId String?  @unique
-  nome           String
+  id              String   @id @default(uuid())
+  origemSiengeId  String?  @unique
+  nome            String
   movimentoOrigem String?
-  entrada        Boolean  @default(false)
-  saida          Boolean  @default(false)
-  calculaCusto   Boolean  @default(false)
-  ativo          Boolean  @default(true)
-  criadoEm       DateTime @default(now())
-  atualizadoEm   DateTime @updatedAt
+  entrada         Boolean  @default(false)
+  saida           Boolean  @default(false)
+  calculaCusto    Boolean  @default(false)
+  ativo           Boolean  @default(true)
+  criadoEm        DateTime @default(now())
+  atualizadoEm    DateTime @updatedAt
 
   movimentos MovimentoEstoque[]
 
@@ -355,24 +355,24 @@ model TipoMovimentoEstoque {
 }
 
 model MovimentoEstoque {
-  id             String   @id @default(uuid())
-  origemSiengeId String?  @unique
-  documento      String
-  numeroOrigem   String
-  tipoId         String?
-  fornecedorId   String?
-  obraOrigemId   Int?
-  centroOrigemId Int?
-  obraDestinoId  Int?
+  id              String   @id @default(uuid())
+  origemSiengeId  String?  @unique
+  documento       String
+  numeroOrigem    String
+  tipoId          String?
+  fornecedorId    String?
+  obraOrigemId    Int?
+  centroOrigemId  Int?
+  obraDestinoId   Int?
   centroDestinoId Int?
-  movimentoEm    DateTime @db.Date
-  consistente    Boolean  @default(false)
-  observacoes    String?
-  criadoEm       DateTime @default(now())
-  atualizadoEm   DateTime @updatedAt
+  movimentoEm     DateTime @db.Date
+  consistente     Boolean  @default(false)
+  observacoes     String?
+  criadoEm        DateTime @default(now())
+  atualizadoEm    DateTime @updatedAt
 
-  tipo       TipoMovimentoEstoque? @relation(fields: [tipoId], references: [id])
-  fornecedor Fornecedor?           @relation(fields: [fornecedorId], references: [id])
+  tipo       TipoMovimentoEstoque?  @relation(fields: [tipoId], references: [id])
+  fornecedor Fornecedor?            @relation(fields: [fornecedorId], references: [id])
   itens      ItemMovimentoEstoque[]
 
   @@index([movimentoEm])
@@ -382,20 +382,20 @@ model MovimentoEstoque {
 }
 
 model ItemMovimentoEstoque {
-  id             String   @id @default(uuid())
-  origemSiengeId String?  @unique
-  movimentoId    String
-  sequenciaOrigem Int
-  insumoId       String?
-  unidadeMovOrigem Int
-  descricao      String
-  quantidade     Float    @default(0)
-  precoUnitarioCentavos Int @default(0)
-  contaOrigem    String?
-  contaDestino   String?
-  observacoes    String?
-  criadoEm       DateTime @default(now())
-  atualizadoEm   DateTime @updatedAt
+  id                    String   @id @default(uuid())
+  origemSiengeId        String?  @unique
+  movimentoId           String
+  sequenciaOrigem       Int
+  insumoId              String?
+  unidadeMovOrigem      Int
+  descricao             String
+  quantidade            Float    @default(0)
+  precoUnitarioCentavos Int      @default(0)
+  contaOrigem           String?
+  contaDestino          String?
+  observacoes           String?
+  criadoEm              DateTime @default(now())
+  atualizadoEm          DateTime @updatedAt
 
   movimento MovimentoEstoque @relation(fields: [movimentoId], references: [id], onDelete: Cascade)
   insumo    Insumo?          @relation(fields: [insumoId], references: [id], onDelete: SetNull)
@@ -432,8 +432,8 @@ model Cliente {
   criadoEm       DateTime   @default(now())
   atualizadoEm   DateTime   @updatedAt
 
-  contratos Contrato[]
-  cobrancas Cobranca[]
+  contratos         Contrato[]
+  cobrancas         Cobranca[]
   documentosFiscais DocumentoFiscal[]
 
   @@index([nome])
@@ -451,7 +451,8 @@ model Loteamento {
   criadoEm            DateTime @default(now())
   atualizadoEm        DateTime @updatedAt
 
-  quadras Quadra[]
+  quadras                    Quadra[]
+  empreendimentosFinanceiros EmpreendimentoFinanceiro[]
 
   @@map("loteamentos")
 }
@@ -498,15 +499,15 @@ model Lote {
 
 /// Fora do nucleo de cobranca: guardado apenas para o relatorio de comissao.
 model Corretor {
-  id                    String   @id @default(uuid())
-  nome                  String
-  documento             String?  @unique
-  email                 String?
-  telefone              String?
-  percentualDeComissao  Float    @default(0)
-  ativo                 Boolean  @default(true)
-  criadoEm              DateTime @default(now())
-  atualizadoEm          DateTime @updatedAt
+  id                   String   @id @default(uuid())
+  nome                 String
+  documento            String?  @unique
+  email                String?
+  telefone             String?
+  percentualDeComissao Float    @default(0)
+  ativo                Boolean  @default(true)
+  criadoEm             DateTime @default(now())
+  atualizadoEm         DateTime @updatedAt
 
   contratos Contrato[]
 
@@ -543,9 +544,9 @@ model Fornecedor {
   criadoEm       DateTime @default(now())
   atualizadoEm   DateTime @updatedAt
 
-  contasAPagar ContaAPagar[]
+  contasAPagar      ContaAPagar[]
   documentosFiscais DocumentoFiscal[]
-  pedidosCompra PedidoCompra[]
+  pedidosCompra     PedidoCompra[]
   movimentosEstoque MovimentoEstoque[]
 
   @@index([nome])
@@ -560,27 +561,27 @@ enum StatusContaAPagar {
 }
 
 model ContaAPagar {
-  id             String          @id @default(uuid())
-  origemSiengeId String?         @unique
-  fornecedorId   String?
-  empresaId      String?
-  numeroDocumento String?
-  descricao      String?
+  id                    String            @id @default(uuid())
+  origemSiengeId        String?           @unique
+  fornecedorId          String?
+  empresaId             String?
+  numeroDocumento       String?
+  descricao             String?
   valorOriginalCentavos Int
-  valorPagoCentavos     Int             @default(0)
-  jurosCentavos         Int             @default(0)
-  multaCentavos         Int             @default(0)
-  descontoCentavos      Int             @default(0)
-  vencimento            DateTime        @db.Date
+  valorPagoCentavos     Int               @default(0)
+  jurosCentavos         Int               @default(0)
+  multaCentavos         Int               @default(0)
+  descontoCentavos      Int               @default(0)
+  vencimento            DateTime          @db.Date
   status                StatusContaAPagar @default(PENDENTE)
-  pagoEm               DateTime?       @db.Date
-  formaPagamento       FormaPagamento?
-  observacoes          String?
-  criadoEm             DateTime        @default(now())
-  atualizadoEm         DateTime        @updatedAt
+  pagoEm                DateTime?         @db.Date
+  formaPagamento        FormaPagamento?
+  observacoes           String?
+  criadoEm              DateTime          @default(now())
+  atualizadoEm          DateTime          @updatedAt
 
-  fornecedor Fornecedor?          @relation(fields: [fornecedorId], references: [id])
-  empresa    Empresa?             @relation(fields: [empresaId], references: [id])
+  fornecedor Fornecedor?            @relation(fields: [fornecedorId], references: [id])
+  empresa    Empresa?               @relation(fields: [empresaId], references: [id])
   pagamentos PagamentoContaAPagar[]
 
   @@index([vencimento, status])
@@ -590,17 +591,17 @@ model ContaAPagar {
 }
 
 model PagamentoContaAPagar {
-  id             String   @id @default(uuid())
-  origemSiengeId String?  @unique
-  contaId        String
-  valorCentavos  Int
-  jurosCentavos  Int      @default(0)
-  multaCentavos  Int      @default(0)
-  descontoCentavos Int    @default(0)
-  pagoEm         DateTime @db.Date
-  formaPagamento FormaPagamento?
-  observacoes    String?
-  criadoEm       DateTime @default(now())
+  id               String          @id @default(uuid())
+  origemSiengeId   String?         @unique
+  contaId          String
+  valorCentavos    Int
+  jurosCentavos    Int             @default(0)
+  multaCentavos    Int             @default(0)
+  descontoCentavos Int             @default(0)
+  pagoEm           DateTime        @db.Date
+  formaPagamento   FormaPagamento?
+  observacoes      String?
+  criadoEm         DateTime        @default(now())
 
   conta ContaAPagar @relation(fields: [contaId], references: [id], onDelete: Cascade)
 
@@ -644,12 +645,12 @@ enum FormaPagamento {
 }
 
 model Contrato {
-  id         String  @id @default(uuid())
+  id             String  @id @default(uuid())
   origemSiengeId String? @unique
-  numero     String  @unique
-  clienteId  String
-  loteId     String
-  corretorId String?
+  numero         String  @unique
+  clienteId      String
+  loteId         String
+  corretorId     String?
 
   // Condicoes comerciais — a fonte de onde as parcelas nascem.
   valorTotalCentavos     Int
@@ -673,9 +674,9 @@ model Contrato {
   criadoEm       DateTime       @default(now())
   atualizadoEm   DateTime       @updatedAt
 
-  cliente       Cliente        @relation(fields: [clienteId], references: [id])
-  lote          Lote           @relation(fields: [loteId], references: [id])
-  corretor      Corretor?      @relation(fields: [corretorId], references: [id])
+  cliente       Cliente               @relation(fields: [clienteId], references: [id])
+  lote          Lote                  @relation(fields: [loteId], references: [id])
+  corretor      Corretor?             @relation(fields: [corretorId], references: [id])
   parcelas      Parcela[]
   pagamentos    Pagamento[]
   cobrancas     Cobranca[]
@@ -703,23 +704,23 @@ enum TipoParcela {
 }
 
 model Parcela {
-  id         String      @id @default(uuid())
-  origemSiengeId String?  @unique
-  contratoId String
-  numero     Int
-  tipo       TipoParcela @default(FINANCIAMENTO)
+  id             String      @id @default(uuid())
+  origemSiengeId String?     @unique
+  contratoId     String
+  numero         Int
+  tipo           TipoParcela @default(FINANCIAMENTO)
 
   valorOriginalCentavos Int
   vencimento            DateTime @db.Date
 
-  status                   StatusParcela   @default(PENDENTE)
-  valorPagoCentavos        Int             @default(0)
-  jurosRecebidosCentavos   Int             @default(0)
-  multaRecebidaCentavos    Int             @default(0)
-  descontoConcedidoCentavos Int            @default(0)
-  pagoEm                   DateTime?       @db.Date
-  formaPagamento           FormaPagamento?
-  descricao                String?
+  status                    StatusParcela   @default(PENDENTE)
+  valorPagoCentavos         Int             @default(0)
+  jurosRecebidosCentavos    Int             @default(0)
+  multaRecebidaCentavos     Int             @default(0)
+  descontoConcedidoCentavos Int             @default(0)
+  pagoEm                    DateTime?       @db.Date
+  formaPagamento            FormaPagamento?
+  descricao                 String?
 
   /// Preenchido quando esta parcela foi substituida por um acordo.
   renegociacaoOrigemId String?
@@ -746,26 +747,26 @@ model Parcela {
 
 /// Historico de baixas. Uma parcela pode receber varias (pagamento parcial).
 model Pagamento {
-  id         String @id @default(uuid())
+  id             String  @id @default(uuid())
   origemSiengeId String? @unique
-  parcelaId  String
-  contratoId String
+  parcelaId      String
+  contratoId     String
 
   valorPrincipalCentavos Int
-  valorJurosCentavos     Int      @default(0)
-  valorMultaCentavos     Int      @default(0)
-  valorDescontoCentavos  Int      @default(0)
+  valorJurosCentavos     Int            @default(0)
+  valorMultaCentavos     Int            @default(0)
+  valorDescontoCentavos  Int            @default(0)
   valorTotalCentavos     Int
-  pagoEm                 DateTime @db.Date
+  pagoEm                 DateTime       @db.Date
   formaPagamento         FormaPagamento
 
   /// "MANUAL" ou o nome do provedor que confirmou (webhook de conciliacao).
-  origem       String  @default("MANUAL")
-  documentoId  String?
+  origem        String   @default("MANUAL")
+  documentoId   String?
   registradoPor String?
-  observacoes  String?
-  estornado    Boolean  @default(false)
-  criadoEm     DateTime @default(now())
+  observacoes   String?
+  estornado     Boolean  @default(false)
+  criadoEm      DateTime @default(now())
 
   parcela  Parcela  @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
   contrato Contrato @relation(fields: [contratoId], references: [id], onDelete: Cascade)
@@ -798,17 +799,17 @@ enum StatusCobranca {
 
 /// Configuracao da regua. Uma linha por etapa ("5 dias antes", "10 dias depois").
 model EventoDeRegua {
-  id        String   @id @default(uuid())
-  gatilho   Gatilho
-  dias      Int      @default(0)
-  canais    Canal[]
-  modelo    String
+  id              String        @id @default(uuid())
+  gatilho         Gatilho
+  dias            Int           @default(0)
+  canais          Canal[]
+  modelo          String
   /// Garante boleto/Pix atualizado antes de enviar a mensagem desta etapa.
   emitirDocumento Boolean       @default(true)
   tipoDeDocumento TipoDocumento @default(BOLETO_COM_PIX)
-  ativo     Boolean  @default(true)
-  criadoEm  DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
+  ativo           Boolean       @default(true)
+  criadoEm        DateTime      @default(now())
+  atualizadoEm    DateTime      @updatedAt
 
   @@unique([gatilho, dias])
   @@map("eventos_de_regua")
@@ -848,20 +849,20 @@ model Cobranca {
   /// `parcelaId:GATILHO:dias` — impede a regua de mandar a mesma etapa duas vezes.
   chaveDeIdempotencia String @unique
 
-  gatilho             Gatilho
-  dias                Int            @default(0)
-  canal               Canal
-  destino             String
-  assunto             String?
-  mensagem            String
-  valorCobradoCentavos Int
-  dataDeReferencia    DateTime       @db.Date
-  status              StatusCobranca @default(PENDENTE)
-  tentativas          Int            @default(0)
-  ultimoErro          String?
+  gatilho                 Gatilho
+  dias                    Int            @default(0)
+  canal                   Canal
+  destino                 String
+  assunto                 String?
+  mensagem                String
+  valorCobradoCentavos    Int
+  dataDeReferencia        DateTime       @db.Date
+  status                  StatusCobranca @default(PENDENTE)
+  tentativas              Int            @default(0)
+  ultimoErro              String?
   identificadorNoProvedor String?
-  criadaEm            DateTime       @default(now())
-  enviadaEm           DateTime?
+  criadaEm                DateTime       @default(now())
+  enviadaEm               DateTime?
 
   contrato Contrato @relation(fields: [contratoId], references: [id], onDelete: Cascade)
   parcela  Parcela  @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
@@ -919,14 +920,14 @@ model DocumentoDeCobranca {
 /// Eventos crus recebidos do provedor. Guardados antes de processar, para que
 /// uma falha de conciliacao possa ser reprocessada sem perder o webhook.
 model EventoDeWebhook {
-  id                  String    @id @default(uuid())
-  provedor            String
+  id                   String    @id @default(uuid())
+  provedor             String
   identificadorExterno String
-  tipo                String
-  cargaUtil           Json
-  processadoEm        DateTime?
-  erro                String?
-  recebidoEm          DateTime  @default(now())
+  tipo                 String
+  cargaUtil            Json
+  processadoEm         DateTime?
+  erro                 String?
+  recebidoEm           DateTime  @default(now())
 
   @@unique([provedor, identificadorExterno, tipo])
   @@index([processadoEm])
@@ -946,21 +947,21 @@ model Renegociacao {
   id         String @id @default(uuid())
   contratoId String
 
-  saldoOriginalCentavos   Int
-  encargosCentavos        Int                @default(0)
-  descontoCentavos        Int                @default(0)
-  valorNegociadoCentavos  Int
-  entradaCentavos         Int                @default(0)
-  dataEntrada             DateTime?          @db.Date
-  quantidadeDeParcelas    Int
-  primeiroVencimento      DateTime           @db.Date
-  periodicidade           Periodicidade      @default(MENSAL)
-  status                  StatusRenegociacao @default(VIGENTE)
-  motivo                  String?
-  acordadoEm              DateTime           @db.Date
-  registradoPor           String?
-  criadoEm                DateTime           @default(now())
-  atualizadoEm            DateTime           @updatedAt
+  saldoOriginalCentavos  Int
+  encargosCentavos       Int                @default(0)
+  descontoCentavos       Int                @default(0)
+  valorNegociadoCentavos Int
+  entradaCentavos        Int                @default(0)
+  dataEntrada            DateTime?          @db.Date
+  quantidadeDeParcelas   Int
+  primeiroVencimento     DateTime           @db.Date
+  periodicidade          Periodicidade      @default(MENSAL)
+  status                 StatusRenegociacao @default(VIGENTE)
+  motivo                 String?
+  acordadoEm             DateTime           @db.Date
+  registradoPor          String?
+  criadoEm               DateTime           @default(now())
+  atualizadoEm           DateTime           @updatedAt
 
   contrato             Contrato  @relation(fields: [contratoId], references: [id], onDelete: Cascade)
   parcelasGeradas      Parcela[] @relation("ParcelasGeradas")
@@ -1024,12 +1025,12 @@ model Reajuste {
   id         String @id @default(uuid())
   contratoId String
 
-  indice              IndiceReajuste
-  percentual          Float
-  aplicadoAPartirDe   DateTime       @db.Date
-  parcelasAfetadas    Int
-  registradoPor       String?
-  criadoEm            DateTime       @default(now())
+  indice            IndiceReajuste
+  percentual        Float
+  aplicadoAPartirDe DateTime       @db.Date
+  parcelasAfetadas  Int
+  registradoPor     String?
+  criadoEm          DateTime       @default(now())
 
   contrato Contrato @relation(fields: [contratoId], references: [id], onDelete: Cascade)
 
@@ -1050,19 +1051,19 @@ enum StatusImportacaoSienge {
 /// Auditoria de cada execucao de migracao. A migracao e reexecutavel: os ids
 /// de origem nos modelos acima impedem duplicar o que ja foi importado.
 model ImportacaoSienge {
-  id              String               @id @default(uuid())
+  id              String                 @id @default(uuid())
   arquivo         String
   bancoOrigem     String?
   backupEm        DateTime?
   status          StatusImportacaoSienge @default(PREVIA)
   iniciadaEm      DateTime?
   finalizadaEm    DateTime?
-  totalLidos      Int                  @default(0)
-  totalImportados Int                  @default(0)
-  totalIgnorados  Int                  @default(0)
-  totalErros      Int                  @default(0)
+  totalLidos      Int                    @default(0)
+  totalImportados Int                    @default(0)
+  totalIgnorados  Int                    @default(0)
+  totalErros      Int                    @default(0)
   resumo          Json?
-  criadoEm        DateTime             @default(now())
+  criadoEm        DateTime               @default(now())
 
   registros RegistroImportacaoSienge[]
 
@@ -1094,4 +1095,98 @@ model RegistroImportacaoSienge {
   @@unique([importacaoId, tabela, chaveOrigem])
   @@index([tabela, status])
   @@map("registros_importacao_sienge")
+}
+
+// ---------------------------------------------------------------- fluxo de caixa (tesouraria)
+//
+// Cadastros-base do controle de fluxo de caixa que hoje vive em planilha:
+// as contas bancarias (Sicoob, Sicredi...), os socios que fazem aportes, os
+// empreendimentos (centros de custo do orcamento) e o plano de categorias
+// (rubricas de receita, aporte e despesa). Estes cadastros sao a fundacao dos
+// lancamentos e do painel de fluxo de caixa que entram nas fases seguintes.
+
+/// Direcao do dinheiro no fluxo de caixa.
+enum TipoLancamentoFinanceiro {
+  ENTRADA
+  SAIDA
+}
+
+/// Classe da rubrica no fluxo de caixa — espelha os grupos da planilha
+/// (recebiveis de venda, aportes, despesas fixas/variaveis, custo de obra).
+enum NaturezaFinanceira {
+  RECEBIVEL_VENDA
+  APORTE
+  TRANSFERENCIA
+  DESPESA_FIXA
+  DESPESA_VARIAVEL
+  CUSTO_OBRA
+  OUTRO
+}
+
+/// Conta bancaria da loteadora. O saldo corrente nao e gravado: nasce do saldo
+/// inicial mais os lancamentos, sempre em relacao a uma data — mesma decisao de
+/// "estado derivado, nao gravado" adotada em parcelas/inadimplencia.
+model ContaBancaria {
+  id                   String   @id @default(uuid())
+  nome                 String
+  instituicao          String?
+  agencia              String?
+  numero               String?
+  saldoInicialCentavos Int      @default(0)
+  ativa                Boolean  @default(true)
+  observacoes          String?
+  criadoEm             DateTime @default(now())
+  atualizadoEm         DateTime @updatedAt
+
+  @@index([nome])
+  @@map("contas_bancarias")
+}
+
+/// Socio/investidor que faz aportes mensais de capital.
+model SocioAportador {
+  id           String   @id @default(uuid())
+  nome         String
+  documento    String?
+  ativo        Boolean  @default(true)
+  observacoes  String?
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([nome])
+  @@map("socios_aportadores")
+}
+
+/// Empreendimento / centro de custo do orcamento (a Sede administrativa e cada
+/// loteamento). Dimensao pela qual as despesas sao agrupadas na planilha.
+model EmpreendimentoFinanceiro {
+  id           String   @id @default(uuid())
+  nome         String
+  loteamentoId String?
+  ativo        Boolean  @default(true)
+  observacoes  String?
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  loteamento Loteamento? @relation(fields: [loteamentoId], references: [id])
+
+  @@index([nome])
+  @@map("empreendimentos_financeiros")
+}
+
+/// Rubrica do plano de contas do fluxo de caixa (aluguel, energia, salarios,
+/// impostos, aportes, recebiveis...). Compartilhada entre empreendimentos: o
+/// empreendimento e escolhido no lancamento, nao fixado na categoria.
+model CategoriaFinanceira {
+  id           String                   @id @default(uuid())
+  nome         String
+  tipo         TipoLancamentoFinanceiro
+  natureza     NaturezaFinanceira
+  ordem        Int                      @default(0)
+  ativa        Boolean                  @default(true)
+  observacoes  String?
+  criadoEm     DateTime                 @default(now())
+  atualizadoEm DateTime                 @updatedAt
+
+  @@index([natureza])
+  @@map("categorias_financeiras")
 }

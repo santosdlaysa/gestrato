@@ -23,6 +23,7 @@ import { criarRotasDeObrasECentrosDeCusto } from './rotas/obras-centros-custo.ro
 import { criarRotasDeEstoque } from './rotas/estoque.rotas.js';
 import { criarRotasFiscais } from './rotas/fiscal.rotas.js';
 import { criarRotasDeComprasEEstoque } from './rotas/compras-estoque.rotas.js';
+import { criarRotasDeFluxoDeCaixa } from './rotas/fluxo-de-caixa.rotas.js';
 
 /**
  * Prefixos que exigem token. Mantenha em sincronia com os routers protegidos —
@@ -60,6 +61,10 @@ const PREFIXOS_PROTEGIDOS = [
   '/documentos-fiscais',
   '/pedidos-compra',
   '/movimentos-estoque',
+  '/contas-bancarias',
+  '/socios-aportadores',
+  '/empreendimentos-financeiros',
+  '/categorias-financeiras',
 ] as const;
 
 /** Aplica o middleware apenas quando o caminho pertence a um dos prefixos. */
@@ -124,6 +129,7 @@ export function criarAplicacao(container: Container, rotasAdicionais: Router[] =
     criarRotasDeEstoque(),
     criarRotasFiscais(),
     criarRotasDeComprasEEstoque(),
+    criarRotasDeFluxoDeCaixa(),
     criarRotasDePaineis({
       consultasDePainel: container.consultasDePainel,
       consultasDeRelatorio: container.consultasDeRelatorio,

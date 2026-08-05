@@ -22,6 +22,7 @@ import { Documentos } from '@/paginas/Documentos';
 import { ContasAPagar } from '@/paginas/ContasAPagar';
 import { Fornecedores } from '@/paginas/Fornecedores';
 import { Estoque } from '@/paginas/Estoque';
+import { ContasBancarias, SociosAportadores, EmpreendimentosFinanceiros, CategoriasFinanceiras } from '@/paginas/FluxoDeCaixa';
 import { NaoEncontrada } from '@/paginas/NaoEncontrada';
 import { caminhosUnicos } from '@/lib/navegacao';
 
@@ -56,6 +57,10 @@ const PAGINAS_PRONTAS: Record<string, ReactElement> = {
   '/documentos/assinatura': <Documentos modo="contratos" />,
   '/financeiro/contas-a-pagar': <ContasAPagar />,
   '/financeiro/fornecedores': <Fornecedores />,
+  '/financeiro/contas-bancarias': <ContasBancarias />,
+  '/financeiro/socios': <SociosAportadores />,
+  '/financeiro/empreendimentos': <EmpreendimentosFinanceiros />,
+  '/financeiro/categorias': <CategoriasFinanceiras />,
   '/estoque/saldos': <Estoque />,
 };
 
