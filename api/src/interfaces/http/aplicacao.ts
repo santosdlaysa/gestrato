@@ -66,6 +66,9 @@ const PREFIXOS_PROTEGIDOS = [
   '/socios-aportadores',
   '/empreendimentos-financeiros',
   '/categorias-financeiras',
+  '/lancamentos',
+  '/transferencias',
+  '/extrato',
 ] as const;
 
 /** Aplica o middleware apenas quando o caminho pertence a um dos prefixos. */

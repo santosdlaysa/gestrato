@@ -6,6 +6,12 @@ import type {
   CategoriaFinanceira,
   NaturezaFinanceira,
   TipoLancamentoFinanceiro,
+  FormaPagamento,
+  LancamentoFinanceiro,
+  RespostaDeLancamentos,
+  Extrato,
+  RespostaDeSaldos,
+  Transferencia,
   RespostaDeContasBancarias,
   RespostaDeSocios,
   RespostaDeEmpreendimentos,
@@ -111,4 +117,83 @@ export function criarCategoria(entrada: EntradaDeCategoria): Promise<CategoriaFi
 
 export function atualizarCategoria(id: string, entrada: Partial<EntradaDeCategoria>): Promise<CategoriaFinanceira> {
   return requisitar<CategoriaFinanceira>(`/categorias-financeiras/${id}`, { metodo: 'PUT', corpo: entrada });
+}
+
+// ----------------------------------------------------------------- lancamentos
+
+export interface FiltrosDeLancamentos extends Parametros {
+  contaBancariaId?: string;
+  categoriaId?: string;
+  empreendimentoFinanceiroId?: string;
+  socioAportadorId?: string;
+  tipo?: TipoLancamentoFinanceiro;
+  natureza?: NaturezaFinanceira;
+  de?: string;
+  ate?: string;
+  busca?: string;
+  pagina?: number;
+  porPagina?: number;
+}
+
+export interface EntradaDeLancamento {
+  tipo?: TipoLancamentoFinanceiro;
+  data: string;
+  valorCentavos: number;
+  descricao: string;
+  numeroDocumento?: string | null;
+  formaPagamento?: FormaPagamento | null;
+  contaBancariaId: string;
+  categoriaId?: string | null;
+  empreendimentoFinanceiroId?: string | null;
+  socioAportadorId?: string | null;
+  observacoes?: string | null;
+}
+
+export function listarLancamentos(filtros: FiltrosDeLancamentos = {}, sinal?: AbortSignal): Promise<RespostaDeLancamentos> {
+  return requisitar<RespostaDeLancamentos>('/lancamentos', { parametros: filtros, sinal });
+}
+
+export function criarLancamento(entrada: EntradaDeLancamento): Promise<LancamentoFinanceiro> {
+  return requisitar<LancamentoFinanceiro>('/lancamentos', { metodo: 'POST', corpo: entrada });
+}
+
+export function atualizarLancamento(id: string, entrada: Partial<EntradaDeLancamento>): Promise<LancamentoFinanceiro> {
+  return requisitar<LancamentoFinanceiro>(`/lancamentos/${id}`, { metodo: 'PUT', corpo: entrada });
+}
+
+export function excluirLancamento(id: string): Promise<void> {
+  return requisitar<void>(`/lancamentos/${id}`, { metodo: 'DELETE' });
+}
+
+// -------------------------------------------------------------- transferencias
+
+export interface EntradaDeTransferencia {
+  contaOrigemId: string;
+  contaDestinoId: string;
+  data: string;
+  valorCentavos: number;
+  descricao?: string | null;
+  numeroDocumento?: string | null;
+  empreendimentoFinanceiroId?: string | null;
+  observacoes?: string | null;
+}
+
+export function criarTransferencia(entrada: EntradaDeTransferencia): Promise<Transferencia> {
+  return requisitar<Transferencia>('/transferencias', { metodo: 'POST', corpo: entrada });
+}
+
+// ------------------------------------------------------------- extrato / saldos
+
+export interface FiltrosDeExtrato extends Parametros {
+  contaBancariaId: string;
+  de?: string;
+  ate?: string;
+}
+
+export function obterExtrato(filtros: FiltrosDeExtrato, sinal?: AbortSignal): Promise<Extrato> {
+  return requisitar<Extrato>('/extrato', { parametros: filtros, sinal });
+}
+
+export function listarSaldos(sinal?: AbortSignal): Promise<RespostaDeSaldos> {
+  return requisitar<RespostaDeSaldos>('/contas-bancarias/saldos', { sinal });
 }

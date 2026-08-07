@@ -10,6 +10,7 @@ import {
   esquemaDeSituacaoParcela,
   esquemaDeStatusCobranca,
   esquemaDeTipoDocumento,
+  textoOpcional,
 } from './esquemas-comuns.js';
 
 export const esquemaDeFiltroDeParcelas = esquemaDePaginacao.extend({
@@ -19,6 +20,20 @@ export const esquemaDeFiltroDeParcelas = esquemaDePaginacao.extend({
   contratoId: esquemaDeIdentificador.optional(),
   clienteId: esquemaDeIdentificador.optional(),
   loteamentoId: esquemaDeIdentificador.optional(),
+  data: esquemaDeDataCivil.optional(),
+});
+
+/**
+ * Consulta de inadimplencia por cliente. O "risco" e o degrau minimo da escala
+ * (em atraso -> inadimplente -> sujeito a retomada); EM_DIA nao entra porque
+ * quem nao deve nao aparece na tela.
+ */
+export const esquemaDeFiltroDeInadimplentes = esquemaDePaginacao.extend({
+  loteamentoId: esquemaDeIdentificador.optional(),
+  clienteId: esquemaDeIdentificador.optional(),
+  busca: textoOpcional,
+  risco: z.enum(['EM_ATRASO', 'INADIMPLENTE', 'SUJEITO_A_RETOMADA']).optional(),
+  ordenarPor: z.enum(['VALOR', 'ATRASO', 'NOME']).optional(),
   data: esquemaDeDataCivil.optional(),
 });
 

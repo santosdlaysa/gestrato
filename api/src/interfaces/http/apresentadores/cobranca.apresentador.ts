@@ -6,6 +6,11 @@ import type { DemonstrativoDeDebito, Parcela } from '../../../domain/contratos/p
 import type { SituacaoParcela } from '../../../domain/contratos/tipos.js';
 import type { Pagina } from '../../../application/ports/comuns.js';
 import type { LinhaDeCobranca } from '../../../application/use-cases/cobranca/listar-parcelas-para-cobranca.js';
+import type {
+  Inadimplente,
+  RelatorioDeInadimplencia,
+  ResumoDaInadimplencia,
+} from '../../../application/use-cases/cobranca/listar-inadimplentes.js';
 import type { Extrato } from '../../../application/use-cases/contratos/obter-extrato-do-contrato.js';
 
 /**
@@ -171,6 +176,49 @@ export function apresentarLinhaDeCobranca(linha: LinhaDeCobranca) {
           lote: linha.contexto.lote,
         }
       : null,
+  };
+}
+
+export function apresentarInadimplente(linha: Inadimplente) {
+  return {
+    clienteId: linha.clienteId,
+    cliente: {
+      id: linha.clienteId,
+      nome: linha.clienteNome,
+      documento: linha.clienteDocumento,
+      email: linha.clienteEmail,
+      whatsapp: linha.clienteWhatsApp,
+      telefone: linha.clienteTelefone,
+    },
+    totalEmAtrasoCentavos: linha.totalEmAtrasoCentavos,
+    principalCentavos: linha.principalCentavos,
+    encargosCentavos: linha.encargosCentavos,
+    parcelasVencidas: linha.parcelasVencidas,
+    contratosEmAtraso: linha.contratosEmAtraso,
+    diasDeAtrasoMaximo: linha.diasDeAtrasoMaximo,
+    vencimentoMaisAntigo: linha.vencimentoMaisAntigo,
+    diasAteARetomada: linha.diasAteARetomada,
+    risco: linha.risco,
+    unidadePrincipal: linha.unidadePrincipal,
+    contratoIds: linha.contratoIds,
+  };
+}
+
+export function apresentarResumoDeInadimplencia(resumo: ResumoDaInadimplencia) {
+  return {
+    clientes: resumo.clientes,
+    totalEmAtrasoCentavos: resumo.totalEmAtrasoCentavos,
+    principalCentavos: resumo.principalCentavos,
+    encargosCentavos: resumo.encargosCentavos,
+    parcelasVencidas: resumo.parcelasVencidas,
+    porRisco: resumo.porRisco,
+  };
+}
+
+export function apresentarRelatorioDeInadimplencia(relatorio: RelatorioDeInadimplencia) {
+  return {
+    ...apresentarPagina(relatorio.pagina, apresentarInadimplente),
+    resumo: apresentarResumoDeInadimplencia(relatorio.resumo),
   };
 }
 

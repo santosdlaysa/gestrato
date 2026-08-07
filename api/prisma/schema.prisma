@@ -1168,6 +1168,8 @@ model ContaBancaria {
   criadoEm             DateTime @default(now())
   atualizadoEm         DateTime @updatedAt
 
+  lancamentos LancamentoFinanceiro[]
+
   @@index([nome])
   @@map("contas_bancarias")
 }
@@ -1181,6 +1183,8 @@ model SocioAportador {
   observacoes  String?
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
+
+  lancamentos LancamentoFinanceiro[]
 
   @@index([nome])
   @@map("socios_aportadores")
@@ -1197,7 +1201,8 @@ model EmpreendimentoFinanceiro {
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  loteamento Loteamento? @relation(fields: [loteamentoId], references: [id])
+  loteamento  Loteamento?            @relation(fields: [loteamentoId], references: [id])
+  lancamentos LancamentoFinanceiro[]
 
   @@index([nome])
   @@map("empreendimentos_financeiros")
@@ -1217,6 +1222,48 @@ model CategoriaFinanceira {
   criadoEm     DateTime                 @default(now())
   atualizadoEm DateTime                 @updatedAt
 
+  lancamentos LancamentoFinanceiro[]
+
   @@index([natureza])
   @@map("categorias_financeiras")
+}
+
+/// Lancamento realizado no fluxo de caixa: uma entrada ou saida efetiva numa
+/// conta, numa data. O saldo da conta nao e gravado — nasce do saldo inicial
+/// mais estes lancamentos (estado derivado). O `valorCentavos` e sempre positivo;
+/// o `tipo` (ENTRADA/SAIDA) da o sinal.
+///
+/// Transferencia entre contas e modelada como duas pernas (SAIDA na origem +
+/// ENTRADA no destino) que compartilham o mesmo `transferenciaId`, para que
+/// somem zero no consolidado e possam ser estornadas juntas.
+model LancamentoFinanceiro {
+  id              String                   @id @default(uuid())
+  origemSiengeId  String?                  @unique
+  tipo            TipoLancamentoFinanceiro
+  data            DateTime                 @db.Date
+  valorCentavos   Int
+  descricao       String
+  numeroDocumento String?
+  formaPagamento  FormaPagamento?
+  conciliadoEm    DateTime?                @db.Date
+
+  contaBancariaId            String
+  categoriaId                String?
+  empreendimentoFinanceiroId String?
+  socioAportadorId           String?
+  transferenciaId            String?
+
+  observacoes  String?
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  contaBancaria            ContaBancaria             @relation(fields: [contaBancariaId], references: [id])
+  categoria                CategoriaFinanceira?      @relation(fields: [categoriaId], references: [id])
+  empreendimentoFinanceiro EmpreendimentoFinanceiro? @relation(fields: [empreendimentoFinanceiroId], references: [id])
+  socioAportador           SocioAportador?           @relation(fields: [socioAportadorId], references: [id])
+
+  @@index([contaBancariaId, data])
+  @@index([categoriaId])
+  @@index([transferenciaId])
+  @@map("lancamentos_financeiros")
 }

@@ -5,6 +5,7 @@ import { RotaProtegida } from '@/componentes/layout/RotaProtegida';
 import { Login } from '@/paginas/Login';
 import { Dashboard } from '@/paginas/Dashboard';
 import { Parcelas } from '@/paginas/Parcelas';
+import { Inadimplencia } from '@/paginas/Inadimplencia';
 import { Regua } from '@/paginas/Regua';
 import { Cobrancas } from '@/paginas/Cobrancas';
 import { Contratos } from '@/paginas/Contratos';
@@ -55,6 +56,7 @@ const PAGINAS_PRONTAS: Record<string, ReactElement> = {
   '/documentos/declaracoes': <Documentos modo="contratos" />,
   '/documentos/pdf': <Documentos modo="contratos" />,
   '/documentos/assinatura': <Documentos modo="contratos" />,
+  '/financeiro/inadimplencia': <Inadimplencia />,
   '/financeiro/contas-a-pagar': <ContasAPagar />,
   '/financeiro/fornecedores': <Fornecedores />,
   '/financeiro/contas-bancarias': <ContasBancarias />,

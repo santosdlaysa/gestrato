@@ -8,6 +8,7 @@ import type { EmitirDocumento } from '../../../application/use-cases/cobranca/em
 import type { EnviarCobrancaAvulsa } from '../../../application/use-cases/cobranca/enviar-cobranca-avulsa.js';
 import type { ExecutarRegua } from '../../../application/use-cases/cobranca/executar-regua.js';
 import type { ListarParcelasParaCobranca } from '../../../application/use-cases/cobranca/listar-parcelas-para-cobranca.js';
+import type { ListarInadimplentes } from '../../../application/use-cases/cobranca/listar-inadimplentes.js';
 import type { ProcessarWebhookDeCobranca } from '../../../application/use-cases/cobranca/processar-webhook.js';
 import type { EstornarBaixa } from '../../../application/use-cases/parcelas/estornar-baixa.js';
 import type { RegistrarBaixa } from '../../../application/use-cases/parcelas/registrar-baixa.js';
@@ -20,6 +21,7 @@ import {
   apresentarLinhaDeCobranca,
   apresentarPagina,
   apresentarParcela,
+  apresentarRelatorioDeInadimplencia,
 } from '../apresentadores/cobranca.apresentador.js';
 import { esquemaDeIdentificador } from '../validacao/esquemas-comuns.js';
 import {
@@ -29,6 +31,7 @@ import {
   esquemaDeEmissao,
   esquemaDeExecucaoDaRegua,
   esquemaDeFiltroDeCobrancas,
+  esquemaDeFiltroDeInadimplentes,
   esquemaDeFiltroDeParcelas,
   esquemaDeModeloDeMensagem,
   esquemaDaPoliticaDeInadimplencia,
@@ -36,6 +39,7 @@ import {
 
 export interface CasosDeUsoDeCobranca {
   readonly listarParcelas: ListarParcelasParaCobranca;
+  readonly listarInadimplentes: ListarInadimplentes;
   readonly registrarBaixa: RegistrarBaixa;
   readonly estornarBaixa: EstornarBaixa;
   readonly emitirDocumento: EmitirDocumento;
@@ -63,6 +67,18 @@ export class ControladorDeCobranca {
       dataDeReferencia: filtro.data,
     });
     resposta.json(apresentarPagina(pagina, apresentarLinhaDeCobranca));
+  };
+
+  listarInadimplentes = async (
+    requisicao: RequisicaoAutenticada,
+    resposta: Response,
+  ): Promise<void> => {
+    const filtro = esquemaDeFiltroDeInadimplentes.parse(requisicao.query);
+    const relatorio = await this.casosDeUso.listarInadimplentes.executar({
+      ...filtro,
+      dataDeReferencia: filtro.data,
+    });
+    resposta.json(apresentarRelatorioDeInadimplencia(relatorio));
   };
 
   obterParcela = async (requisicao: RequisicaoAutenticada, resposta: Response): Promise<void> => {

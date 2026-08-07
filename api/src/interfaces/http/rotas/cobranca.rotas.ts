@@ -8,6 +8,7 @@ import type { RequisicaoAutenticada } from '../tipos.js';
 export function criarRotasDeCobranca(controlador: ControladorDeCobranca): Router {
   const rotas = Router();
 
+  rotas.get('/inadimplentes', assincrono<RequisicaoAutenticada>(controlador.listarInadimplentes));
   rotas.get('/parcelas', assincrono<RequisicaoAutenticada>(controlador.listarParcelas));
   rotas.get('/parcelas/:id', assincrono<RequisicaoAutenticada>(controlador.obterParcela));
   rotas.get('/parcelas/:id/documentos', assincrono<RequisicaoAutenticada>(controlador.listarDocumentos));

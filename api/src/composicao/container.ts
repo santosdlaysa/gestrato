@@ -8,6 +8,7 @@ import { EmitirDocumento } from '../application/use-cases/cobranca/emitir-docume
 import { EnviarCobrancaAvulsa } from '../application/use-cases/cobranca/enviar-cobranca-avulsa.js';
 import { ExecutarRegua } from '../application/use-cases/cobranca/executar-regua.js';
 import { ListarParcelasParaCobranca } from '../application/use-cases/cobranca/listar-parcelas-para-cobranca.js';
+import { ListarInadimplentes } from '../application/use-cases/cobranca/listar-inadimplentes.js';
 import { ProcessarWebhookDeCobranca } from '../application/use-cases/cobranca/processar-webhook.js';
 import { AplicarReajuste } from '../application/use-cases/contratos/aplicar-reajuste.js';
 import { CriarContrato } from '../application/use-cases/contratos/criar-contrato.js';
@@ -42,6 +43,7 @@ import { MensageriaConsole } from '../infrastructure/mensageria/mensageria-conso
 import { MensageriaTwilio } from '../infrastructure/mensageria/mensageria-twilio.js';
 import { prisma } from '../infrastructure/persistence/prisma/cliente-prisma.js';
 import { ConsultaDeContextoDeCobrancaPrisma } from '../infrastructure/persistence/prisma/consultas/contexto-de-cobranca.consulta.js';
+import { ConsultaDeInadimplenciaPrisma } from '../infrastructure/persistence/prisma/consultas/inadimplencia.consulta.js';
 import { ConsultasDePainelPrisma } from '../infrastructure/persistence/prisma/consultas/painel.consulta.js';
 import { ConsultasDeRelatorioPrisma } from '../infrastructure/persistence/prisma/consultas/relatorios.consulta.js';
 import type { ConsultasDePainel, ConsultasDeRelatorio } from '../application/ports/consultas-de-painel.js';
@@ -84,6 +86,7 @@ export function criarContainer(): Container {
   const geradorDeIdentificador = new GeradorDeUuid();
   const unidadeDeTrabalho = new UnidadeDeTrabalhoPrisma();
   const consultaDeContexto = new ConsultaDeContextoDeCobrancaPrisma(prisma);
+  const consultaDeInadimplencia = new ConsultaDeInadimplenciaPrisma(prisma);
 
   const gateway = escolherGateway();
   const mensageria = escolherMensageria();
@@ -163,6 +166,7 @@ export function criarContainer(): Container {
 
     casosDeUsoDeCobranca: {
       listarParcelas: new ListarParcelasParaCobranca(repositorios, consultaDeContexto, relogio),
+      listarInadimplentes: new ListarInadimplentes(repositorios, consultaDeInadimplencia, relogio),
       registrarBaixa,
       estornarBaixa: new EstornarBaixa(unidadeDeTrabalho),
       emitirDocumento,

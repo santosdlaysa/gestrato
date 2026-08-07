@@ -7,6 +7,8 @@ import { RelatorioDeInadimplencia } from '@/componentes/relatorios/RelatorioDeIn
 import { EmConstrucao } from './EmConstrucao';
 import { CabecalhoDaPagina } from '@/componentes/layout/CabecalhoDaPagina';
 import { ContasAPagar } from './ContasAPagar';
+import { Movimentacoes } from './Movimentacoes';
+import { ExtratoBancario } from './ExtratoBancario';
 import { ModuloFinanceiroIndisponivel } from '@/componentes/financeiro/ModuloFinanceiroIndisponivel';
 
 /**
@@ -42,21 +44,29 @@ export function Financeiro() {
   if (caminho === '/financeiro/pagamentos') {
     return <ContasAPagar somentePagas />;
   }
-  if (caminho === '/financeiro/caixa-diario' || caminho === '/financeiro/movimentacoes' || caminho === '/financeiro/sangrias' || caminho === '/financeiro/fechamento') {
+  if (caminho === '/financeiro/movimentacoes') return <Movimentacoes />;
+  if (caminho === '/financeiro/caixa-diario') {
+    return <Movimentacoes titulo="Caixa" descricao="Entradas e saídas em caixa e bancos, com saldo do período." />;
+  }
+  if (caminho === '/financeiro/transferencias') {
+    return <Movimentacoes titulo="Transferências" descricao="Movimentações entre contas da loteadora." focoTransferencia />;
+  }
+  if (caminho === '/financeiro/extratos') return <ExtratoBancario />;
+  if (caminho === '/financeiro/sangrias' || caminho === '/financeiro/fechamento') {
     return (
       <ModuloFinanceiroIndisponivel
-        titulo="Caixa"
-        descricao="Movimentações e fechamento do caixa financeiro."
-        limitacao="Não existe entidade ou endpoint de caixa no backend atual. Os pagamentos recebidos e as baixas continuam disponíveis em Contas a receber e Recebimentos."
+        titulo="Caixa — sangrias e fechamento"
+        descricao="Sangrias e fechamento diário do caixa."
+        limitacao="As movimentações e o extrato já estão disponíveis em Caixa e Extratos. O fechamento de caixa (conferência e bloqueio do dia) entra numa fase seguinte."
       />
     );
   }
-  if (caminho === '/financeiro/conciliacao' || caminho === '/financeiro/extratos' || caminho === '/financeiro/transferencias') {
+  if (caminho === '/financeiro/conciliacao') {
     return (
       <ModuloFinanceiroIndisponivel
         titulo="Conciliação bancária"
         descricao="Conferência entre extratos bancários e lançamentos internos."
-        limitacao="O backend possui processamento de webhook de cobrança, mas não possui API para importar extratos, listar lançamentos bancários ou executar conciliação manual."
+        limitacao="Os lançamentos e o extrato interno já existem; a importação de extrato do banco e a conciliação automática entram numa fase seguinte."
       />
     );
   }
