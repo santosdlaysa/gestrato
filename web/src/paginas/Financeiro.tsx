@@ -9,6 +9,8 @@ import { CabecalhoDaPagina } from '@/componentes/layout/CabecalhoDaPagina';
 import { ContasAPagar } from './ContasAPagar';
 import { Movimentacoes } from './Movimentacoes';
 import { ExtratoBancario } from './ExtratoBancario';
+import { OrcamentoFinanceiro } from './OrcamentoFinanceiro';
+import { PainelOrcadoRealizado } from './PainelOrcadoRealizado';
 import { ModuloFinanceiroIndisponivel } from '@/componentes/financeiro/ModuloFinanceiroIndisponivel';
 
 /**
@@ -52,6 +54,8 @@ export function Financeiro() {
     return <Movimentacoes titulo="Transferências" descricao="Movimentações entre contas da loteadora." focoTransferencia />;
   }
   if (caminho === '/financeiro/extratos') return <ExtratoBancario />;
+  if (caminho === '/financeiro/orcamento') return <OrcamentoFinanceiro />;
+  if (caminho === '/financeiro/fluxo-sintetico' || caminho === '/financeiro/analise-de-resultado') return <PainelOrcadoRealizado />;
   if (caminho === '/financeiro/sangrias' || caminho === '/financeiro/fechamento') {
     return (
       <ModuloFinanceiroIndisponivel
@@ -70,12 +74,12 @@ export function Financeiro() {
       />
     );
   }
-  if (caminho === '/financeiro/dre' || caminho === '/financeiro/balancete' || caminho === '/financeiro/analise-de-resultado' || caminho === '/financeiro/fluxo-sintetico' || caminho === '/financeiro/fluxo-analitico' || caminho === '/financeiro/fluxo-conciliado') {
+  if (caminho === '/financeiro/dre' || caminho === '/financeiro/balancete' || caminho === '/financeiro/fluxo-analitico' || caminho === '/financeiro/fluxo-conciliado') {
     return (
       <ModuloFinanceiroIndisponivel
         titulo="Análise gerencial"
         descricao="DRE, balancete e fluxos de caixa gerenciais."
-        limitacao="O backend atual não possui plano de contas, lançamentos contábeis nem API de DRE/balancetes. O Fluxo previsto disponível no sistema é somente de parcelas a receber."
+        limitacao="O painel orçado × realizado (Análise de resultado / Fluxo sintético) já está disponível. DRE contábil, balancete e os fluxos analítico/conciliado dependem de plano de contas contábil e conciliação — fases seguintes."
       />
     );
   }

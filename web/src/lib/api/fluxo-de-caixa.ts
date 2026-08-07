@@ -12,6 +12,9 @@ import type {
   Extrato,
   RespostaDeSaldos,
   Transferencia,
+  OrcamentoFinanceiro,
+  RespostaDeOrcamento,
+  PainelFinanceiro,
   RespostaDeContasBancarias,
   RespostaDeSocios,
   RespostaDeEmpreendimentos,
@@ -196,4 +199,40 @@ export function obterExtrato(filtros: FiltrosDeExtrato, sinal?: AbortSignal): Pr
 
 export function listarSaldos(sinal?: AbortSignal): Promise<RespostaDeSaldos> {
   return requisitar<RespostaDeSaldos>('/contas-bancarias/saldos', { sinal });
+}
+
+// ------------------------------------------------------------------- orcamento
+
+export interface FiltrosDeOrcamento extends Parametros {
+  ano?: number;
+  empreendimentoFinanceiroId?: string;
+  natureza?: NaturezaFinanceira;
+}
+
+export interface EntradaDeOrcamento {
+  categoriaId: string;
+  empreendimentoFinanceiroId: string;
+  ano: number;
+  mes: number;
+  valorPrevistoCentavos: number;
+}
+
+export function listarOrcamento(filtros: FiltrosDeOrcamento, sinal?: AbortSignal): Promise<RespostaDeOrcamento> {
+  return requisitar<RespostaDeOrcamento>('/orcamentos', { parametros: filtros, sinal });
+}
+
+/** Upsert de uma célula. Valor zero apaga a linha (a API responde 204). */
+export function salvarOrcamento(entrada: EntradaDeOrcamento): Promise<OrcamentoFinanceiro | void> {
+  return requisitar<OrcamentoFinanceiro | void>('/orcamentos', { metodo: 'PUT', corpo: entrada });
+}
+
+// -------------------------------------------------------- painel orçado × real
+
+export interface FiltrosDePainel extends Parametros {
+  ano?: number;
+  empreendimentoFinanceiroId?: string;
+}
+
+export function obterPainel(filtros: FiltrosDePainel, sinal?: AbortSignal): Promise<PainelFinanceiro> {
+  return requisitar<PainelFinanceiro>('/painel', { parametros: filtros, sinal });
 }

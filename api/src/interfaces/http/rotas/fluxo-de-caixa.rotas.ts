@@ -152,6 +152,38 @@ const incluirLancamento = {
   socioAportador: { select: { id: true, nome: true } },
 } satisfies Prisma.LancamentoFinanceiroInclude;
 
+// -------------------------------------------------------------------- orcamento
+
+const ano = z.coerce.number().int().min(2000).max(2100);
+const mes = z.coerce.number().int().min(1).max(12);
+
+const filtroOrcamento = z.object({
+  ano: ano.optional(),
+  empreendimentoFinanceiroId: id.optional(),
+  natureza: natureza.optional(),
+});
+
+const corpoOrcamento = z.object({
+  categoriaId: id,
+  empreendimentoFinanceiroId: id,
+  ano,
+  mes,
+  valorPrevistoCentavos: z.number().int().min(0),
+});
+
+const filtroPainel = z.object({
+  ano: ano.optional(),
+  empreendimentoFinanceiroId: id.optional(),
+});
+
+/** RECEBIVEL_VENDA e APORTE sao receita; o resto e despesa (por natureza). */
+const NATUREZAS_DE_RECEITA = new Set(['RECEBIVEL_VENDA', 'APORTE']);
+
+const incluirOrcamento = {
+  categoria: { select: { id: true, nome: true, tipo: true, natureza: true } },
+  empreendimentoFinanceiro: { select: { id: true, nome: true } },
+} satisfies Prisma.OrcamentoFinanceiroInclude;
+
 /** Normaliza strings vazias/`undefined` de campos opcionais para `null`. */
 function limpar<T extends Record<string, unknown>>(entrada: T, campos: (keyof T)[]): T {
   const copia = { ...entrada };
@@ -524,6 +556,126 @@ export function criarRotasDeFluxoDeCaixa(): Router {
       };
     });
     res.json({ itens });
+  }));
+
+  // ---------------------------------------------------------------- orcamento
+
+  rotas.get('/orcamentos', assincrono(async (req, res) => {
+    const f = filtroOrcamento.parse(req.query);
+    const anoAlvo = f.ano ?? new Date().getFullYear();
+    const where: Prisma.OrcamentoFinanceiroWhereInput = {
+      ano: anoAlvo,
+      ...(f.empreendimentoFinanceiroId ? { empreendimentoFinanceiroId: f.empreendimentoFinanceiroId } : {}),
+      ...(f.natureza ? { categoria: { natureza: f.natureza } } : {}),
+    };
+    const itens = await prisma.orcamentoFinanceiro.findMany({
+      where,
+      include: incluirOrcamento,
+      orderBy: [{ empreendimentoFinanceiroId: 'asc' }, { mes: 'asc' }],
+    });
+    res.json({ ano: anoAlvo, itens });
+  }));
+
+  // Upsert de uma celula da grade. Valor zerado apaga a linha, para nao encher a
+  // tabela de zeros — a ausencia de linha ja significa "sem previsto".
+  rotas.put('/orcamentos', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+    const entrada = corpoOrcamento.parse(req.body);
+    const chave = {
+      categoriaId_empreendimentoFinanceiroId_ano_mes: {
+        categoriaId: entrada.categoriaId,
+        empreendimentoFinanceiroId: entrada.empreendimentoFinanceiroId,
+        ano: entrada.ano,
+        mes: entrada.mes,
+      },
+    };
+    if (entrada.valorPrevistoCentavos === 0) {
+      await prisma.orcamentoFinanceiro.deleteMany({
+        where: {
+          categoriaId: entrada.categoriaId,
+          empreendimentoFinanceiroId: entrada.empreendimentoFinanceiroId,
+          ano: entrada.ano,
+          mes: entrada.mes,
+        },
+      });
+      res.status(204).end();
+      return;
+    }
+    const item = await prisma.orcamentoFinanceiro.upsert({
+      where: chave,
+      update: { valorPrevistoCentavos: entrada.valorPrevistoCentavos },
+      create: entrada,
+      include: incluirOrcamento,
+    });
+    res.json(item);
+  }));
+
+  // -------------------------------------------------------- painel orcado x real
+
+  // Consolidado anual: o previsto (orcamento) confrontado com o realizado
+  // (lancamentos do modulo), por natureza/categoria. Recebiveis derivados das
+  // baixas do contas-a-receber entram numa fase seguinte (decisao do produto).
+  rotas.get('/painel', assincrono(async (req, res) => {
+    const f = filtroPainel.parse(req.query);
+    const anoAlvo = f.ano ?? new Date().getFullYear();
+    const inicio = new Date(`${anoAlvo}-01-01T00:00:00.000Z`);
+    const fim = new Date(`${anoAlvo}-12-31T00:00:00.000Z`);
+    const empFiltro = f.empreendimentoFinanceiroId ? { empreendimentoFinanceiroId: f.empreendimentoFinanceiroId } : {};
+
+    const [categorias, previsto, realizado] = await Promise.all([
+      prisma.categoriaFinanceira.findMany({ where: { ativa: true }, orderBy: [{ natureza: 'asc' }, { ordem: 'asc' }, { nome: 'asc' }] }),
+      prisma.orcamentoFinanceiro.groupBy({ by: ['categoriaId'], where: { ano: anoAlvo, ...empFiltro }, _sum: { valorPrevistoCentavos: true } }),
+      // Transferencias (transferenciaId != null) se anulam no consolidado; ficam de fora.
+      prisma.lancamentoFinanceiro.groupBy({ by: ['categoriaId'], where: { transferenciaId: null, categoriaId: { not: null }, data: { gte: inicio, lte: fim }, ...empFiltro }, _sum: { valorCentavos: true } }),
+    ]);
+
+    const previstoPorCategoria = new Map(previsto.map((p) => [p.categoriaId, p._sum.valorPrevistoCentavos ?? 0]));
+    const realizadoPorCategoria = new Map<string, number>();
+    for (const r of realizado) if (r.categoriaId) realizadoPorCategoria.set(r.categoriaId, r._sum.valorCentavos ?? 0);
+
+    interface Grupo {
+      natureza: string;
+      ehReceita: boolean;
+      previstoCentavos: number;
+      realizadoCentavos: number;
+      linhas: Array<{ categoriaId: string; categoria: string; tipo: string; previstoCentavos: number; realizadoCentavos: number }>;
+    }
+    const grupos = new Map<string, Grupo>();
+    for (const categoria of categorias) {
+      const p = previstoPorCategoria.get(categoria.id) ?? 0;
+      const r = realizadoPorCategoria.get(categoria.id) ?? 0;
+      if (p === 0 && r === 0) continue; // so rubricas com previsto ou movimento
+      let grupo = grupos.get(categoria.natureza);
+      if (!grupo) {
+        grupo = { natureza: categoria.natureza, ehReceita: NATUREZAS_DE_RECEITA.has(categoria.natureza), previstoCentavos: 0, realizadoCentavos: 0, linhas: [] };
+        grupos.set(categoria.natureza, grupo);
+      }
+      grupo.previstoCentavos += p;
+      grupo.realizadoCentavos += r;
+      grupo.linhas.push({ categoriaId: categoria.id, categoria: categoria.nome, tipo: categoria.tipo, previstoCentavos: p, realizadoCentavos: r });
+    }
+
+    const lista = [...grupos.values()];
+    const somar = (selecionados: Grupo[], campo: 'previstoCentavos' | 'realizadoCentavos') => selecionados.reduce((s, g) => s + g[campo], 0);
+    const receitas = lista.filter((g) => g.ehReceita);
+    const despesas = lista.filter((g) => !g.ehReceita);
+    const receitasPrevisto = somar(receitas, 'previstoCentavos');
+    const receitasReal = somar(receitas, 'realizadoCentavos');
+    const despesasPrevisto = somar(despesas, 'previstoCentavos');
+    const despesasReal = somar(despesas, 'realizadoCentavos');
+
+    res.json({
+      ano: anoAlvo,
+      empreendimentoFinanceiroId: f.empreendimentoFinanceiroId ?? null,
+      grupos: lista,
+      totais: {
+        receitasPrevistoCentavos: receitasPrevisto,
+        receitasRealizadoCentavos: receitasReal,
+        despesasPrevistoCentavos: despesasPrevisto,
+        despesasRealizadoCentavos: despesasReal,
+        resultadoPrevistoCentavos: receitasPrevisto - despesasPrevisto,
+        resultadoRealizadoCentavos: receitasReal - despesasReal,
+      },
+    });
   }));
 
   return rotas;

@@ -1203,6 +1203,7 @@ model EmpreendimentoFinanceiro {
 
   loteamento  Loteamento?            @relation(fields: [loteamentoId], references: [id])
   lancamentos LancamentoFinanceiro[]
+  orcamentos  OrcamentoFinanceiro[]
 
   @@index([nome])
   @@map("empreendimentos_financeiros")
@@ -1223,6 +1224,7 @@ model CategoriaFinanceira {
   atualizadoEm DateTime                 @updatedAt
 
   lancamentos LancamentoFinanceiro[]
+  orcamentos  OrcamentoFinanceiro[]
 
   @@index([natureza])
   @@map("categorias_financeiras")
@@ -1266,4 +1268,30 @@ model LancamentoFinanceiro {
   @@index([categoriaId])
   @@index([transferenciaId])
   @@map("lancamentos_financeiros")
+}
+
+/// Valor previsto (orcado) de uma rubrica para um empreendimento num mes. E a
+/// grade da planilha "Controle Financeiro Orcamentario": categoria x mes, por
+/// empreendimento. Confrontada com o realizado (lancamentos) no painel da fase 3.
+///
+/// Uma linha por (categoria, empreendimento, ano, mes) — o empreendimento e
+/// obrigatorio (a Sede administrativa tambem e um empreendimento), o que da uma
+/// chave unica limpa para o upsert de cada celula.
+model OrcamentoFinanceiro {
+  id                         String   @id @default(uuid())
+  categoriaId                String
+  empreendimentoFinanceiroId String
+  ano                        Int
+  mes                        Int
+  valorPrevistoCentavos      Int
+  criadoEm                   DateTime @default(now())
+  atualizadoEm               DateTime @updatedAt
+
+  categoria                CategoriaFinanceira      @relation(fields: [categoriaId], references: [id])
+  empreendimentoFinanceiro EmpreendimentoFinanceiro @relation(fields: [empreendimentoFinanceiroId], references: [id])
+
+  @@unique([categoriaId, empreendimentoFinanceiroId, ano, mes], map: "orcamentos_financeiros_categoria_empreend_ano_mes_key")
+  @@index([ano])
+  @@index([empreendimentoFinanceiroId, ano])
+  @@map("orcamentos_financeiros")
 }

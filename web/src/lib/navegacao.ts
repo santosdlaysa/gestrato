@@ -331,6 +331,7 @@ const MODULOS_BASE: Modulo[] = [
           { texto: 'Sócios (aportes)', para: '/financeiro/socios' },
           { texto: 'Empreendimentos', para: '/financeiro/empreendimentos' },
           { texto: 'Categorias financeiras', para: '/financeiro/categorias' },
+          { texto: 'Orçamento (previsto)', para: '/financeiro/orcamento' },
         ],
       },
       {

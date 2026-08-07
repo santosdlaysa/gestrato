@@ -134,3 +134,55 @@ export interface Transferencia {
   saida: LancamentoFinanceiro;
   entrada: LancamentoFinanceiro;
 }
+
+// ------------------------------------------------------------------- orcamento
+
+export interface OrcamentoFinanceiro {
+  id: string;
+  categoriaId: string;
+  empreendimentoFinanceiroId: string;
+  ano: number;
+  mes: number;
+  valorPrevistoCentavos: number;
+  categoria: CategoriaResumida;
+  empreendimentoFinanceiro: ReferenciaNomeada;
+}
+
+export interface RespostaDeOrcamento {
+  ano: number;
+  itens: OrcamentoFinanceiro[];
+}
+
+// ---------------------------------------------------------- painel orçado×real
+
+export interface LinhaDoPainel {
+  categoriaId: string;
+  categoria: string;
+  tipo: TipoLancamentoFinanceiro;
+  previstoCentavos: number;
+  realizadoCentavos: number;
+}
+
+export interface GrupoDoPainel {
+  natureza: NaturezaFinanceira;
+  ehReceita: boolean;
+  previstoCentavos: number;
+  realizadoCentavos: number;
+  linhas: LinhaDoPainel[];
+}
+
+export interface TotaisDoPainel {
+  receitasPrevistoCentavos: number;
+  receitasRealizadoCentavos: number;
+  despesasPrevistoCentavos: number;
+  despesasRealizadoCentavos: number;
+  resultadoPrevistoCentavos: number;
+  resultadoRealizadoCentavos: number;
+}
+
+export interface PainelFinanceiro {
+  ano: number;
+  empreendimentoFinanceiroId: string | null;
+  grupos: GrupoDoPainel[];
+  totais: TotaisDoPainel;
+}
