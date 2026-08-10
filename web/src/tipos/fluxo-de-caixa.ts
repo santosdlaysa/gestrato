@@ -178,6 +178,8 @@ export interface TotaisDoPainel {
   despesasRealizadoCentavos: number;
   resultadoPrevistoCentavos: number;
   resultadoRealizadoCentavos: number;
+  /** Parcela do realizado de receita que veio das baixas do contas a receber. */
+  recebiveisDerivadosCentavos: number;
 }
 
 export interface PainelFinanceiro {

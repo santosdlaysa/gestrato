@@ -654,7 +654,48 @@ export function criarRotasDeFluxoDeCaixa(): Router {
       grupo.linhas.push({ categoriaId: categoria.id, categoria: categoria.nome, tipo: categoria.tipo, previstoCentavos: p, realizadoCentavos: r });
     }
 
-    const lista = [...grupos.values()];
+    // Recebiveis de venda REALIZADOS: derivados das baixas do contas a receber
+    // (nao redigitados como lancamento). Consolidado = todas as baixas do ano;
+    // por empreendimento exige o vinculo empreendimento->loteamento (senao fica
+    // zero, pois nao ha como atribuir a baixa a um empreendimento).
+    const fimExclusivo = new Date(`${anoAlvo + 1}-01-01T00:00:00.000Z`);
+    const juncaoEmp = f.empreendimentoFinanceiroId
+      ? Prisma.sql`
+          JOIN contratos c    ON c.id = pg."contratoId"
+          JOIN lotes l        ON l.id = c."loteId"
+          JOIN quadras q      ON q.id = l."quadraId"
+          JOIN loteamentos lo ON lo.id = q."loteamentoId"
+          JOIN empreendimentos_financeiros ef ON ef."loteamentoId" = lo.id`
+      : Prisma.empty;
+    const filtroEmp = f.empreendimentoFinanceiroId ? Prisma.sql`AND ef.id = ${f.empreendimentoFinanceiroId}` : Prisma.empty;
+    const baixas = await prisma.$queryRaw<Array<{ total: bigint }>>(Prisma.sql`
+      SELECT COALESCE(SUM(pg."valorTotalCentavos"), 0) AS total
+      FROM pagamentos pg
+      ${juncaoEmp}
+      WHERE pg.estornado = false
+        AND pg."pagoEm" >= ${inicio}
+        AND pg."pagoEm" < ${fimExclusivo}
+        ${filtroEmp}
+    `);
+    const recebiveisDerivadosCentavos = Number(baixas[0]?.total ?? 0);
+    if (recebiveisDerivadosCentavos > 0) {
+      let grupo = grupos.get('RECEBIVEL_VENDA');
+      if (!grupo) {
+        grupo = { natureza: 'RECEBIVEL_VENDA', ehReceita: true, previstoCentavos: 0, realizadoCentavos: 0, linhas: [] };
+        grupos.set('RECEBIVEL_VENDA', grupo);
+      }
+      grupo.realizadoCentavos += recebiveisDerivadosCentavos;
+      grupo.linhas.unshift({
+        categoriaId: '__recebiveis-venda__',
+        categoria: 'Recebimentos de venda (baixas do contas a receber)',
+        tipo: 'ENTRADA',
+        previstoCentavos: 0,
+        realizadoCentavos: recebiveisDerivadosCentavos,
+      });
+    }
+
+    // Receitas em cima na tabela (leitura tipo DRE).
+    const lista = [...grupos.values()].sort((x, y) => Number(y.ehReceita) - Number(x.ehReceita));
     const somar = (selecionados: Grupo[], campo: 'previstoCentavos' | 'realizadoCentavos') => selecionados.reduce((s, g) => s + g[campo], 0);
     const receitas = lista.filter((g) => g.ehReceita);
     const despesas = lista.filter((g) => !g.ehReceita);
@@ -674,6 +715,7 @@ export function criarRotasDeFluxoDeCaixa(): Router {
         despesasRealizadoCentavos: despesasReal,
         resultadoPrevistoCentavos: receitasPrevisto - despesasPrevisto,
         resultadoRealizadoCentavos: receitasReal - despesasReal,
+        recebiveisDerivadosCentavos,
       },
     });
   }));

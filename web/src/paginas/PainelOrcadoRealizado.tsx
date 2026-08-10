@@ -118,6 +118,15 @@ export function PainelOrcadoRealizado() {
             )}
           </ConteudoDaRequisicao>
         </Painel>
+
+        {painel.dados && (
+          <p className="texto-auxiliar">
+            Os <strong>recebíveis de venda (realizado)</strong> vêm das baixas do contas a receber, não redigitadas.
+            {filtros.empreendimentoFinanceiroId
+              ? ' Por empreendimento, só aparecem quando o empreendimento está ligado a um loteamento (na tela Empreendimentos).'
+              : ` Total do ano: ${formatarDinheiro(painel.dados.totais.recebiveisDerivadosCentavos)}.`}
+          </p>
+        )}
       </div>
     </>
   );
