@@ -6,7 +6,7 @@ import { CampoDeSelecao, type Opcao } from '@/componentes/comuns/Campo';
 import { useFiltrosNaUrl } from '@/ganchos/useFiltrosNaUrl';
 import { useRequisicao } from '@/ganchos/useRequisicao';
 import { useAcao } from '@/ganchos/useAcao';
-import { usePapel } from '@/contextos/AutenticacaoContexto';
+import { usePermissoes } from '@/contextos/AutenticacaoContexto';
 import { podeEscrever } from '@/lib/permissoes';
 import { centavosParaCampo, formatarDinheiro } from '@/lib/formato';
 import { listarCategorias, listarEmpreendimentos, listarOrcamento, salvarOrcamento } from '@/lib/api/fluxo-de-caixa';
@@ -38,7 +38,7 @@ type Chave = 'ano' | 'empreendimentoFinanceiroId' | 'natureza';
 
 export function OrcamentoFinanceiro() {
   const { filtros, definirFiltro } = useFiltrosNaUrl<Chave>(['ano', 'empreendimentoFinanceiroId', 'natureza']);
-  const editavel = podeEscrever(usePapel());
+  const editavel = podeEscrever(usePermissoes());
   const acao = useAcao();
   const [edicoes, definirEdicoes] = useState<Record<string, string>>({});
 

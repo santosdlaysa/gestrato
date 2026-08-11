@@ -13,7 +13,7 @@ import { useAcao } from '@/ganchos/useAcao';
 import { buscarRegua, listarModelos, salvarRegua } from '@/lib/api/regua';
 import { extrairItens } from '@/lib/colecoes';
 import { podeConfigurarRegua, podeGerenciarRegua } from '@/lib/permissoes';
-import { usePapel } from '@/contextos/AutenticacaoContexto';
+import { usePermissoes } from '@/contextos/AutenticacaoContexto';
 import type { EventoDaRegua, Regua as ReguaConfigurada } from '@/tipos/cobranca';
 
 type Aba = 'etapas' | 'modelos';
@@ -30,7 +30,7 @@ function normalizarEventos(dados: ReguaConfigurada | EventoDaRegua[] | null): Ev
 }
 
 export function Regua() {
-  const papel = usePapel();
+  const papel = usePermissoes();
   const editavel = podeGerenciarRegua(papel);
   const [aba, definirAba] = useState<Aba>('etapas');
   const [eventos, definirEventos] = useState<EventoDaRegua[]>([]);

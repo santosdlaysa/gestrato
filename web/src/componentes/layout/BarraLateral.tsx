@@ -1,10 +1,9 @@
 import { useMemo, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAutenticacao } from '@/contextos/AutenticacaoContexto';
-import { rotuloDoPapel } from '@/lib/permissoes';
 import { MODULOS, moduloDoCaminho } from '@/lib/navegacao';
 import type { Modulo } from '@/lib/navegacao';
-import type { Papel } from '@/tipos/usuario';
+import type { Permissao } from '@/tipos/usuario';
 import { IconeDoModulo } from './IconeDoModulo';
 
 function classeDoLink({ isActive }: { isActive: boolean }): string {
@@ -18,17 +17,17 @@ function normalizar(texto: string): string {
     .replace(/[̀-ͯ]/g, '');
 }
 
-function moduloDisponivel(modulo: Modulo, papel: Papel | undefined): boolean {
-  return !modulo.papeis || (papel !== undefined && modulo.papeis.includes(papel));
+function moduloDisponivel(modulo: Modulo, permissoes: readonly Permissao[] | undefined): boolean {
+  return !modulo.permissao || (permissoes?.includes(modulo.permissao) ?? false);
 }
 
 /** Filtra um módulo pelos itens que casam com o termo de busca. */
 function filtrarModulo(
   modulo: Modulo,
   termo: string,
-  papel: Papel | undefined,
+  permissoes: readonly Permissao[] | undefined,
 ): Modulo | null {
-  if (!moduloDisponivel(modulo, papel)) return null;
+  if (!moduloDisponivel(modulo, permissoes)) return null;
   if (!termo) return modulo;
   const secoes = modulo.secoes
     .map((secao) => ({
@@ -53,10 +52,10 @@ export function BarraLateral() {
 
   const modulosVisiveis = useMemo(
     () =>
-      MODULOS.map((modulo) => filtrarModulo(modulo, termo, usuario?.papel)).filter(
+      MODULOS.map((modulo) => filtrarModulo(modulo, termo, usuario?.permissoes)).filter(
         (m): m is Modulo => m !== null,
       ),
-    [termo, usuario?.papel],
+    [termo, usuario?.permissoes],
   );
 
   function alternar(id: string) {
@@ -152,7 +151,7 @@ export function BarraLateral() {
 
       <div className="barra-lateral__rodape">
         <div className="barra-lateral__usuario">{usuario?.nome ?? '—'}</div>
-        <div className="barra-lateral__papel">{usuario ? rotuloDoPapel(usuario.papel) : ''}</div>
+        <div className="barra-lateral__papel">{usuario?.perfilNome ?? ''}</div>
         <button type="button" className="botao botao--pequeno barra-lateral__sair" onClick={sair}>
           Sair
         </button>

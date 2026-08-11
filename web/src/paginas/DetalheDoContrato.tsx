@@ -17,14 +17,14 @@ import { buscarContrato, buscarExtrato } from '@/lib/api/contratos';
 import { CATEGORIAS_DE_CONTRATO } from '@/lib/anexo';
 import { estaEmAberto } from '@/lib/parcela';
 import { podeDarBaixa, podeEscrever, podeGerenciarContratos } from '@/lib/permissoes';
-import { usePapel } from '@/contextos/AutenticacaoContexto';
+import { usePermissoes } from '@/contextos/AutenticacaoContexto';
 import { formatarData } from '@/lib/formato';
 
 type Dialogo = 'reajuste' | 'renegociacao' | null;
 
 export function DetalheDoContrato() {
   const { id = '' } = useParams();
-  const papel = usePapel();
+  const papel = usePermissoes();
   const [dialogo, definirDialogo] = useState<Dialogo>(null);
   const [alvo, definirAlvo] = useState<AlvoDeModal | null>(null);
 

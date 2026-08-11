@@ -83,6 +83,7 @@ export function useAutenticacao(): ValorDaAutenticacao {
   return valor;
 }
 
-export function usePapel() {
-  return useAutenticacao().usuario?.papel;
+/** Permissoes efetivas do usuario logado — fonte unica para o gating do front. */
+export function usePermissoes() {
+  return useAutenticacao().usuario?.permissoes;
 }

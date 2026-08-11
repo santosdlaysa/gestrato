@@ -11,7 +11,7 @@ import { useRequisicao } from '@/ganchos/useRequisicao';
 import { useAcao } from '@/ganchos/useAcao';
 import { baixarAnexo, listarAnexos, removerAnexo } from '@/lib/api/anexos';
 import { podeEnviarAnexo, podeRemoverAnexo } from '@/lib/permissoes';
-import { usePapel } from '@/contextos/AutenticacaoContexto';
+import { usePermissoes } from '@/contextos/AutenticacaoContexto';
 import type { Anexo, EscopoDeAnexo } from '@/tipos/anexo';
 
 interface Props {
@@ -30,7 +30,7 @@ const TITULO_PADRAO: Record<EscopoDeAnexo, string> = {
 };
 
 export function PainelDeAnexos({ escopo, donoId, categorias, titulo, descricao, acoes, filtroDeCategoria }: Props) {
-  const papel = usePapel();
+  const papel = usePermissoes();
   const [aRemover, definirARemover] = useState<Anexo | null>(null);
   const download = useAcao();
   const remocao = useAcao();

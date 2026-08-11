@@ -10,12 +10,12 @@ import { useAcao } from '@/ganchos/useAcao';
 import { criarLoteamento, criarQuadra, listarLoteamentos, listarQuadras } from '@/lib/api/cadastros';
 import { extrairItens } from '@/lib/colecoes';
 import { podeEscrever } from '@/lib/permissoes';
-import { usePapel } from '@/contextos/AutenticacaoContexto';
+import { usePermissoes } from '@/contextos/AutenticacaoContexto';
 import type { EntradaDeLoteamento, Quadra } from '@/lib/api/cadastros';
 import type { Loteamento } from '@/tipos/cadastros';
 
 export function Loteamentos() {
-  const editavel = podeEscrever(usePapel());
+  const editavel = podeEscrever(usePermissoes());
   const [novo, definirNovo] = useState(false);
   const [selecionado, definirSelecionado] = useState<Loteamento | null>(null);
   const [nomeQuadra, definirNomeQuadra] = useState('');

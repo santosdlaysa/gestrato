@@ -12,7 +12,7 @@ import { useOpcoesDeLoteamentos } from '@/ganchos/useOpcoesDeCadastro';
 import { listarLotes } from '@/lib/api/cadastros';
 import { formatarDinheiro, formatarNumero, rotularEnum } from '@/lib/formato';
 import { podeEscrever } from '@/lib/permissoes';
-import { usePapel } from '@/contextos/AutenticacaoContexto';
+import { usePermissoes } from '@/contextos/AutenticacaoContexto';
 import { SITUACOES_DO_LOTE } from '@/tipos/cadastros';
 import type { Lote } from '@/tipos/cadastros';
 
@@ -33,7 +33,7 @@ const TONS: Record<string, 'ok' | 'atencao' | 'info' | 'neutro'> = {
 };
 
 export function Lotes() {
-  const papel = usePapel();
+  const papel = usePermissoes();
   const editavel = podeEscrever(papel);
   const { filtros, definirFiltro } = useFiltrosNaUrl<Chave>(CHAVES);
   const loteamentos = useOpcoesDeLoteamentos();

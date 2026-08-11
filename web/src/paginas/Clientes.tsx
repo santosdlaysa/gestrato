@@ -14,7 +14,7 @@ import { useValorAtrasado } from '@/ganchos/useValorAtrasado';
 import { listarClientes } from '@/lib/api/cadastros';
 import { formatarDocumento, formatarTelefone } from '@/lib/formato';
 import { podeEscrever } from '@/lib/permissoes';
-import { usePapel } from '@/contextos/AutenticacaoContexto';
+import { usePermissoes } from '@/contextos/AutenticacaoContexto';
 import type { Cliente } from '@/tipos/cadastros';
 
 type Chave = 'busca' | 'ativo' | 'pagina';
@@ -27,7 +27,7 @@ const OPCOES_DE_ATIVO = [
 ];
 
 export function Clientes() {
-  const papel = usePapel();
+  const papel = usePermissoes();
   const editavel = podeEscrever(papel);
   const { filtros, definirFiltro } = useFiltrosNaUrl<Chave>(CHAVES);
   const [emEdicao, definirEmEdicao] = useState<Cliente | null>(null);

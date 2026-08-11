@@ -9,7 +9,7 @@ import { Selo } from '@/componentes/comuns/Selo';
 import { useFiltrosNaUrl } from '@/ganchos/useFiltrosNaUrl';
 import { useRequisicao } from '@/ganchos/useRequisicao';
 import { useAcao } from '@/ganchos/useAcao';
-import { usePapel } from '@/contextos/AutenticacaoContexto';
+import { usePermissoes } from '@/contextos/AutenticacaoContexto';
 import { podeEscrever } from '@/lib/permissoes';
 import { formatarDinheiro } from '@/lib/formato';
 import type { RespostaPaginada } from '@/tipos/comum';
@@ -89,7 +89,7 @@ interface ConfigDeCadastro<T, F> {
 
 function CadastroFinanceiro<T, F>({ config }: { config: ConfigDeCadastro<T, F> }) {
   const { filtros, definirFiltro } = useFiltrosNaUrl<'busca' | 'ativo' | 'pagina'>(['busca', 'ativo', 'pagina']);
-  const editavel = podeEscrever(usePapel());
+  const editavel = podeEscrever(usePermissoes());
   const pagina = Number(filtros.pagina || 1);
   const acao = useAcao();
 

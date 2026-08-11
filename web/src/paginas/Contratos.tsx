@@ -17,7 +17,7 @@ import {
 import { mapaDeOpcoes } from '@/lib/colecoes';
 import { listarContratos } from '@/lib/api/contratos';
 import { podeGerenciarContratos } from '@/lib/permissoes';
-import { usePapel } from '@/contextos/AutenticacaoContexto';
+import { usePermissoes } from '@/contextos/AutenticacaoContexto';
 import { SITUACOES_DO_CONTRATO, STATUS_DO_CONTRATO } from '@/tipos/contrato';
 import { rotularEnum } from '@/lib/formato';
 import { seloDaSituacaoDoContrato } from '@/lib/rotulos';
@@ -37,7 +37,7 @@ const OPCOES_DE_STATUS = STATUS_DO_CONTRATO.map((status) => ({
 }));
 
 export function Contratos() {
-  const papel = usePapel();
+  const papel = usePermissoes();
   const { filtros, definirFiltro, limpar, algumPreenchido } = useFiltrosNaUrl<Chave>(CHAVES);
   const loteamentos = useOpcoesDeLoteamentos();
   const clientes = useOpcoesDeClientes();

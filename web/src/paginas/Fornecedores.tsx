@@ -11,7 +11,7 @@ import { useRequisicao } from '@/ganchos/useRequisicao';
 import { useValorAtrasado } from '@/ganchos/useValorAtrasado';
 import { listarFornecedores } from '@/lib/api/contas-a-pagar';
 import { podeEscrever } from '@/lib/permissoes';
-import { usePapel } from '@/contextos/AutenticacaoContexto';
+import { usePermissoes } from '@/contextos/AutenticacaoContexto';
 import type { Fornecedor, RespostaDeFornecedores } from '@/tipos/contas-a-pagar';
 
 const SITUACOES = [{ valor: 'true', texto: 'Ativos' }, { valor: 'false', texto: 'Inativos' }];
@@ -20,7 +20,7 @@ export function Fornecedores() {
   const { filtros, definirFiltro } = useFiltrosNaUrl<'busca' | 'ativo' | 'pagina'>(['busca', 'ativo', 'pagina']);
   const [edicao, definirEdicao] = useState<Fornecedor | null>(null);
   const [aberto, definirAberto] = useState(false);
-  const papel = usePapel();
+  const papel = usePermissoes();
   const busca = useValorAtrasado(filtros.busca, 400);
   const pagina = Number(filtros.pagina || 1);
   const requisicao = useRequisicao<RespostaDeFornecedores>(

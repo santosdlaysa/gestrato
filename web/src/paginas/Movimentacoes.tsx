@@ -11,7 +11,7 @@ import { ModalDeTransferencia } from '@/componentes/financeiro/ModalDeTransferen
 import { useFiltrosNaUrl } from '@/ganchos/useFiltrosNaUrl';
 import { useRequisicao } from '@/ganchos/useRequisicao';
 import { useAcao } from '@/ganchos/useAcao';
-import { usePapel } from '@/contextos/AutenticacaoContexto';
+import { usePermissoes } from '@/contextos/AutenticacaoContexto';
 import { podeEscrever } from '@/lib/permissoes';
 import { formatarData, formatarDinheiro } from '@/lib/formato';
 import {
@@ -39,7 +39,7 @@ interface Props {
 
 export function Movimentacoes({ titulo = 'Movimentações', descricao = 'Lançamentos realizados nas contas — entradas, saídas e transferências.', focoTransferencia = false }: Props) {
   const { filtros, definirFiltro } = useFiltrosNaUrl<Chave>(['busca', 'contaBancariaId', 'categoriaId', 'tipo', 'de', 'ate', 'pagina']);
-  const editavel = podeEscrever(usePapel());
+  const editavel = podeEscrever(usePermissoes());
   const pagina = Number(filtros.pagina || 1);
   const acao = useAcao();
   const [modalLancamento, definirModalLancamento] = useState<LancamentoFinanceiro | null | undefined>(undefined);

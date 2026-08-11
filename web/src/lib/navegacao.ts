@@ -1,4 +1,4 @@
-import type { Papel } from '@/tipos/usuario';
+import type { Permissao } from '@/tipos/usuario';
 
 /**
  * Mapa de navegação do Gestrato.
@@ -27,8 +27,8 @@ export interface Modulo {
   id: string;
   titulo: string;
   secoes: Secao[];
-  /** Quando informado, o módulo só aparece para esses papéis. */
-  papeis?: Papel[];
+  /** Quando informado, o módulo só aparece para quem tem esta permissão. */
+  permissao?: Permissao;
 }
 
 const MODULOS_BASE: Modulo[] = [
@@ -631,26 +631,22 @@ const MODULOS_ORGANIZADOS: Modulo[] = [
   combinarModulos('configuracoes', 'Configurações', 'configuracoes', 'integracoes'),
 ];
 
-const PAPEIS_POR_MODULO: Record<string, Papel[]> = {
-  comercial: ['ADMINISTRADOR', 'VENDEDOR'],
-  clientes: ['ADMINISTRADOR', 'VENDEDOR', 'FINANCEIRO', 'CONSULTA'],
-  contratos: ['ADMINISTRADOR', 'VENDEDOR', 'FINANCEIRO', 'CONSULTA'],
-  loteamentos: ['ADMINISTRADOR', 'VENDEDOR', 'FINANCEIRO', 'CONSULTA'],
-  cobrancas: ['ADMINISTRADOR', 'FINANCEIRO', 'CONSULTA'],
-  financeiro: ['ADMINISTRADOR', 'FINANCEIRO', 'CONSULTA'],
-  documentos: ['ADMINISTRADOR', 'VENDEDOR', 'FINANCEIRO', 'CONSULTA'],
-  crm: ['ADMINISTRADOR', 'VENDEDOR'],
-  cadastros: ['ADMINISTRADOR'],
-  mobile: ['ADMINISTRADOR', 'VENDEDOR', 'FINANCEIRO'],
-  'portal-cliente': ['ADMINISTRADOR', 'VENDEDOR', 'FINANCEIRO'],
-  'portal-corretor': ['ADMINISTRADOR', 'VENDEDOR'],
-  auditoria: ['ADMINISTRADOR'],
-  configuracoes: ['ADMINISTRADOR'],
+/**
+ * Modulos sensiveis exigem uma permissao para aparecer no menu. Os demais ficam
+ * visiveis a qualquer usuario autenticado — o menu nao concede poder, quem barra
+ * as acoes de escrita e o backend, por permissao. Aqui protegemos a area de
+ * administracao (usuarios, auditoria, configuracoes), que so faz sentido para
+ * quem pode gerir usuarios.
+ */
+const PERMISSAO_POR_MODULO: Record<string, Permissao | undefined> = {
+  cadastros: 'GERIR_USUARIOS',
+  auditoria: 'GERIR_USUARIOS',
+  configuracoes: 'GERIR_USUARIOS',
 };
 
 export const MODULOS: Modulo[] = MODULOS_ORGANIZADOS.map((modulo) => ({
   ...modulo,
-  papeis: PAPEIS_POR_MODULO[modulo.id],
+  permissao: PERMISSAO_POR_MODULO[modulo.id],
 }));
 
 /** Todas as folhas do mapa, achatadas — usado para gerar rotas. */

@@ -19,7 +19,7 @@ import { cobrarAgora, emitirDocumento, reemitirDocumento } from '@/lib/api/parce
 import { somarValoresAtualizados } from '@/lib/parcela';
 import { formatarDinheiro } from '@/lib/formato';
 import { podeDarBaixa, podeEscrever } from '@/lib/permissoes';
-import { usePapel } from '@/contextos/AutenticacaoContexto';
+import { usePermissoes } from '@/contextos/AutenticacaoContexto';
 import type { ParcelaDeCobranca } from '@/tipos/parcela';
 
 const CHAVES: readonly ChaveDeFiltroDeParcela[] = [
@@ -39,7 +39,7 @@ interface Props {
 }
 
 export function Parcelas({ modo = 'padrao' }: Props) {
-  const papel = usePapel();
+  const papel = usePermissoes();
   const controle = useFiltrosNaUrl<ChaveDeFiltroDeParcela>(CHAVES);
   const { filtros, definirFiltro } = controle;
   const pagina = Number(filtros.pagina || 1);

@@ -1,12 +1,28 @@
-import type { Papel } from './usuario';
+import type { Permissao } from './usuario';
 
 export interface UsuarioDeAcesso {
-  id: string; nome: string; email: string; papel: Papel; ativo: boolean;
-  ultimoAcesso: string | null; permissoes: string[];
+  id: string;
+  nome: string;
+  email: string;
+  perfilId: string;
+  perfilNome: string;
+  ativo: boolean;
+  ultimoAcesso: string | null;
+  permissoes: Permissao[];
 }
+
 export interface PerfilDeAcesso {
-  id: Papel; nome: string; ativo: boolean; usuariosVinculados: number; permissoes: string[];
+  id: string;
+  nome: string;
+  descricao: string | null;
+  sistema: boolean;
+  usuariosVinculados: number;
+  permissoes: Permissao[];
 }
+
 export interface PermissaoDeAcesso {
-  id: string; nome: string; perfis: Papel[]; ativo: boolean;
+  id: Permissao;
+  nome: string;
+  /** Nomes dos perfis que reúnem esta permissão. */
+  perfis: string[];
 }

@@ -11,7 +11,7 @@ import { useRequisicao } from '@/ganchos/useRequisicao';
 import { useValorAtrasado } from '@/ganchos/useValorAtrasado';
 import { listarCorretores, listarParceiros } from '@/lib/api/cadastros';
 import { podeEscrever } from '@/lib/permissoes';
-import { usePapel } from '@/contextos/AutenticacaoContexto';
+import { usePermissoes } from '@/contextos/AutenticacaoContexto';
 import type { Corretor, Parceiro } from '@/tipos/cadastros';
 import type { RespostaPaginada } from '@/tipos/comum';
 
@@ -32,7 +32,7 @@ export function Intermediarios({ tipo }: { tipo: Tipo }) {
   ]);
   const [edicao, definirEdicao] = useState<Registro | null>(null);
   const [aberto, definirAberto] = useState(false);
-  const papel = usePapel();
+  const papel = usePermissoes();
   const busca = useValorAtrasado(filtros.busca, 400);
   const pagina = Number(filtros.pagina || 1);
   const requisicao = useRequisicao<RespostaDeIntermediarios>(
