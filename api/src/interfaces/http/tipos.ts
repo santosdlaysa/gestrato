@@ -1,11 +1,18 @@
 import type { Request } from 'express';
-import type { Papel } from '../../domain/acesso/usuario.js';
+import type { Permissao } from '../../domain/acesso/permissao.js';
 
-/** Identidade extraida do token, anexada a requisicao autenticada. */
+/**
+ * Identidade resolvida a cada requisicao. Diferente do token (que so guarda id e
+ * e-mail), aqui vem o perfil e as permissoes efetivas, lidos do banco — e por
+ * isso que inativar um usuario ou mudar um perfil tem efeito imediato.
+ */
 export interface UsuarioAutenticado {
   readonly id: string;
+  readonly nome: string;
   readonly email: string;
-  readonly papel: Papel;
+  readonly perfilId: string;
+  readonly perfilNome: string;
+  readonly permissoes: readonly Permissao[];
 }
 
 /**

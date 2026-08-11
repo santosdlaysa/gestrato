@@ -2,72 +2,33 @@ import { Entidade } from '../shared/entidade.js';
 import { ErroDeValidacao } from '../shared/errors.js';
 import { Identificador } from '../shared/identificador.js';
 import { Email } from '../value-objects/contato.js';
+import { Perfil } from './perfil.js';
+import type { Permissao } from './permissao.js';
 
-export const PAPEIS = ['ADMINISTRADOR', 'FINANCEIRO', 'VENDEDOR', 'CONSULTA'] as const;
-export type Papel = (typeof PAPEIS)[number];
+// Reexporta as permissoes para quem ja importava daqui (middleware, controllers).
+export {
+  PERMISSOES,
+  ehPermissao,
+  garantirPermissao,
+  normalizarPermissoes,
+  rotuloDaPermissao,
+  type Permissao,
+} from './permissao.js';
 
 /**
- * O que cada papel pode fazer.
- *
- * A matriz mora no dominio, nao no middleware: "vendedor nao da baixa em
- * parcela" e regra de negocio da loteadora, e precisa valer independentemente
- * de a chamada ter vindo do HTTP, de um job ou de um script.
+ * Estado do usuario. O perfil e denormalizado no carregamento: guardamos o id do
+ * perfil (o que de fato persiste) junto com o nome e as permissoes efetivas
+ * daquele perfil, para que `pode()` continue self-contained e o login/apresentacao
+ * nao precisem de uma segunda ida ao banco.
  */
-export const PERMISSOES = [
-  'CADASTRAR',
-  'GERIR_CONTRATOS',
-  'RECEBER_PAGAMENTO',
-  'EMITIR_DOCUMENTO',
-  'ENVIAR_COBRANCA',
-  'CONFIGURAR_REGUA',
-  'RENEGOCIAR',
-  'ANEXAR_ARQUIVO',
-  'REMOVER_ANEXO',
-  'GERIR_USUARIOS',
-] as const;
-export type Permissao = (typeof PERMISSOES)[number];
-
-const PERMISSOES_POR_PAPEL: Record<Papel, readonly Permissao[]> = {
-  ADMINISTRADOR: PERMISSOES,
-  FINANCEIRO: [
-    'CADASTRAR',
-    'GERIR_CONTRATOS',
-    'RECEBER_PAGAMENTO',
-    'EMITIR_DOCUMENTO',
-    'ENVIAR_COBRANCA',
-    'CONFIGURAR_REGUA',
-    'RENEGOCIAR',
-    'ANEXAR_ARQUIVO',
-    'REMOVER_ANEXO',
-  ],
-  // Vendedor anexa o contrato assinado e os documentos do cliente, mas nao
-  // apaga: exclusao de documento e ato que precisa de responsavel pelo processo.
-  VENDEDOR: ['CADASTRAR', 'GERIR_CONTRATOS', 'EMITIR_DOCUMENTO', 'ANEXAR_ARQUIVO'],
-  CONSULTA: [],
-};
-
-/** Consulta a matriz sem precisar carregar o usuario — usada pelo middleware HTTP. */
-export function papelPode(papel: Papel, permissao: Permissao): boolean {
-  return PERMISSOES_POR_PAPEL[papel].includes(permissao);
-}
-
-export function permissoesDoPapel(papel: Papel): readonly Permissao[] {
-  return PERMISSOES_POR_PAPEL[papel];
-}
-
-export function garantirPapel(valor: string): Papel {
-  if (!(PAPEIS as readonly string[]).includes(valor)) {
-    throw new ErroDeValidacao(`Papel invalido: "${valor}". Esperado um de: ${PAPEIS.join(', ')}.`);
-  }
-  return valor as Papel;
-}
-
 interface EstadoDoUsuario {
   id: Identificador;
   nome: string;
   email: Email;
   senhaHash: string;
-  papel: Papel;
+  perfilId: Identificador;
+  perfilNome: string;
+  permissoesDoPerfil: readonly Permissao[];
   ativo: boolean;
   ultimoAcesso: Date | null;
 }
@@ -82,12 +43,22 @@ export class Usuario extends Entidade {
     nome: string;
     email: Email;
     senhaHash: string;
-    papel: Papel;
+    perfil: Perfil;
   }): Usuario {
     const nome = entrada.nome?.trim();
     if (!nome) throw new ErroDeValidacao('Nome do usuario e obrigatorio.');
     if (!entrada.senhaHash) throw new ErroDeValidacao('Usuario precisa de senha.');
-    return new Usuario({ ...entrada, nome, ativo: true, ultimoAcesso: null });
+    return new Usuario({
+      id: entrada.id,
+      nome,
+      email: entrada.email,
+      senhaHash: entrada.senhaHash,
+      perfilId: entrada.perfil.id,
+      perfilNome: entrada.perfil.nome,
+      permissoesDoPerfil: entrada.perfil.permissoes,
+      ativo: true,
+      ultimoAcesso: null,
+    });
   }
 
   static restaurar(estado: EstadoDoUsuario): Usuario {
@@ -106,8 +77,12 @@ export class Usuario extends Entidade {
     return this.estado.senhaHash;
   }
 
-  get papel(): Papel {
-    return this.estado.papel;
+  get perfilId(): Identificador {
+    return this.estado.perfilId;
+  }
+
+  get perfilNome(): string {
+    return this.estado.perfilNome;
   }
 
   get ativo(): boolean {
@@ -119,11 +94,28 @@ export class Usuario extends Entidade {
   }
 
   pode(permissao: Permissao): boolean {
-    return this.estado.ativo && PERMISSOES_POR_PAPEL[this.estado.papel].includes(permissao);
+    return this.estado.ativo && this.estado.permissoesDoPerfil.includes(permissao);
   }
 
+  /** Permissoes efetivas: usuario inativo nao pode nada, mesmo com perfil rico. */
   get permissoes(): readonly Permissao[] {
-    return this.estado.ativo ? PERMISSOES_POR_PAPEL[this.estado.papel] : [];
+    return this.estado.ativo ? this.estado.permissoesDoPerfil : [];
+  }
+
+  renomear(nome: string): void {
+    const limpo = nome?.trim();
+    if (!limpo) throw new ErroDeValidacao('Nome do usuario e obrigatorio.');
+    this.estado.nome = limpo;
+  }
+
+  alterarEmail(email: Email): void {
+    this.estado.email = email;
+  }
+
+  atribuirPerfil(perfil: Perfil): void {
+    this.estado.perfilId = perfil.id;
+    this.estado.perfilNome = perfil.nome;
+    this.estado.permissoesDoPerfil = perfil.permissoes;
   }
 
   registrarAcesso(quando = new Date()): void {
@@ -137,6 +129,10 @@ export class Usuario extends Entidade {
 
   inativar(): void {
     this.estado.ativo = false;
+  }
+
+  ativar(): void {
+    this.estado.ativo = true;
   }
 
   paraEstado(): Readonly<EstadoDoUsuario> {

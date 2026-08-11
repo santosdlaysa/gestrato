@@ -21,24 +21,37 @@ datasource db {
 
 // ---------------------------------------------------------------- acesso
 
-enum PapelUsuario {
-  ADMINISTRADOR
-  FINANCEIRO
-  VENDEDOR
-  CONSULTA
+/// Perfil de acesso: nome + conjunto de permissoes, configuravel pela loteadora.
+/// As permissoes sao strings validadas no dominio (ver domain/acesso/permissao).
+model Perfil {
+  id           String    @id @default(uuid())
+  nome         String    @unique
+  descricao    String?
+  permissoes   String[]
+  /// Perfis que acompanham a instalacao: podem ser editados, mas nao excluidos.
+  sistema      Boolean   @default(false)
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+
+  usuarios Usuario[]
+
+  @@map("perfis")
 }
 
 model Usuario {
-  id           String       @id @default(uuid())
+  id           String    @id @default(uuid())
   nome         String
-  email        String       @unique
+  email        String    @unique
   senhaHash    String
-  papel        PapelUsuario @default(CONSULTA)
-  ativo        Boolean      @default(true)
+  perfilId     String
+  ativo        Boolean   @default(true)
   ultimoAcesso DateTime?
-  criadoEm     DateTime     @default(now())
-  atualizadoEm DateTime     @updatedAt
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
 
+  perfil Perfil @relation(fields: [perfilId], references: [id])
+
+  @@index([perfilId])
   @@map("usuarios")
 }
 

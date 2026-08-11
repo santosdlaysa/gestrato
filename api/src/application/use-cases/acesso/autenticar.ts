@@ -1,4 +1,3 @@
-import type { Papel } from '../../../domain/acesso/usuario.js';
 import { ErroDeAutorizacao } from '../../../domain/shared/errors.js';
 import type { RepositorioDeUsuarios } from '../../ports/repositorios.js';
 import type { ServicoDeSenha, ServicoDeToken } from '../../ports/seguranca.js';
@@ -14,7 +13,8 @@ export interface SaidaDeAutenticacao {
     readonly id: string;
     readonly nome: string;
     readonly email: string;
-    readonly papel: Papel;
+    readonly perfilId: string;
+    readonly perfilNome: string;
     readonly permissoes: readonly string[];
   };
 }
@@ -52,13 +52,13 @@ export class Autenticar {
       token: this.servicoDeToken.emitir({
         usuarioId: usuario.id.paraString(),
         email: usuario.email.valor,
-        papel: usuario.papel,
       }),
       usuario: {
         id: usuario.id.paraString(),
         nome: usuario.nome,
         email: usuario.email.valor,
-        papel: usuario.papel,
+        perfilId: usuario.perfilId.paraString(),
+        perfilNome: usuario.perfilNome,
         permissoes: usuario.permissoes,
       },
     };

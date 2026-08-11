@@ -118,7 +118,20 @@ export function criarAplicacao(container: Container, rotasAdicionais: Router[] =
   // Publico: o Twilio chama o StatusCallback sem token do sistema.
   aplicacao.use('/api', criarRotasDeWebhookDeMensageria());
 
-  const exigirAutenticacao = criarExigirAutenticacao(container.servicoDeToken);
+  // Resolve a identidade do token a cada requisicao, direto do banco: e o que
+  // faz inativacao e troca de perfil valerem na hora, sem esperar o token expirar.
+  const exigirAutenticacao = criarExigirAutenticacao(container.servicoDeToken, async (usuarioId) => {
+    const usuario = await container.repositorios.usuarios.porId(usuarioId);
+    if (!usuario || !usuario.ativo) return null;
+    return {
+      id: usuario.id.paraString(),
+      nome: usuario.nome,
+      email: usuario.email.valor,
+      perfilId: usuario.perfilId.paraString(),
+      perfilNome: usuario.perfilNome,
+      permissoes: usuario.permissoes,
+    };
+  });
   aplicacao.use('/api', criarRotasDeAutenticacao(controladorDeAutenticacao, exigirAutenticacao));
 
   const protegidas: Router[] = [
@@ -130,7 +143,14 @@ export function criarAplicacao(container: Container, rotasAdicionais: Router[] =
     criarRotasDeContratos(controladorDeContratos),
     criarRotasDeCobranca(controladorDeCobranca),
     criarRotasDeAnexos(new ControladorDeAnexos(container.casosDeUsoDeAnexos)),
-    criarRotasDeAcesso(new ControladorDeAcesso(container.repositorios.usuarios, container.servicoDeSenha, container.geradorDeIdentificador)),
+    criarRotasDeAcesso(
+      new ControladorDeAcesso(
+        container.repositorios.usuarios,
+        container.repositorios.perfis,
+        container.servicoDeSenha,
+        container.geradorDeIdentificador,
+      ),
+    ),
     criarRotasDeConfiguracoesEIntegracoes(container),
     criarRotasDeContasAPagar(),
     criarRotasDeObrasECentrosDeCusto(),

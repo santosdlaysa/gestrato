@@ -1,6 +1,7 @@
 import type { Repositorios, UnidadeDeTrabalho } from '../../../application/ports/repositorios.js';
 import { prisma, type ClientePrisma } from './cliente-prisma.js';
 import { RepositorioDeUsuariosPrisma } from './repositorios/usuarios.repositorio.js';
+import { RepositorioDePerfisPrisma } from './repositorios/perfis.repositorio.js';
 import { RepositorioDeClientesPrisma } from './repositorios/clientes.repositorio.js';
 import { RepositorioDeLoteamentosPrisma } from './repositorios/loteamentos.repositorio.js';
 import { RepositorioDeQuadrasPrisma } from './repositorios/quadras.repositorio.js';
@@ -25,6 +26,7 @@ import { RepositorioDeAnexosPrisma } from './repositorios/anexos.repositorio.js'
 export function montarRepositorios(clientePrisma: ClientePrisma): Repositorios {
   return {
     usuarios: new RepositorioDeUsuariosPrisma(clientePrisma),
+    perfis: new RepositorioDePerfisPrisma(clientePrisma),
     clientes: new RepositorioDeClientesPrisma(clientePrisma),
     loteamentos: new RepositorioDeLoteamentosPrisma(clientePrisma),
     quadras: new RepositorioDeQuadrasPrisma(clientePrisma),

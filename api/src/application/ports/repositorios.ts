@@ -1,3 +1,4 @@
+import type { Perfil } from '../../domain/acesso/perfil.js';
 import type { Usuario } from '../../domain/acesso/usuario.js';
 import type { Anexo } from '../../domain/arquivos/anexo.js';
 import type { EscopoDoAnexo } from '../../domain/arquivos/tipos.js';
@@ -25,6 +26,18 @@ export interface RepositorioDeUsuarios {
   porEmail(email: string): Promise<Usuario | null>;
   listar(): Promise<Usuario[]>;
   salvar(usuario: Usuario): Promise<void>;
+  excluir(id: string): Promise<void>;
+}
+
+/** Perfis de acesso: nome + conjunto de permissoes, configuraveis pela loteadora. */
+export interface RepositorioDePerfis {
+  porId(id: string): Promise<Perfil | null>;
+  porNome(nome: string): Promise<Perfil | null>;
+  listar(): Promise<Perfil[]>;
+  salvar(perfil: Perfil): Promise<void>;
+  excluir(id: string): Promise<void>;
+  /** Quantos usuarios (ativos ou nao) estao vinculados ao perfil. */
+  contarUsuarios(perfilId: string): Promise<number>;
 }
 
 // --------------------------------------------------------------- cadastros
@@ -244,6 +257,7 @@ export interface RepositorioDeAnexos {
 /** Conjunto de repositorios disponivel dentro de uma transacao. */
 export interface Repositorios {
   readonly usuarios: RepositorioDeUsuarios;
+  readonly perfis: RepositorioDePerfis;
   readonly clientes: RepositorioDeClientes;
   readonly loteamentos: RepositorioDeLoteamentos;
   readonly quadras: RepositorioDeQuadras;

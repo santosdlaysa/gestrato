@@ -24,7 +24,6 @@ import type {
   FormaPagamento,
   Gatilho,
   IndiceReajuste,
-  PapelUsuario,
   Periodicidade,
   SituacaoLote,
   StatusCobranca,
@@ -207,21 +206,78 @@ function gerarCnpj(base: number): string {
 
 // ---------------------------------------------------------------- usuarios
 
+/**
+ * Perfis de sistema. Os ids sao fixos (e iguais aos da migracao
+ * `perfis_e_permissoes`) para que o upsell por id seja estavel e os usuarios do
+ * seed possam referencia-los.
+ */
+const PERFIL_ADMIN = '00000000-0000-0000-0000-0000000000a1';
+const PERFIL_FINANCEIRO = '00000000-0000-0000-0000-0000000000a2';
+const PERFIL_VENDEDOR = '00000000-0000-0000-0000-0000000000a3';
+const PERFIL_CONSULTA = '00000000-0000-0000-0000-0000000000a4';
+
+const TODAS_PERMISSOES = [
+  'CADASTRAR', 'GERIR_CONTRATOS', 'RECEBER_PAGAMENTO', 'EMITIR_DOCUMENTO',
+  'ENVIAR_COBRANCA', 'CONFIGURAR_REGUA', 'RENEGOCIAR', 'ANEXAR_ARQUIVO',
+  'REMOVER_ANEXO', 'GERIR_USUARIOS',
+];
+
+interface EspecificacaoDePerfil {
+  id: string;
+  nome: string;
+  descricao: string;
+  permissoes: string[];
+}
+
+const PERFIS: EspecificacaoDePerfil[] = [
+  { id: PERFIL_ADMIN, nome: 'Administrador', descricao: 'Acesso total ao sistema', permissoes: TODAS_PERMISSOES },
+  {
+    id: PERFIL_FINANCEIRO,
+    nome: 'Financeiro',
+    descricao: 'Operação financeira, cobrança e recebimentos',
+    permissoes: TODAS_PERMISSOES.filter((p) => p !== 'GERIR_USUARIOS'),
+  },
+  {
+    id: PERFIL_VENDEDOR,
+    nome: 'Vendedor',
+    descricao: 'Cadastro de clientes, contratos e documentos',
+    permissoes: ['CADASTRAR', 'GERIR_CONTRATOS', 'EMITIR_DOCUMENTO', 'ANEXAR_ARQUIVO'],
+  },
+  { id: PERFIL_CONSULTA, nome: 'Consulta', descricao: 'Somente leitura', permissoes: [] },
+];
+
+async function semearPerfis(): Promise<void> {
+  for (const perfil of PERFIS) {
+    await prisma.perfil.upsert({
+      where: { id: perfil.id },
+      create: {
+        id: perfil.id,
+        nome: perfil.nome,
+        descricao: perfil.descricao,
+        permissoes: perfil.permissoes,
+        sistema: true,
+      },
+      update: { nome: perfil.nome, descricao: perfil.descricao, permissoes: perfil.permissoes, sistema: true },
+    });
+  }
+}
+
 interface EspecificacaoDeUsuario {
   nome: string;
   email: string;
   senha: string;
-  papel: PapelUsuario;
+  perfilId: string;
 }
 
 const USUARIOS: EspecificacaoDeUsuario[] = [
-  { nome: 'Ana Paula Ribeiro', email: ADMIN_EMAIL, senha: ADMIN_SENHA, papel: 'ADMINISTRADOR' },
-  { nome: 'Marcos Antunes', email: 'financeiro@gestrato.local', senha: 'financeiro123', papel: 'FINANCEIRO' },
-  { nome: 'Juliana Castro', email: 'vendas@gestrato.local', senha: 'vendas123', papel: 'VENDEDOR' },
-  { nome: 'Roberto Lima', email: 'consulta@gestrato.local', senha: 'consulta123', papel: 'CONSULTA' },
+  { nome: 'Ana Paula Ribeiro', email: ADMIN_EMAIL, senha: ADMIN_SENHA, perfilId: PERFIL_ADMIN },
+  { nome: 'Marcos Antunes', email: 'financeiro@gestrato.local', senha: 'financeiro123', perfilId: PERFIL_FINANCEIRO },
+  { nome: 'Juliana Castro', email: 'vendas@gestrato.local', senha: 'vendas123', perfilId: PERFIL_VENDEDOR },
+  { nome: 'Roberto Lima', email: 'consulta@gestrato.local', senha: 'consulta123', perfilId: PERFIL_CONSULTA },
 ];
 
 async function semearUsuarios(): Promise<void> {
+  await semearPerfis();
   for (const usuario of USUARIOS) {
     const senhaHash = bcrypt.hashSync(usuario.senha, 10);
     await prisma.usuario.upsert({
@@ -231,10 +287,10 @@ async function semearUsuarios(): Promise<void> {
         nome: usuario.nome,
         email: usuario.email,
         senhaHash,
-        papel: usuario.papel,
+        perfilId: usuario.perfilId,
         ativo: true,
       },
-      update: { nome: usuario.nome, senhaHash, papel: usuario.papel, ativo: true },
+      update: { nome: usuario.nome, senhaHash, perfilId: usuario.perfilId, ativo: true },
     });
   }
 }
@@ -2271,7 +2327,10 @@ async function imprimirResumo(resumo: ResumoDoSeed): Promise<void> {
     `    anexos .................. ${anexos}   reajustes: ${reajustes}   webhooks: ${webhooks}`,
     '',
     '  Credenciais de acesso (troque em produção):',
-    ...USUARIOS.map((usuario) => `    ${usuario.papel.padEnd(14)} ${usuario.email} / ${usuario.senha}`),
+    ...USUARIOS.map((usuario) => {
+      const perfil = PERFIS.find((p) => p.id === usuario.perfilId)?.nome ?? '—';
+      return `    ${perfil.padEnd(14)} ${usuario.email} / ${usuario.senha}`;
+    }),
     '',
     `  Empresa de demonstração: ${EMPRESA}`,
     '======================================================================',

@@ -12,22 +12,31 @@ import { mapeadorDeUsuario } from '../mappers/usuario.mapper.js';
  *   3. converte com o mapper, nunca devolve linha crua do Prisma;
  *   4. `salvar` faz upsert, para o caso de uso nao precisar saber se e insercao
  *      ou atualizacao.
+ *
+ * As leituras trazem o perfil junto (`include: { perfil: true }`) porque as
+ * permissoes efetivas do usuario moram no perfil.
  */
 export class RepositorioDeUsuariosPrisma implements RepositorioDeUsuarios {
   constructor(private readonly prisma: ClientePrisma) {}
 
   async porId(id: string): Promise<Usuario | null> {
-    const linha = await this.prisma.usuario.findUnique({ where: { id } });
+    const linha = await this.prisma.usuario.findUnique({ where: { id }, include: { perfil: true } });
     return linha ? mapeadorDeUsuario.paraDominio(linha) : null;
   }
 
   async porEmail(email: string): Promise<Usuario | null> {
-    const linha = await this.prisma.usuario.findUnique({ where: { email: email.toLowerCase() } });
+    const linha = await this.prisma.usuario.findUnique({
+      where: { email: email.toLowerCase() },
+      include: { perfil: true },
+    });
     return linha ? mapeadorDeUsuario.paraDominio(linha) : null;
   }
 
   async listar(): Promise<Usuario[]> {
-    const linhas = await this.prisma.usuario.findMany({ orderBy: { nome: 'asc' } });
+    const linhas = await this.prisma.usuario.findMany({
+      orderBy: { nome: 'asc' },
+      include: { perfil: true },
+    });
     return linhas.map(mapeadorDeUsuario.paraDominio);
   }
 
@@ -38,5 +47,9 @@ export class RepositorioDeUsuariosPrisma implements RepositorioDeUsuarios {
       create: dados,
       update: dados,
     });
+  }
+
+  async excluir(id: string): Promise<void> {
+    await this.prisma.usuario.delete({ where: { id } });
   }
 }

@@ -5,7 +5,6 @@ import type {
   ServicoDeSenha,
   ServicoDeToken,
 } from '../../application/ports/seguranca.js';
-import { garantirPapel } from '../../domain/acesso/usuario.js';
 
 /** Custo do bcrypt: equilibrio entre resistencia a forca bruta e tempo de login. */
 const FATOR_DE_CUSTO = 10;
@@ -28,7 +27,7 @@ export class ServicoDeTokenJwt implements ServicoDeToken {
 
   emitir(conteudo: ConteudoDoToken): string {
     return jwt.sign(
-      { email: conteudo.email, papel: conteudo.papel },
+      { email: conteudo.email },
       this.segredo,
       { subject: conteudo.usuarioId, expiresIn: this.validade } as jwt.SignOptions,
     );
@@ -46,7 +45,6 @@ export class ServicoDeTokenJwt implements ServicoDeToken {
       return {
         usuarioId: String(conteudo.sub),
         email: String(conteudo.email ?? ''),
-        papel: garantirPapel(String(conteudo.papel ?? '')),
       };
     } catch {
       return null;
