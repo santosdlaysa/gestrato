@@ -54,7 +54,7 @@ Mapeamento de erros → HTTP: regra de negócio/conflito retornam **409**.
 
 ---
 
-## 🟡 FRONTEND — parcial
+## ✅ FRONTEND — concluído (código); verificação visual pendente
 
 Concluído:
 - `tipos/usuario.ts` — union `Permissao`; `Usuario { id, nome, email, perfilId, perfilNome, permissoes }`.
@@ -65,17 +65,16 @@ Concluído:
 - `lib/navegacao.ts` — `Modulo.permissao?` + `PERMISSAO_POR_MODULO` (gate por permissão).
 - `componentes/layout/BarraLateral.tsx` — filtro de módulo por permissão; exibe `perfilNome`.
 - 14 telas/componentes: `usePapel` → `usePermissoes` (sed). Obs.: a variável local ainda se chama `papel` em alguns arquivos, mas agora contém a lista de permissões (funciona; renomear é cosmético).
+- **`web/src/paginas/Acesso.tsx` reescrita** (feita): aba **Usuários** (tabela nome/e-mail/perfil/situação/último acesso; **dropdown de perfil dinâmico**; ações Editar / Redefinir senha / Excluir com tratamento de erro), aba **Perfis** (**matriz de permissões editável** por checkbox; criar/editar/excluir; perfil `sistema` sem excluir; mostra descrição e usuários vinculados), aba **Permissões** (informativa: permissão → perfis).
+- Grep confirmou: nenhum resquício de `Papel`/`.papel`/`PAPEIS`/`rotuloDoPapel` restante no front.
 
-### ❌ FALTA FAZER (frontend)
+Verificações do front:
+- `npm run checar-tipos` (web): **OK**.
+- `npm run build` (web): **OK** (202 módulos).
 
-1. **Reescrever `web/src/paginas/Acesso.tsx`** (NÃO feito — hoje ainda usa `usuario.papel`, constante `PAPEIS`, `form.papel`; **vai quebrar o typecheck**). Precisa:
-   - Aba **Usuários**: tabela (nome/e-mail/perfil/situação/último acesso) + ações **Editar**, **Redefinir senha**, **Excluir**. Modal com **dropdown de perfil dinâmico** (de `listarPerfis`), situação e senha.
-   - Aba **Perfis**: lista de perfis com **matriz de permissões editável** (checkboxes por permissão), criar/editar/excluir; perfis `sistema` não podem ser excluídos (esconder ação). Mostrar `usuariosVinculados` e `descricao`.
-   - Aba **Permissões**: tabela permissão → nomes dos perfis que a possuem (informativa).
-   - Tratar erros da API (ex.: 409 da trava anti-lockout / perfil vinculado) exibindo a mensagem.
-2. **Grep de resquícios** no front: procurar `Papel`, `.papel`, `rotuloDoPapel`, `PAPEIS` em `web/src` e corrigir (BarraLateral já feito; provavelmente sobra só `Acesso.tsx`, mas confirmar Login e imports de tipo).
-3. **`npm run checar-tipos`** (web) até passar limpo.
-4. Opcional: subir a app e validar visualmente (ou ao menos `vite build`).
+### ❌ FALTA (verificação visual)
+
+- **Não** foi possível dirigir a UI no navegador nesta sessão: o **Docker Desktop foi encerrado** (banco de teste local caiu) e a **extensão do Chrome está desconectada**. O código do front compila e faz build; o backend está provado por 8/8 testes e2e. Falta apenas subir os dois servidores (API contra um banco local + `web` dev) e clicar pelas três abas para uma conferência visual.
 
 ---
 
