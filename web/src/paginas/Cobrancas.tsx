@@ -10,6 +10,7 @@ import { useFiltrosNaUrl } from '@/ganchos/useFiltrosNaUrl';
 import { useRequisicao } from '@/ganchos/useRequisicao';
 import { useOpcoesDeClientes } from '@/ganchos/useOpcoesDeCadastro';
 import { listarCobrancas } from '@/lib/api/cobrancas';
+import { rotuloDoStatusDeCobranca } from '@/lib/rotulos';
 import { STATUS_DE_COBRANCA } from '@/tipos/cobranca';
 
 type Chave = 'clienteId' | 'contratoId' | 'parcelaId' | 'status' | 'de' | 'ate' | 'pagina';
@@ -24,7 +25,10 @@ const CHAVES: readonly Chave[] = [
   'pagina',
 ];
 
-const OPCOES_DE_STATUS = STATUS_DE_COBRANCA.map((status) => ({ valor: status, texto: status }));
+const OPCOES_DE_STATUS = STATUS_DE_COBRANCA.map((status) => ({
+  valor: status,
+  texto: rotuloDoStatusDeCobranca(status),
+}));
 
 export function Cobrancas() {
   const { filtros, definirFiltro, limpar, algumPreenchido } = useFiltrosNaUrl<Chave>(CHAVES);
@@ -98,9 +102,10 @@ export function Cobrancas() {
               aoMudar={(valor) => definirFiltro('ate', valor)}
             />
             <CampoDeTexto
-              rotulo="Contrato (id)"
+              rotulo="Contrato"
               valor={filtros.contratoId}
               aoMudar={(valor) => definirFiltro('contratoId', valor)}
+              espacoReservado="Nº ou código do contrato"
             />
             <div className="filtros__acoes">
               <button type="button" className="botao" onClick={limpar} disabled={!algumPreenchido}>

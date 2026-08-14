@@ -118,6 +118,7 @@ export function Regua() {
                 >
                   <EditorDeEtapas
                     eventos={eventos}
+                    modelos={extrairItens(modelos.dados)}
                     somenteLeitura={!editavel}
                     aoMudar={(proximos) => {
                       definirEventos(proximos);

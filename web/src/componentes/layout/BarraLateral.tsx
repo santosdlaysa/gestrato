@@ -4,6 +4,7 @@ import { useAutenticacao } from '@/contextos/AutenticacaoContexto';
 import { MODULOS, moduloDoCaminho } from '@/lib/navegacao';
 import type { Modulo } from '@/lib/navegacao';
 import type { Permissao } from '@/tipos/usuario';
+import { estaConfinadoAoFinanceiro } from '@/lib/permissoes';
 import { IconeDoModulo } from './IconeDoModulo';
 
 function classeDoLink({ isActive }: { isActive: boolean }): string {
@@ -50,13 +51,15 @@ export function BarraLateral() {
     () => new Set(moduloAtivo ? [moduloAtivo.id] : ['dashboard']),
   );
 
-  const modulosVisiveis = useMemo(
-    () =>
-      MODULOS.map((modulo) => filtrarModulo(modulo, termo, usuario?.permissoes)).filter(
-        (m): m is Modulo => m !== null,
-      ),
-    [termo, usuario?.permissoes],
-  );
+  const modulosVisiveis = useMemo(() => {
+    // Confinamento: quem tem SOMENTE_FINANCEIRO so enxerga o modulo Financeiro.
+    const base = estaConfinadoAoFinanceiro(usuario?.permissoes)
+      ? MODULOS.filter((modulo) => modulo.id === 'financeiro')
+      : MODULOS;
+    return base
+      .map((modulo) => filtrarModulo(modulo, termo, usuario?.permissoes))
+      .filter((m): m is Modulo => m !== null);
+  }, [termo, usuario?.permissoes]);
 
   function alternar(id: string) {
     definirAbertos((atual) => {

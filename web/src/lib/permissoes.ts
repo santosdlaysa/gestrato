@@ -60,3 +60,35 @@ export function podeRemoverAnexo(permissoes: Permissoes): boolean {
 export function podeGerirUsuarios(permissoes: Permissoes): boolean {
   return tem(permissoes, 'GERIR_USUARIOS');
 }
+
+// --- Modulo Financeiro (ver/editar) ----------------------------------------
+
+/** Pode enxergar o modulo Financeiro (leituras, menu). */
+export function podeVerFinanceiro(permissoes: Permissoes): boolean {
+  return tem(permissoes, 'VER_FINANCEIRO');
+}
+
+/** Pode escrever no modulo Financeiro (criar/editar/dar baixa). */
+export function podeEditarFinanceiro(permissoes: Permissoes): boolean {
+  return tem(permissoes, 'EDITAR_FINANCEIRO');
+}
+
+/** Prefixo das rotas do modulo Financeiro no front. */
+export const PREFIXO_FINANCEIRO = '/financeiro';
+
+/** Home de um usuario confinado ao Financeiro (tela pronta). */
+export const ROTA_INICIAL_FINANCEIRO = '/financeiro/contas-bancarias';
+
+/**
+ * Verdadeiro quando o usuario esta preso ao modulo Financeiro. Diferente das
+ * demais, `SOMENTE_FINANCEIRO` nao concede poder — ela restringe: o menu esconde
+ * os outros modulos e o backend recusa (403) rotas fora do Financeiro.
+ */
+export function estaConfinadoAoFinanceiro(permissoes: Permissoes): boolean {
+  return tem(permissoes, 'SOMENTE_FINANCEIRO');
+}
+
+/** Caminho que um usuario confinado pode acessar (dentro do Financeiro). */
+export function caminhoLiberadoNoFinanceiro(caminho: string): boolean {
+  return caminho === PREFIXO_FINANCEIRO || caminho.startsWith(`${PREFIXO_FINANCEIRO}/`);
+}

@@ -51,6 +51,23 @@ export function tomDoStatusDeCobranca(status: string): TomDoSelo {
   return STATUS_DE_COBRANCA[status] ?? 'neutro';
 }
 
+const ROTULOS_DE_STATUS: Record<string, string> = {
+  ENVIADA: 'Enviada',
+  ENTREGUE: 'Entregue',
+  LIDA: 'Lida',
+  NAO_ENTREGUE: 'Não entregue',
+  FALHA: 'Falhou',
+  IGNORADA: 'Já enviada',
+  PENDENTE: 'Pendente',
+  PROGRAMADA: 'Programada',
+  SIMULADA: 'Simulada',
+  CANCELADA: 'Cancelada',
+};
+
+export function rotuloDoStatusDeCobranca(status: string): string {
+  return ROTULOS_DE_STATUS[status] ?? rotularEnum(status);
+}
+
 const CANAIS: Record<Canal | string, string> = {
   WHATSAPP: 'WhatsApp',
   EMAIL: 'E-mail',
@@ -77,4 +94,18 @@ export function rotuloDoGatilho(gatilho: string, dias: number): string {
   if (gatilho === 'ANTES_DO_VENCIMENTO') return `${dias} ${plural} antes do vencimento`;
   if (gatilho === 'APOS_O_VENCIMENTO') return `${dias} ${plural} após o vencimento`;
   return rotularEnum(gatilho);
+}
+
+/**
+ * Traduz a chave de um evento da régua ("APOS_O_VENCIMENTO:5") ou de uma
+ * cobrança avulsa ("AVULSA") para o texto que o operador entende.
+ */
+export function rotuloDoEvento(evento: string | null | undefined): string {
+  if (!evento) return '—';
+  if (evento === 'AVULSA') return 'Cobrança manual';
+  const [gatilho, dias] = evento.split(':');
+  if (gatilho && ['ANTES_DO_VENCIMENTO', 'NO_VENCIMENTO', 'APOS_O_VENCIMENTO'].includes(gatilho)) {
+    return rotuloDoGatilho(gatilho, Number(dias) || 0);
+  }
+  return rotularEnum(evento);
 }

@@ -88,13 +88,13 @@ export function criarRotasDeContasAPagar(): Router {
     res.json({ itens: itens.map(apresentarFornecedor), pagina: entrada.pagina, porPagina: entrada.porPagina, total, totalDePaginas: Math.ceil(total / entrada.porPagina) });
   }));
 
-  rotas.post('/fornecedores', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.post('/fornecedores', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const entrada = corpoFornecedor.parse(req.body);
     const item = await prisma.fornecedor.create({ data: { ...entrada, documento: entrada.documento || null, email: entrada.email || null, telefone: entrada.telefone || null, observacoes: entrada.observacoes || null } });
     res.status(201).json(apresentarFornecedor(item));
   }));
 
-  rotas.put('/fornecedores/:id', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.put('/fornecedores/:id', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const entrada = corpoFornecedor.partial().parse(req.body);
     const item = await prisma.fornecedor.update({
       where: { id: id.parse(req.params.id) },
@@ -124,13 +124,13 @@ export function criarRotasDeContasAPagar(): Router {
     res.json({ itens: itens.map(apresentarConta), pagina: entrada.pagina, porPagina: entrada.porPagina, total, totalDePaginas: Math.ceil(total / entrada.porPagina) });
   }));
 
-  rotas.post('/contas-a-pagar', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.post('/contas-a-pagar', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const entrada = corpoConta.parse(req.body);
     const item = await prisma.contaAPagar.create({ data: { ...entrada, vencimento: data(entrada.vencimento) } , include: { fornecedor: { select: { id: true, nome: true } } } });
     res.status(201).json(apresentarConta(item));
   }));
 
-  rotas.post('/contas-a-pagar/:id/baixa', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.post('/contas-a-pagar/:id/baixa', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const contaId = id.parse(req.params.id);
     const entrada = corpoBaixa.parse(req.body);
     const resultado = await prisma.$transaction(async (transacao) => {

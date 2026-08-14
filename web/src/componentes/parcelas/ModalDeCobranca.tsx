@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Modal } from '@/componentes/comuns/Modal';
-import { CampoDeSelecao, CampoDeTexto } from '@/componentes/comuns/Campo';
+import { CampoDeSelecao } from '@/componentes/comuns/Campo';
 import { AvisoDeErro, AvisoDeSucesso } from '@/componentes/comuns/Estados';
 import { useAcao } from '@/ganchos/useAcao';
+import { useRequisicao } from '@/ganchos/useRequisicao';
 import { cobrarAgora, type ResultadoDeCobranca } from '@/lib/api/parcelas';
+import { listarModelos } from '@/lib/api/regua';
+import { extrairItens } from '@/lib/colecoes';
+import { aplicarExemplos } from '@/lib/mensagens';
 import { rotuloDoCanal } from '@/lib/rotulos';
 import { formatarData, formatarDataHora } from '@/lib/formato';
 import { nomeDoCliente, numeroDoContrato } from '@/lib/parcela';
@@ -23,6 +27,18 @@ export function ModalDeCobranca({ parcela, aoFechar, aoConcluir }: Props) {
   const [modelo, definirModelo] = useState('');
   const [enviada, definirEnviada] = useState<ResultadoDeCobranca | null>(null);
   const acao = useAcao();
+
+  const requisicaoDeModelos = useRequisicao(
+    useCallback((sinal: AbortSignal) => listarModelos(sinal), []),
+    [],
+  );
+  const modelos = useMemo(() => extrairItens(requisicaoDeModelos.dados), [requisicaoDeModelos.dados]);
+
+  const opcoesDeModelo = modelos.map((item) => ({
+    valor: item.chave,
+    texto: item.nome ?? item.chave,
+  }));
+  const modeloSelecionado = modelos.find((item) => item.chave === modelo) ?? null;
 
   async function enviar() {
     definirEnviada(null);
@@ -75,19 +91,28 @@ export function ModalDeCobranca({ parcela, aoFechar, aoConcluir }: Props) {
             canal padrão do cliente.
           </div>
           <CampoDeSelecao
-            rotulo="Canal"
+            rotulo="Enviar por"
             valor={canal}
             opcoes={OPCOES_DE_CANAL}
             aoMudar={definirCanal}
-            textoVazio="Padrão do cliente"
+            textoVazio="Melhor canal do cliente"
           />
-          <CampoDeTexto
-            rotulo="Modelo de mensagem"
+          <CampoDeSelecao
+            rotulo="Mensagem"
             valor={modelo}
+            opcoes={opcoesDeModelo}
             aoMudar={definirModelo}
-            espacoReservado="Chave do modelo (opcional)"
-            dica="Deixe em branco para usar o modelo padrão da situação da parcela."
+            textoVazio="Automática (conforme a situação da parcela)"
+            dica="Deixe em automática para o sistema escolher entre lembrete, vencimento ou atraso."
           />
+          <div className="campo">
+            <span className="campo__rotulo">O que o cliente vai receber</span>
+            <div className="previa">
+              {modeloSelecionado
+                ? aplicarExemplos(modeloSelecionado.corpo)
+                : 'O sistema monta a mensagem conforme a situação da parcela (lembrete antes de vencer, aviso no vencimento ou cobrança de atraso) e inclui o boleto/Pix.'}
+            </div>
+          </div>
         </>
       )}
     </Modal>

@@ -17,6 +17,20 @@ export const PERMISSOES = [
   'ANEXAR_ARQUIVO',
   'REMOVER_ANEXO',
   'GERIR_USUARIOS',
+
+  // --- Modelo por modulo (ver/editar) -------------------------------------
+  // Estamos migrando o controle de acesso de permissoes por ACAO (acima) para
+  // permissoes por MODULO, cada uma em dois niveis: VER (ler/enxergar) e EDITAR
+  // (escrever). O Financeiro e o primeiro modulo migrado; os demais entram em
+  // seguida. EDITAR pressupoe VER (perfis recebem os dois juntos).
+  'VER_FINANCEIRO',
+  'EDITAR_FINANCEIRO',
+
+  // Confinamento (transitorio): diferente das demais, NAO concede acao — ela
+  // RESTRINGE. Quem a possui fica preso ao modulo Financeiro (menu e API),
+  // mesmo nos modulos ainda nao migrados. Sai de cena quando todos os modulos
+  // tiverem VER/EDITAR proprios. Nunca deve entrar em perfis amplos (Admin).
+  'SOMENTE_FINANCEIRO',
 ] as const;
 export type Permissao = (typeof PERMISSOES)[number];
 
@@ -50,6 +64,9 @@ const ROTULOS: Record<Permissao, string> = {
   ANEXAR_ARQUIVO: 'Anexar arquivo',
   REMOVER_ANEXO: 'Remover anexo',
   GERIR_USUARIOS: 'Gerir usuários',
+  VER_FINANCEIRO: 'Financeiro — ver',
+  EDITAR_FINANCEIRO: 'Financeiro — editar',
+  SOMENTE_FINANCEIRO: 'Somente financeiro (acesso restrito)',
 };
 
 export function rotuloDaPermissao(permissao: Permissao): string {

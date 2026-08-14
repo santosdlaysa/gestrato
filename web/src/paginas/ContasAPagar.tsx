@@ -10,7 +10,7 @@ import { useFiltrosNaUrl } from '@/ganchos/useFiltrosNaUrl';
 import { useRequisicao } from '@/ganchos/useRequisicao';
 import { useAcao } from '@/ganchos/useAcao';
 import { usePermissoes } from '@/contextos/AutenticacaoContexto';
-import { podeEscrever } from '@/lib/permissoes';
+import { podeEditarFinanceiro } from '@/lib/permissoes';
 import { formatarData, formatarDinheiro, rotularEnum } from '@/lib/formato';
 import { baixarContaAPagar, criarContaAPagar, listarContasAPagar, listarFornecedores } from '@/lib/api/contas-a-pagar';
 import type { ContaAPagar, StatusContaAPagar } from '@/tipos/contas-a-pagar';
@@ -57,7 +57,7 @@ const FORMULARIO_VAZIO: Formulario = { fornecedorId: '', numeroDocumento: '', de
 
 export function ContasAPagar({ somentePagas = false }: { somentePagas?: boolean }) {
   const { filtros, definirFiltro } = useFiltrosNaUrl<'busca' | 'status' | 'fornecedorId' | 'de' | 'ate' | 'pagina'>(['busca', 'status', 'fornecedorId', 'de', 'ate', 'pagina']);
-  const editavel = podeEscrever(usePermissoes());
+  const editavel = podeEditarFinanceiro(usePermissoes());
   const [modalAberto, definirModalAberto] = useState(false);
   const [formulario, definirFormulario] = useState<Formulario>(FORMULARIO_VAZIO);
   const pagina = Number(filtros.pagina || 1);

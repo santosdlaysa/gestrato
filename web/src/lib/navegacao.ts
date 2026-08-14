@@ -642,6 +642,8 @@ const PERMISSAO_POR_MODULO: Record<string, Permissao | undefined> = {
   cadastros: 'GERIR_USUARIOS',
   auditoria: 'GERIR_USUARIOS',
   configuracoes: 'GERIR_USUARIOS',
+  // Financeiro migrado para o modelo por modulo: so aparece para quem pode ve-lo.
+  financeiro: 'VER_FINANCEIRO',
 };
 
 export const MODULOS: Modulo[] = MODULOS_ORGANIZADOS.map((modulo) => ({

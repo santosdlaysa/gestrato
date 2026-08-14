@@ -8,7 +8,12 @@ export type Permissao =
   | 'RENEGOCIAR'
   | 'ANEXAR_ARQUIVO'
   | 'REMOVER_ANEXO'
-  | 'GERIR_USUARIOS';
+  | 'GERIR_USUARIOS'
+  // Modelo por modulo (ver/editar) — Financeiro e o primeiro migrado.
+  | 'VER_FINANCEIRO'
+  | 'EDITAR_FINANCEIRO'
+  // Confinamento (transitorio): restringe o usuario ao modulo Financeiro.
+  | 'SOMENTE_FINANCEIRO';
 
 export interface Usuario {
   id: string;

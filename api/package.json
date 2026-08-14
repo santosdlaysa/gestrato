@@ -15,6 +15,7 @@
     "prisma:deploy": "prisma migrate deploy",
     "seed": "tsx prisma/seed.ts",
     "seed:fluxo": "tsx prisma/seed-fluxo-de-caixa.ts",
+    "criar:usuario-financeiro": "tsx prisma/criar-usuario-financeiro.ts",
     "job:cobranca": "tsx src/jobs/ciclo-de-cobranca.ts",
     "migrar:sienge": "tsx scripts/importar-sienge.ts"
   },

@@ -1,9 +1,10 @@
 import { EtapaDaRegua } from './EtapaDaRegua';
 import { EstadoVazio } from '@/componentes/comuns/Estados';
-import type { EventoDaRegua } from '@/tipos/cobranca';
+import type { EventoDaRegua, ModeloDeMensagem } from '@/tipos/cobranca';
 
 interface Props {
   eventos: EventoDaRegua[];
+  modelos: ModeloDeMensagem[];
   somenteLeitura: boolean;
   aoMudar: (eventos: EventoDaRegua[]) => void;
 }
@@ -23,7 +24,7 @@ export const EXPLICACAO_DO_DOCUMENTO =
   'atualizado antes de mandar a mensagem — é o que faz {{linhaDigitavel}} e {{pix}} chegarem ' +
   'preenchidos ao cliente. Desligada, a mensagem sai sem meio de pagamento.';
 
-export function EditorDeEtapas({ eventos, somenteLeitura, aoMudar }: Props) {
+export function EditorDeEtapas({ eventos, modelos, somenteLeitura, aoMudar }: Props) {
   function substituir(indice: number, evento: EventoDaRegua) {
     aoMudar(eventos.map((atual, posicao) => (posicao === indice ? evento : atual)));
   }
@@ -45,6 +46,7 @@ export function EditorDeEtapas({ eventos, somenteLeitura, aoMudar }: Props) {
         <EtapaDaRegua
           key={indice}
           evento={evento}
+          modelos={modelos}
           somenteLeitura={somenteLeitura}
           aoMudar={(atualizado) => substituir(indice, atualizado)}
           aoRemover={() => remover(indice)}

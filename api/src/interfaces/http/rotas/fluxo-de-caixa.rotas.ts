@@ -238,6 +238,10 @@ async function somarPorTipo(where: Prisma.LancamentoFinanceiroWhereInput): Promi
 export function criarRotasDeFluxoDeCaixa(): Router {
   const rotas = Router();
 
+  // Modulo Financeiro: ver o modulo (qualquer leitura) exige VER_FINANCEIRO;
+  // escrever exige EDITAR_FINANCEIRO (checado rota a rota abaixo).
+  rotas.use(exigirPermissao('VER_FINANCEIRO'));
+
   // ----------------------------------------------------------- contas bancarias
 
   rotas.get('/contas-bancarias', assincrono(async (req, res) => {
@@ -253,13 +257,13 @@ export function criarRotasDeFluxoDeCaixa(): Router {
     res.json({ itens, pagina: entrada.pagina, porPagina: entrada.porPagina, total, totalDePaginas: Math.ceil(total / entrada.porPagina) });
   }));
 
-  rotas.post('/contas-bancarias', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.post('/contas-bancarias', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const entrada = limpar(corpoContaBancaria.parse(req.body), ['instituicao', 'agencia', 'numero', 'observacoes']);
     const item = await prisma.contaBancaria.create({ data: entrada });
     res.status(201).json(item);
   }));
 
-  rotas.put('/contas-bancarias/:id', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.put('/contas-bancarias/:id', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const entrada = limpar(corpoContaBancaria.partial().parse(req.body), ['instituicao', 'agencia', 'numero', 'observacoes']);
     const item = await prisma.contaBancaria.update({ where: { id: id.parse(req.params.id) }, data: entrada });
     res.json(item);
@@ -280,13 +284,13 @@ export function criarRotasDeFluxoDeCaixa(): Router {
     res.json({ itens, pagina: entrada.pagina, porPagina: entrada.porPagina, total, totalDePaginas: Math.ceil(total / entrada.porPagina) });
   }));
 
-  rotas.post('/socios-aportadores', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.post('/socios-aportadores', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const entrada = limpar(corpoSocio.parse(req.body), ['documento', 'observacoes']);
     const item = await prisma.socioAportador.create({ data: entrada });
     res.status(201).json(item);
   }));
 
-  rotas.put('/socios-aportadores/:id', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.put('/socios-aportadores/:id', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const entrada = limpar(corpoSocio.partial().parse(req.body), ['documento', 'observacoes']);
     const item = await prisma.socioAportador.update({ where: { id: id.parse(req.params.id) }, data: entrada });
     res.json(item);
@@ -307,13 +311,13 @@ export function criarRotasDeFluxoDeCaixa(): Router {
     res.json({ itens, pagina: entrada.pagina, porPagina: entrada.porPagina, total, totalDePaginas: Math.ceil(total / entrada.porPagina) });
   }));
 
-  rotas.post('/empreendimentos-financeiros', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.post('/empreendimentos-financeiros', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const entrada = limpar(corpoEmpreendimento.parse(req.body), ['loteamentoId', 'observacoes']);
     const item = await prisma.empreendimentoFinanceiro.create({ data: entrada, include: { loteamento: { select: { id: true, nome: true } } } });
     res.status(201).json(item);
   }));
 
-  rotas.put('/empreendimentos-financeiros/:id', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.put('/empreendimentos-financeiros/:id', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const entrada = limpar(corpoEmpreendimento.partial().parse(req.body), ['loteamentoId', 'observacoes']);
     const item = await prisma.empreendimentoFinanceiro.update({ where: { id: id.parse(req.params.id) }, data: entrada, include: { loteamento: { select: { id: true, nome: true } } } });
     res.json(item);
@@ -336,13 +340,13 @@ export function criarRotasDeFluxoDeCaixa(): Router {
     res.json({ itens, pagina: entrada.pagina, porPagina: entrada.porPagina, total, totalDePaginas: Math.ceil(total / entrada.porPagina) });
   }));
 
-  rotas.post('/categorias-financeiras', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.post('/categorias-financeiras', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const entrada = limpar(corpoCategoria.parse(req.body), ['observacoes']);
     const item = await prisma.categoriaFinanceira.create({ data: entrada });
     res.status(201).json(item);
   }));
 
-  rotas.put('/categorias-financeiras/:id', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.put('/categorias-financeiras/:id', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const entrada = limpar(corpoCategoria.partial().parse(req.body), ['observacoes']);
     const item = await prisma.categoriaFinanceira.update({ where: { id: id.parse(req.params.id) }, data: entrada });
     res.json(item);
@@ -394,7 +398,7 @@ export function criarRotasDeFluxoDeCaixa(): Router {
     });
   }));
 
-  rotas.post('/lancamentos', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.post('/lancamentos', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const entrada = corpoLancamento.parse(req.body);
     const tipo = await derivarTipo(entrada.tipo, entrada.categoriaId ?? null);
     await exigirContaAtiva(entrada.contaBancariaId);
@@ -417,7 +421,7 @@ export function criarRotasDeFluxoDeCaixa(): Router {
     res.status(201).json(item);
   }));
 
-  rotas.put('/lancamentos/:id', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.put('/lancamentos/:id', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const idLancamento = id.parse(req.params.id);
     const existente = await prisma.lancamentoFinanceiro.findUnique({ where: { id: idLancamento }, select: { transferenciaId: true } });
     if (!existente) throw new ErroNaoEncontrado('Lancamento financeiro', idLancamento);
@@ -446,7 +450,7 @@ export function criarRotasDeFluxoDeCaixa(): Router {
     res.json(item);
   }));
 
-  rotas.delete('/lancamentos/:id', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.delete('/lancamentos/:id', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const idLancamento = id.parse(req.params.id);
     const existente = await prisma.lancamentoFinanceiro.findUnique({ where: { id: idLancamento }, select: { transferenciaId: true } });
     if (!existente) throw new ErroNaoEncontrado('Lancamento financeiro', idLancamento);
@@ -462,7 +466,7 @@ export function criarRotasDeFluxoDeCaixa(): Router {
 
   // ----------------------------------------------------------------- transferencias
 
-  rotas.post('/transferencias', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.post('/transferencias', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const entrada = corpoTransferencia.parse(req.body);
     if (entrada.contaOrigemId === entrada.contaDestinoId) {
       throw new ErroDeRegraDeNegocio('A conta de origem e a de destino devem ser diferentes.');
@@ -578,7 +582,7 @@ export function criarRotasDeFluxoDeCaixa(): Router {
 
   // Upsert de uma celula da grade. Valor zerado apaga a linha, para nao encher a
   // tabela de zeros — a ausencia de linha ja significa "sem previsto".
-  rotas.put('/orcamentos', exigirPermissao('CADASTRAR'), assincrono(async (req, res) => {
+  rotas.put('/orcamentos', exigirPermissao('EDITAR_FINANCEIRO'), assincrono(async (req, res) => {
     const entrada = corpoOrcamento.parse(req.body);
     const chave = {
       categoriaId_empreendimentoFinanceiroId_ano_mes: {

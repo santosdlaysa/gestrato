@@ -25,30 +25,41 @@ function DetalheDeCobrancas({ envios }: { envios: CobrancasEnviadas | undefined 
   );
 }
 
-export function IndicadoresDoDashboard({ dados }: { dados: Dashboard }) {
+/**
+ * Os quatro números que abrem a página e respondem "como está o dinheiro":
+ * quanto há a receber, quanto está vencido, quanto entrou no mês e quantos
+ * clientes estão devendo. Cartões grandes, sem concorrência visual.
+ */
+export function IndicadoresPrincipais({ dados }: { dados: Dashboard }) {
   const competencia = formatarCompetencia(dados.data?.slice(0, 7));
 
   return (
-    <div className="grade grade--3">
+    <div className="grade grade--4">
       <Indicador
-        rotulo="Contratos ativos"
-        valor={formatarNumero(dados.contratosAtivos)}
-        detalhe={`${formatarNumero(dados.contratosQuitados)} quitados`}
-        tom="info"
-      />
-      <Indicador
+        destaque
         rotulo="Total a receber"
         valor={formatarDinheiro(dados.totalAReceberCentavos)}
         detalhe="Saldo em aberto da carteira"
         tom="neutro"
       />
       <Indicador
+        destaque
         rotulo="Total vencido"
         valor={formatarDinheiro(dados.totalVencidoCentavos)}
-        detalhe={`${formatarNumero(dados.parcelasVencidas?.quantidade ?? 0)} parcelas vencidas`}
+        detalhe={`${formatarPercentual(dados.percentualDeInadimplencia)} da carteira · ${formatarNumero(
+          dados.parcelasVencidas?.quantidade ?? 0,
+        )} parcelas`}
         tom="vencido"
       />
       <Indicador
+        destaque
+        rotulo="Recebido no mês"
+        valor={formatarDinheiro(dados.totalRecebidoNoMesCentavos)}
+        detalhe={`Competência ${competencia}`}
+        tom="ok"
+      />
+      <Indicador
+        destaque
         rotulo="Clientes inadimplentes"
         valor={formatarNumero(dados.clientesInadimplentes)}
         detalhe={`${formatarNumero(dados.contratosInadimplentes)} contratos · ${criterioDoDegrau(
@@ -57,17 +68,22 @@ export function IndicadoresDoDashboard({ dados }: { dados: Dashboard }) {
         )} de atraso`}
         tom="vencido"
       />
+    </div>
+  );
+}
+
+/**
+ * Métricas de apoio da carteira e da operação de cobrança: contexto útil, mas
+ * secundário ao que já foi destacado acima. Cartões no tamanho padrão.
+ */
+export function IndicadoresDaCarteira({ dados }: { dados: Dashboard }) {
+  return (
+    <div className="grade grade--3">
       <Indicador
-        rotulo="Inadimplência"
-        valor={formatarPercentual(dados.percentualDeInadimplencia)}
-        detalhe="Sobre o total a receber"
-        tom="atencao"
-      />
-      <Indicador
-        rotulo="Recebido no mês"
-        valor={formatarDinheiro(dados.totalRecebidoNoMesCentavos)}
-        detalhe={`Competência ${competencia}`}
-        tom="ok"
+        rotulo="Contratos ativos"
+        valor={formatarNumero(dados.contratosAtivos)}
+        detalhe={`${formatarNumero(dados.contratosQuitados)} quitados`}
+        tom="info"
       />
       <Indicador
         rotulo="Cobranças enviadas"

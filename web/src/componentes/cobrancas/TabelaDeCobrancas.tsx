@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Selo } from '@/componentes/comuns/Selo';
 import { formatarDataHora } from '@/lib/formato';
-import { rotuloDoCanal, tomDoStatusDeCobranca } from '@/lib/rotulos';
+import { rotuloDoCanal, rotuloDoEvento, rotuloDoStatusDeCobranca, tomDoStatusDeCobranca } from '@/lib/rotulos';
 import type { Cobranca } from '@/tipos/cobranca';
 
 interface Props {
@@ -20,7 +20,7 @@ export function TabelaDeCobrancas({ cobrancas, aoVerDetalhes }: Props) {
             <th>Contrato</th>
             <th className="numerico">Parcela</th>
             <th>Canal</th>
-            <th>Evento</th>
+            <th>Etapa</th>
             <th>Status</th>
             <th>Erro</th>
             {aoVerDetalhes && <th className="acoes">Ações</th>}
@@ -40,9 +40,9 @@ export function TabelaDeCobrancas({ cobrancas, aoVerDetalhes }: Props) {
               </td>
               <td className="numerico">{cobranca.parcela ?? '—'}</td>
               <td>{rotuloDoCanal(cobranca.canal)}</td>
-              <td>{cobranca.evento ?? '—'}</td>
+              <td>{rotuloDoEvento(cobranca.evento)}</td>
               <td>
-                <Selo texto={cobranca.status} tom={tomDoStatusDeCobranca(cobranca.status)} />
+                <Selo texto={rotuloDoStatusDeCobranca(cobranca.status)} tom={tomDoStatusDeCobranca(cobranca.status)} />
               </td>
               <td className="celula-larga texto-vencido">{cobranca.erro ?? ''}</td>
               {aoVerDetalhes && (

@@ -8,11 +8,23 @@ interface Props {
   tom?: TomDoSelo;
   /** Legenda em `title` para indicadores cuja definição não é óbvia. */
   titulo?: string;
+  /** Cartão maior, para os poucos KPIs que abrem a página. */
+  destaque?: boolean;
 }
 
-export function Indicador({ rotulo, valor, detalhe, tom = 'neutro', titulo }: Props) {
+export function Indicador({
+  rotulo,
+  valor,
+  detalhe,
+  tom = 'neutro',
+  titulo,
+  destaque = false,
+}: Props) {
   return (
-    <div className={`indicador indicador--${tom}`} title={titulo}>
+    <div
+      className={`indicador indicador--${tom}${destaque ? ' indicador--destaque' : ''}`}
+      title={titulo}
+    >
       <div className="indicador__rotulo">{rotulo}</div>
       <div className="indicador__valor">{valor}</div>
       {detalhe && <div className="indicador__detalhe">{detalhe}</div>}

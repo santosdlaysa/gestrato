@@ -215,11 +215,15 @@ const PERFIL_ADMIN = '00000000-0000-0000-0000-0000000000a1';
 const PERFIL_FINANCEIRO = '00000000-0000-0000-0000-0000000000a2';
 const PERFIL_VENDEDOR = '00000000-0000-0000-0000-0000000000a3';
 const PERFIL_CONSULTA = '00000000-0000-0000-0000-0000000000a4';
+const PERFIL_FINANCEIRO_RESTRITO = '00000000-0000-0000-0000-0000000000a5';
 
+// `SOMENTE_FINANCEIRO` fica DE FORA de TODAS_PERMISSOES de proposito: e um
+// confinamento; um perfil amplo (Admin/Financeiro) nunca deve carrega-lo.
 const TODAS_PERMISSOES = [
   'CADASTRAR', 'GERIR_CONTRATOS', 'RECEBER_PAGAMENTO', 'EMITIR_DOCUMENTO',
   'ENVIAR_COBRANCA', 'CONFIGURAR_REGUA', 'RENEGOCIAR', 'ANEXAR_ARQUIVO',
   'REMOVER_ANEXO', 'GERIR_USUARIOS',
+  'VER_FINANCEIRO', 'EDITAR_FINANCEIRO',
 ];
 
 interface EspecificacaoDePerfil {
@@ -243,7 +247,13 @@ const PERFIS: EspecificacaoDePerfil[] = [
     descricao: 'Cadastro de clientes, contratos e documentos',
     permissoes: ['CADASTRAR', 'GERIR_CONTRATOS', 'EMITIR_DOCUMENTO', 'ANEXAR_ARQUIVO'],
   },
-  { id: PERFIL_CONSULTA, nome: 'Consulta', descricao: 'Somente leitura', permissoes: [] },
+  { id: PERFIL_CONSULTA, nome: 'Consulta', descricao: 'Somente leitura', permissoes: ['VER_FINANCEIRO'] },
+  {
+    id: PERFIL_FINANCEIRO_RESTRITO,
+    nome: 'Financeiro (restrito)',
+    descricao: 'Acesso exclusivo ao modulo Financeiro (ver e editar)',
+    permissoes: ['VER_FINANCEIRO', 'EDITAR_FINANCEIRO', 'SOMENTE_FINANCEIRO'],
+  },
 ];
 
 async function semearPerfis(): Promise<void> {

@@ -1,12 +1,15 @@
 import { useCallback, useState } from 'react';
 import { CabecalhoDaPagina } from '@/componentes/layout/CabecalhoDaPagina';
 import { ConteudoDaRequisicao } from '@/componentes/comuns/ConteudoDaRequisicao';
-import { IndicadoresDoDashboard } from '@/componentes/dashboard/IndicadoresDoDashboard';
+import { Secao } from '@/componentes/comuns/Secao';
+import {
+  IndicadoresPrincipais,
+  IndicadoresDaCarteira,
+} from '@/componentes/dashboard/IndicadoresDoDashboard';
 import { AlertaDeRetomada } from '@/componentes/dashboard/AlertaDeRetomada';
 import { EscalaDeAtraso } from '@/componentes/dashboard/EscalaDeAtraso';
 import { BlocosDeVencimento } from '@/componentes/dashboard/BlocosDeVencimento';
-import { TabelaDeAging } from '@/componentes/dashboard/TabelaDeAging';
-import { RecebimentosPorMes } from '@/componentes/dashboard/RecebimentosPorMes';
+import { AnaliseDetalhada } from '@/componentes/dashboard/AnaliseDetalhada';
 import { useRequisicao } from '@/ganchos/useRequisicao';
 import { buscarDashboard } from '@/lib/api/dashboard';
 import { hojeIso } from '@/lib/datas';
@@ -44,17 +47,34 @@ export function Dashboard() {
       <div className="corpo-da-pagina">
         <ConteudoDaRequisicao requisicao={requisicao}>
           {(dados) => (
-            <div className="pilha">
+            <div className="pilha pilha--larga">
               <AlertaDeRetomada lotes={dados.lotesARetomar} />
-              <IndicadoresDoDashboard dados={dados} />
-              <EscalaDeAtraso dados={dados} />
-              <BlocosDeVencimento
-                vencidas={dados.parcelasVencidas}
-                vencemHoje={dados.parcelasQueVencemHoje}
-                proximos7Dias={dados.proximos7Dias}
+
+              <IndicadoresPrincipais dados={dados} />
+
+              <Secao
+                titulo="Ação imediata"
+                descricao="Parcelas que exigem cobrança agora"
+              >
+                <BlocosDeVencimento
+                  vencidas={dados.parcelasVencidas}
+                  vencemHoje={dados.parcelasQueVencemHoje}
+                  proximos7Dias={dados.proximos7Dias}
+                />
+              </Secao>
+
+              <Secao
+                titulo="Carteira e cobrança"
+                descricao="Saúde da operação e evolução do atraso"
+              >
+                <IndicadoresDaCarteira dados={dados} />
+                <EscalaDeAtraso dados={dados} />
+              </Secao>
+
+              <AnaliseDetalhada
+                aging={dados.aging ?? []}
+                recebimentos={dados.recebimentosPorMes ?? []}
               />
-              <TabelaDeAging aging={dados.aging ?? []} />
-              <RecebimentosPorMes recebimentos={dados.recebimentosPorMes ?? []} />
             </div>
           )}
         </ConteudoDaRequisicao>

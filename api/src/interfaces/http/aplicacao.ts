@@ -6,6 +6,8 @@ import { ControladorDeAutenticacao } from './controllers/autenticacao.controller
 import { ControladorDeCobranca } from './controllers/cobranca.controller.js';
 import { ControladorDeContratos } from './controllers/contratos.controller.js';
 import { criarExigirAutenticacao } from './middlewares/autenticacao.js';
+import type { RequisicaoAutenticada } from './tipos.js';
+import { ErroDeAutorizacao } from '../../domain/shared/errors.js';
 import { rotaNaoEncontrada, tratadorDeErros } from './middlewares/tratador-de-erros.js';
 import { criarRotasDeAutenticacao } from './rotas/autenticacao.rotas.js';
 import { criarRotasDeCadastros } from './rotas/cadastros.rotas.js';
@@ -81,6 +83,46 @@ function filtrarPorPrefixo(prefixos: readonly string[], middleware: RequestHandl
     );
     if (!protegida) return proximo();
     return middleware(requisicao, resposta, proximo);
+  };
+}
+
+/**
+ * Prefixos de API que compoem o modulo Financeiro (Fluxo de caixa, Contas a
+ * pagar, paineis e relatorios financeiros). Sao os unicos que um usuario com a
+ * permissao `SOMENTE_FINANCEIRO` pode alcancar.
+ */
+const PREFIXOS_FINANCEIROS = [
+  '/contas-bancarias',
+  '/socios-aportadores',
+  '/empreendimentos-financeiros',
+  '/categorias-financeiras',
+  '/lancamentos',
+  '/transferencias',
+  '/extrato',
+  '/orcamentos',
+  '/painel',
+  '/contas-a-pagar',
+  '/fornecedores',
+  '/relatorios',
+] as const;
+
+/**
+ * Confina um usuario ao modulo Financeiro. Roda apos a autenticacao, entao a
+ * identidade ja esta resolvida. Se o usuario carrega `SOMENTE_FINANCEIRO` e a
+ * rota nao pertence ao Financeiro, responde 403 — e o isolamento real de API,
+ * complementando o menu do front que ja esconde os demais modulos.
+ */
+function confinarAoFinanceiro(prefixosFinanceiros: readonly string[]): RequestHandler {
+  return (requisicao: RequisicaoAutenticada, _resposta, proximo) => {
+    const usuario = requisicao.usuario;
+    if (!usuario || !usuario.permissoes.includes('SOMENTE_FINANCEIRO')) return proximo();
+    const noFinanceiro = prefixosFinanceiros.some(
+      (prefixo) => requisicao.path === prefixo || requisicao.path.startsWith(`${prefixo}/`),
+    );
+    if (noFinanceiro) return proximo();
+    return proximo(
+      new ErroDeAutorizacao('Seu acesso e restrito ao modulo Financeiro.'),
+    );
   };
 }
 
@@ -174,6 +216,13 @@ export function criarAplicacao(container: Container, rotasAdicionais: Router[] =
   // 404, e o front passaria a acusar problema de sessao onde ha problema de
   // rota. Foi exatamente esse mascaramento que escondeu um bug de proxy.
   aplicacao.use('/api', filtrarPorPrefixo(PREFIXOS_PROTEGIDOS, exigirAutenticacao));
+  // Confinamento por permissao: roda logo apos a autenticacao, so nos prefixos
+  // protegidos (onde `req.usuario` ja existe). Barra quem tem SOMENTE_FINANCEIRO
+  // de qualquer rota fora do Financeiro.
+  aplicacao.use(
+    '/api',
+    filtrarPorPrefixo(PREFIXOS_PROTEGIDOS, confinarAoFinanceiro(PREFIXOS_FINANCEIROS)),
+  );
   for (const rotas of protegidas) {
     aplicacao.use('/api', rotas);
   }
