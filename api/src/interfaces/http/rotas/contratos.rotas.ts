@@ -14,6 +14,9 @@ export function criarRotasDeContratos(controlador: ControladorDeContratos): Rout
   // Simular nao grava nada: qualquer usuario autenticado pode usar para cotar.
   rotas.post('/contratos/simular', assincrono<RequisicaoAutenticada>(controlador.simular));
 
+  // Rotas literais antes de /:id, senao "sem-parcelas" seria lido como um id.
+  rotas.get('/contratos/sem-parcelas', assincrono<RequisicaoAutenticada>(controlador.contratosSemParcelas));
+
   rotas.get('/contratos', assincrono<RequisicaoAutenticada>(controlador.listar));
   rotas.get('/contratos/:id', assincrono<RequisicaoAutenticada>(controlador.obter));
   rotas.get('/contratos/:id/extrato', assincrono<RequisicaoAutenticada>(controlador.extrato));
@@ -50,6 +53,17 @@ export function criarRotasDeContratos(controlador: ControladorDeContratos): Rout
     '/contratos/:id/reajuste',
     exigirPermissao('GERIR_CONTRATOS'),
     assincrono<RequisicaoAutenticada>(controlador.reajustar),
+  );
+
+  rotas.post(
+    '/contratos/gerar-parcelas',
+    exigirPermissao('GERIR_CONTRATOS'),
+    assincrono<RequisicaoAutenticada>(controlador.gerarParcelas),
+  );
+  rotas.post(
+    '/contratos/reajustar-em-lote',
+    exigirPermissao('GERIR_CONTRATOS'),
+    assincrono<RequisicaoAutenticada>(controlador.reajustarEmLote),
   );
 
   // Apurar e previa; renegociar grava o acordo — permissoes distintas.

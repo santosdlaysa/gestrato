@@ -2,11 +2,15 @@ import { requisitar, type Parametros } from '../http';
 import type { RespostaPaginada } from '@/tipos/comum';
 import type {
   Contrato,
+  ContratoSemParcelas,
   EntradaDeContrato,
   EntradaDeReajuste,
+  EntradaDeReajusteEmLote,
   EntradaDeRenegociacao,
   Extrato,
   Renegociacao,
+  ResultadoDaGeracaoEmLote,
+  ResultadoDoReajusteEmLote,
   SimulacaoDeContrato,
 } from '@/tipos/contrato';
 
@@ -82,4 +86,24 @@ export function listarRenegociacoes(
   sinal?: AbortSignal,
 ): Promise<Renegociacao[] | RespostaPaginada<Renegociacao>> {
   return requisitar(`/contratos/${id}/renegociacoes`, { sinal });
+}
+
+export function listarContratosSemParcelas(sinal?: AbortSignal): Promise<ContratoSemParcelas[]> {
+  return requisitar<ContratoSemParcelas[]>('/contratos/sem-parcelas', { sinal });
+}
+
+export function gerarParcelasEmLote(contratoIds: string[]): Promise<ResultadoDaGeracaoEmLote> {
+  return requisitar<ResultadoDaGeracaoEmLote>('/contratos/gerar-parcelas', {
+    metodo: 'POST',
+    corpo: { contratoIds },
+  });
+}
+
+export function reajustarEmLote(
+  entrada: EntradaDeReajusteEmLote,
+): Promise<ResultadoDoReajusteEmLote> {
+  return requisitar<ResultadoDoReajusteEmLote>('/contratos/reajustar-em-lote', {
+    metodo: 'POST',
+    corpo: entrada,
+  });
 }

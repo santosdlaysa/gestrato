@@ -151,3 +151,53 @@ export interface Renegociacao {
   quantidadeDeParcelas?: number;
   parcelasOrigem?: number;
 }
+
+// --- Geração de parcelas em lote ---
+
+export interface ContratoSemParcelas {
+  contratoId: string;
+  numero: string;
+  clienteNome: string;
+  quantidadeDeParcelas: number;
+  valorTotalCentavos: number;
+}
+
+export type ResultadoDaGeracao = 'GERADAS' | 'JA_TINHA' | 'NAO_ENCONTRADO' | 'FALHA';
+
+export interface ItemDaGeracao {
+  contratoId: string;
+  numero: string;
+  resultado: ResultadoDaGeracao;
+  parcelasGeradas: number;
+  motivo?: string;
+}
+
+export interface ResultadoDaGeracaoEmLote {
+  processados: number;
+  totalGeradas: number;
+  itens: ItemDaGeracao[];
+}
+
+// --- Reajuste (recálculo) em lote ---
+
+export interface EntradaDeReajusteEmLote {
+  contratoIds: string[];
+  indice: string;
+  percentual: number;
+  aplicadoAPartirDe: string;
+}
+
+export interface ItemDoReajusteEmLote {
+  contratoId: string;
+  resultado: 'REAJUSTADO' | 'FALHA';
+  parcelasAfetadas: number;
+  acrescimoTotalCentavos: number;
+  motivo?: string;
+}
+
+export interface ResultadoDoReajusteEmLote {
+  processados: number;
+  totalParcelasAfetadas: number;
+  acrescimoTotalCentavos: number;
+  itens: ItemDoReajusteEmLote[];
+}

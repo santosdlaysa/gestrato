@@ -9,8 +9,11 @@ import type { AplicarReajuste } from '../../../application/use-cases/contratos/a
 import type { CriarContrato } from '../../../application/use-cases/contratos/criar-contrato.js';
 import type { EncerrarContrato, MotivoDeEncerramento } from '../../../application/use-cases/contratos/encerrar-contrato.js';
 import type { ObterExtratoDoContrato } from '../../../application/use-cases/contratos/obter-extrato-do-contrato.js';
+import type { ReajustarEmLote } from '../../../application/use-cases/contratos/reajustar-em-lote.js';
 import type { RenegociarContrato } from '../../../application/use-cases/contratos/renegociar-contrato.js';
 import type { SimularContrato } from '../../../application/use-cases/contratos/simular-contrato.js';
+import type { GerarParcelasEmLote } from '../../../application/use-cases/parcelas/gerar-parcelas-em-lote.js';
+import type { ListarContratosSemParcelas } from '../../../application/use-cases/parcelas/listar-contratos-sem-parcelas.js';
 import { usuarioDaRequisicao } from '../middlewares/autenticacao.js';
 import type { RequisicaoAutenticada } from '../tipos.js';
 import {
@@ -25,7 +28,9 @@ import {
   esquemaDeAtualizacaoDeContrato,
   esquemaDeCriacaoDeContrato,
   esquemaDeFiltroDeContratos,
+  esquemaDeGeracaoDeParcelas,
   esquemaDeReajuste,
+  esquemaDeReajusteEmLote,
   esquemaDeRenegociacao,
   esquemaDeSimulacao,
 } from '../validacao/esquemas-de-contrato.js';
@@ -37,6 +42,9 @@ export interface CasosDeUsoDeContratos {
   readonly encerrar: EncerrarContrato;
   readonly aplicarReajuste: AplicarReajuste;
   readonly renegociar: RenegociarContrato;
+  readonly listarContratosSemParcelas: ListarContratosSemParcelas;
+  readonly gerarParcelasEmLote: GerarParcelasEmLote;
+  readonly reajustarEmLote: ReajustarEmLote;
 }
 
 /**
@@ -186,6 +194,33 @@ export class ControladorDeContratos {
       parcelasAfetadas: saida.parcelasAfetadas,
       acrescimoTotalCentavos: saida.acrescimoTotal.centavos,
     });
+  };
+
+  // GET /contratos/sem-parcelas — contratos ativos que ficaram sem plano
+  // (tipicamente importados), para a tela de geração em lote listar.
+  contratosSemParcelas = async (_requisicao: RequisicaoAutenticada, resposta: Response): Promise<void> => {
+    resposta.json(await this.casosDeUso.listarContratosSemParcelas.executar());
+  };
+
+  // POST /contratos/gerar-parcelas — gera o plano para os contratos selecionados.
+  gerarParcelas = async (requisicao: RequisicaoAutenticada, resposta: Response): Promise<void> => {
+    const dados = esquemaDeGeracaoDeParcelas.parse(requisicao.body);
+    resposta.json(await this.casosDeUso.gerarParcelasEmLote.executar({ contratoIds: dados.contratoIds }));
+  };
+
+  // POST /contratos/reajustar-em-lote — aplica o mesmo reajuste a vários contratos.
+  reajustarEmLote = async (requisicao: RequisicaoAutenticada, resposta: Response): Promise<void> => {
+    const dados = esquemaDeReajusteEmLote.parse(requisicao.body);
+    const usuario = usuarioDaRequisicao(requisicao);
+    resposta.json(
+      await this.casosDeUso.reajustarEmLote.executar({
+        contratoIds: dados.contratoIds,
+        indice: dados.indice,
+        percentual: dados.percentual,
+        aplicadoAPartirDe: dados.aplicadoAPartirDe,
+        registradoPor: usuario.email,
+      }),
+    );
   };
 
   /** Previa do acordo: o operador confere o valor antes de fechar. */

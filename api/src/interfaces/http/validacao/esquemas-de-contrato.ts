@@ -58,6 +58,16 @@ export const esquemaDeReajuste = z.object({
   aplicadoAPartirDe: esquemaDeDataCivil,
 });
 
+/** Gerar parcelas em lote para contratos que estão sem plano. */
+export const esquemaDeGeracaoDeParcelas = z.object({
+  contratoIds: z.array(esquemaDeIdentificador).min(1, 'Selecione ao menos um contrato.').max(500),
+});
+
+/** Reajuste percentual aplicado a vários contratos de uma vez. */
+export const esquemaDeReajusteEmLote = esquemaDeReajuste.extend({
+  contratoIds: z.array(esquemaDeIdentificador).min(1, 'Selecione ao menos um contrato.').max(500),
+});
+
 export const esquemaDeRenegociacao = z.object({
   parcelaIds: z.array(esquemaDeIdentificador).min(1, 'Selecione ao menos uma parcela.'),
   incluirEncargos: z.boolean().default(true),

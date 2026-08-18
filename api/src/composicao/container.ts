@@ -14,8 +14,11 @@ import { AplicarReajuste } from '../application/use-cases/contratos/aplicar-reaj
 import { CriarContrato } from '../application/use-cases/contratos/criar-contrato.js';
 import { EncerrarContrato } from '../application/use-cases/contratos/encerrar-contrato.js';
 import { ObterExtratoDoContrato } from '../application/use-cases/contratos/obter-extrato-do-contrato.js';
+import { ReajustarEmLote } from '../application/use-cases/contratos/reajustar-em-lote.js';
 import { RenegociarContrato } from '../application/use-cases/contratos/renegociar-contrato.js';
 import { SimularContrato } from '../application/use-cases/contratos/simular-contrato.js';
+import { GerarParcelasEmLote } from '../application/use-cases/parcelas/gerar-parcelas-em-lote.js';
+import { ListarContratosSemParcelas } from '../application/use-cases/parcelas/listar-contratos-sem-parcelas.js';
 import { EstornarBaixa } from '../application/use-cases/parcelas/estornar-baixa.js';
 import { RegistrarBaixa } from '../application/use-cases/parcelas/registrar-baixa.js';
 import { ServicoDeEnvioDeCobranca } from '../application/servicos/servico-de-envio-de-cobranca.js';
@@ -105,6 +108,7 @@ export function criarContainer(): Container {
   );
 
   const registrarBaixa = new RegistrarBaixa(unidadeDeTrabalho, geradorDeIdentificador);
+  const aplicarReajuste = new AplicarReajuste(unidadeDeTrabalho, geradorDeIdentificador);
 
   const emitirDocumento = new EmitirDocumento(
     repositorios,
@@ -160,8 +164,11 @@ export function criarContainer(): Container {
       criar: new CriarContrato(unidadeDeTrabalho, geradorDeIdentificador),
       obterExtrato: new ObterExtratoDoContrato(repositorios, relogio),
       encerrar: new EncerrarContrato(unidadeDeTrabalho),
-      aplicarReajuste: new AplicarReajuste(unidadeDeTrabalho, geradorDeIdentificador),
+      aplicarReajuste,
       renegociar: new RenegociarContrato(unidadeDeTrabalho, geradorDeIdentificador, relogio),
+      listarContratosSemParcelas: new ListarContratosSemParcelas(repositorios),
+      gerarParcelasEmLote: new GerarParcelasEmLote(unidadeDeTrabalho, geradorDeIdentificador),
+      reajustarEmLote: new ReajustarEmLote(aplicarReajuste),
     },
 
     casosDeUsoDeCobranca: {
