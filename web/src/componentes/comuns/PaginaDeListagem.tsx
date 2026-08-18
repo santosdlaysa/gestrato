@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { CabecalhoDaPagina } from '@/componentes/layout/CabecalhoDaPagina';
 import { Painel } from '@/componentes/comuns/Painel';
 import { Selo } from '@/componentes/comuns/Selo';
@@ -18,6 +19,12 @@ export interface ConfigDeListagem {
   titulo: string;
   descricao?: string;
   textoNovo?: string;
+  /**
+   * Quando definido, o botão de ação vira um link para esta rota (uma tela real)
+   * em vez de mostrar o aviso de "em desenvolvimento". Usado para telas de
+   * exemplo que já têm equivalente pronto — ex.: "Regra de cobrança" → /regua.
+   */
+  acaoPara?: string;
   colunas: ColunaDeListagem[];
   /** Cada linha é um array de células alinhado às colunas. */
   linhas: CelulaDeListagem[][];
@@ -65,13 +72,19 @@ export function PaginaDeListagem({ config }: { config: ConfigDeListagem }) {
         titulo={config.titulo}
         descricao={config.descricao}
         acoes={
-          <button
-            type="button"
-            className="botao botao--primario"
-            onClick={() => definirAvisoNovo(true)}
-          >
-            + {config.textoNovo ?? 'Novo'}
-          </button>
+          config.acaoPara ? (
+            <Link className="botao botao--primario" to={config.acaoPara}>
+              + {config.textoNovo ?? 'Novo'}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              className="botao botao--primario"
+              onClick={() => definirAvisoNovo(true)}
+            >
+              + {config.textoNovo ?? 'Novo'}
+            </button>
+          )
         }
       />
 

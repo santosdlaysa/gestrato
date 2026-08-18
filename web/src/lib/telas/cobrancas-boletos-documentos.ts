@@ -25,6 +25,7 @@ const telas: Record<string, ConfigDeListagem> = {
     titulo: 'Cobrança automática',
     descricao: 'Régua automática de cobrança configurada por dias de atraso',
     textoNovo: 'Regra de cobrança',
+    acaoPara: '/regua',
     colunas: [
       { titulo: 'Regra', larga: true },
       { titulo: 'Gatilho' },

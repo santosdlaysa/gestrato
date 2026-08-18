@@ -624,12 +624,19 @@ const MODULOS_ORGANIZADOS: Modulo[] = [
   moduloBase('financeiro'),
   combinarModulos('documentos', 'Documentos e relatórios', 'documentos', 'relatorios'),
   moduloBase('crm'),
-  moduloBase('cadastros'),
   moduloBase('mobile'),
   moduloBase('portal-cliente'),
   moduloBase('portal-corretor'),
-  moduloBase('auditoria'),
-  combinarModulos('configuracoes', 'Configurações', 'configuracoes', 'integracoes'),
+  // Toda a administracao (acesso, cadastros gerais, auditoria, integracoes) vive
+  // sob Configuracoes — um unico modulo protegido por GERIR_USUARIOS.
+  combinarModulos(
+    'configuracoes',
+    'Configurações',
+    'configuracoes',
+    'cadastros',
+    'auditoria',
+    'integracoes',
+  ),
 ];
 
 /**
@@ -640,8 +647,8 @@ const MODULOS_ORGANIZADOS: Modulo[] = [
  * quem pode gerir usuarios.
  */
 const PERMISSAO_POR_MODULO: Record<string, Permissao | undefined> = {
-  cadastros: 'GERIR_USUARIOS',
-  auditoria: 'GERIR_USUARIOS',
+  // Cadastros gerais e Auditoria foram absorvidos por Configuracoes — a
+  // administracao inteira fica atras de GERIR_USUARIOS num unico modulo.
   configuracoes: 'GERIR_USUARIOS',
   // Financeiro migrado para o modelo por modulo: so aparece para quem pode ve-lo.
   financeiro: 'VER_FINANCEIRO',
