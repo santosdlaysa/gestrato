@@ -98,13 +98,21 @@ export interface ParcelaSimulada {
   valorOriginalCentavos?: number;
 }
 
+/** Cabeçalho da simulação, como a API devolve em POST /contratos/simular. */
+export interface ResumoDaSimulacao {
+  valorTotalCentavos: number;
+  valorEntradaCentavos: number;
+  valorFinanciadoCentavos: number;
+  quantidadeDeParcelas: number;
+  primeiraParcelaCentavos: number | null;
+  ultimaParcelaCentavos: number | null;
+  somaDoPlanoCentavos: number;
+  primeiroVencimento: string | null;
+  ultimoVencimento: string | null;
+}
+
 export interface SimulacaoDeContrato {
-  valorTotalCentavos?: number;
-  valorEntradaCentavos?: number;
-  valorFinanciadoCentavos?: number;
-  quantidadeDeParcelas?: number;
-  valorDaParcelaCentavos?: number;
-  totalDoPlanoCentavos?: number;
+  resumo: ResumoDaSimulacao;
   parcelas: ParcelaSimulada[];
 }
 

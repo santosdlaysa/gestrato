@@ -15,34 +15,39 @@ function valorDaParcela(parcela: { valorCentavos?: number; valorOriginalCentavos
 
 function Totais({ simulacao }: { simulacao: SimulacaoDeContrato }) {
   const parcelas = simulacao.parcelas ?? [];
+  const resumo = simulacao.resumo;
   const somaDoPlano =
-    simulacao.totalDoPlanoCentavos ??
+    resumo?.somaDoPlanoCentavos ??
     parcelas.reduce((soma, parcela) => soma + valorDaParcela(parcela), 0);
+  const parcelasDoFinanciamento = parcelas.filter((parcela) => parcela.tipo === 'FINANCIAMENTO');
 
   return (
     <div className="definicoes" style={{ marginBottom: 12 }}>
       <div>
         <div className="definicao__rotulo">Entrada</div>
         <div className="definicao__valor">
-          {formatarDinheiro(simulacao.valorEntradaCentavos ?? 0)}
+          {formatarDinheiro(resumo?.valorEntradaCentavos ?? 0)}
         </div>
       </div>
       <div>
         <div className="definicao__rotulo">Financiado</div>
         <div className="definicao__valor">
-          {formatarDinheiro(simulacao.valorFinanciadoCentavos ?? 0)}
+          {formatarDinheiro(resumo?.valorFinanciadoCentavos ?? 0)}
         </div>
       </div>
       <div>
         <div className="definicao__rotulo">Parcelas</div>
         <div className="definicao__valor">
-          {formatarNumero(simulacao.quantidadeDeParcelas ?? parcelas.length)}
+          {formatarNumero(resumo?.quantidadeDeParcelas ?? parcelasDoFinanciamento.length)}
         </div>
       </div>
       <div>
         <div className="definicao__rotulo">Valor da parcela</div>
         <div className="definicao__valor">
-          {formatarDinheiro(simulacao.valorDaParcelaCentavos ?? 0)}
+          {formatarDinheiro(
+            resumo?.primeiraParcelaCentavos ??
+              (parcelasDoFinanciamento[0] ? valorDaParcela(parcelasDoFinanciamento[0]) : 0),
+          )}
         </div>
       </div>
       <div>
