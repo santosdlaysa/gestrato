@@ -11,6 +11,8 @@ import { Cobrancas } from '@/paginas/Cobrancas';
 import { Contratos } from '@/paginas/Contratos';
 import { NovoContrato } from '@/paginas/NovoContrato';
 import { DetalheDoContrato } from '@/paginas/DetalheDoContrato';
+import { GeracaoDeParcelas } from '@/paginas/GeracaoDeParcelas';
+import { RecalcularParcelas } from '@/paginas/RecalcularParcelas';
 import { Relatorios } from '@/paginas/Relatorios';
 import { Clientes } from '@/paginas/Clientes';
 import { Lotes } from '@/paginas/Lotes';
@@ -36,6 +38,8 @@ import { caminhosUnicos } from '@/lib/navegacao';
 const PAGINAS_PRONTAS: Record<string, ReactElement> = {
   '/': <Dashboard />,
   '/parcelas': <Parcelas />,
+  '/parcelas/geracao': <GeracaoDeParcelas />,
+  '/parcelas/recalcular': <RecalcularParcelas />,
   '/cobrancas/manual': <Parcelas modo="manual" />,
   '/regua': <Regua />,
   '/cobrancas': <Cobrancas />,

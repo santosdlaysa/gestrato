@@ -4,7 +4,7 @@ import { useAutenticacao } from '@/contextos/AutenticacaoContexto';
 import { MODULOS, moduloDoCaminho } from '@/lib/navegacao';
 import type { Modulo } from '@/lib/navegacao';
 import type { Permissao } from '@/tipos/usuario';
-import { estaConfinadoAoFinanceiro } from '@/lib/permissoes';
+import { estaConfinadoAoFinanceiro, temAcessoGeral } from '@/lib/permissoes';
 import { IconeDoModulo } from './IconeDoModulo';
 
 function classeDoLink({ isActive }: { isActive: boolean }): string {
@@ -19,6 +19,8 @@ function normalizar(texto: string): string {
 }
 
 function moduloDisponivel(modulo: Modulo, permissoes: readonly Permissao[] | undefined): boolean {
+  // Administrador (acesso geral) enxerga todos os modulos, sempre.
+  if (temAcessoGeral(permissoes)) return true;
   return !modulo.permissao || (permissoes?.includes(modulo.permissao) ?? false);
 }
 

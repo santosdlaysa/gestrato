@@ -61,6 +61,16 @@ export function podeGerirUsuarios(permissoes: Permissoes): boolean {
   return tem(permissoes, 'GERIR_USUARIOS');
 }
 
+/**
+ * Administrador = acesso geral. Quem pode gerir usuarios enxerga TODOS os modulos
+ * do menu, independentemente de ter cada `VER_<modulo>` marcada no perfil — assim
+ * o admin nunca perde acesso, inclusive a modulos criados no futuro. Nao afeta as
+ * permissoes de escrita/acao, que continuam sendo checadas individualmente.
+ */
+export function temAcessoGeral(permissoes: Permissoes): boolean {
+  return tem(permissoes, 'GERIR_USUARIOS');
+}
+
 // --- Modulo Financeiro (ver/editar) ----------------------------------------
 
 /** Pode enxergar o modulo Financeiro (leituras, menu). */
