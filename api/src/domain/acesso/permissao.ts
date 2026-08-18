@@ -26,6 +26,22 @@ export const PERMISSOES = [
   'VER_FINANCEIRO',
   'EDITAR_FINANCEIRO',
 
+  // Visibilidade por modulo do menu: cada uma libera um modulo da barra lateral
+  // para o perfil que a possui. Modulos SEM permissao mapeada continuam visiveis
+  // a qualquer autenticado (ver `PERMISSAO_POR_MODULO` no front). O par
+  // VER/EDITAR so existe onde ha escrita distinta (por ora, Financeiro).
+  'VER_DASHBOARD',
+  'VER_COMERCIAL',
+  'VER_CLIENTES',
+  'VER_CONTRATOS',
+  'VER_LOTEAMENTOS',
+  'VER_COBRANCAS',
+  'VER_DOCUMENTOS',
+  'VER_CRM',
+  'VER_MOBILE',
+  'VER_PORTAL_CLIENTE',
+  'VER_PORTAL_CORRETOR',
+
   // Confinamento (transitorio): diferente das demais, NAO concede acao — ela
   // RESTRINGE. Quem a possui fica preso ao modulo Financeiro (menu e API),
   // mesmo nos modulos ainda nao migrados. Sai de cena quando todos os modulos
@@ -66,6 +82,17 @@ const ROTULOS: Record<Permissao, string> = {
   GERIR_USUARIOS: 'Gerir usuários',
   VER_FINANCEIRO: 'Financeiro — ver',
   EDITAR_FINANCEIRO: 'Financeiro — editar',
+  VER_DASHBOARD: 'Dashboard — ver',
+  VER_COMERCIAL: 'Comercial — ver',
+  VER_CLIENTES: 'Clientes — ver',
+  VER_CONTRATOS: 'Contratos — ver',
+  VER_LOTEAMENTOS: 'Loteamentos — ver',
+  VER_COBRANCAS: 'Cobranças — ver',
+  VER_DOCUMENTOS: 'Documentos e relatórios — ver',
+  VER_CRM: 'CRM — ver',
+  VER_MOBILE: 'Aplicativo mobile — ver',
+  VER_PORTAL_CLIENTE: 'Portal do cliente — ver',
+  VER_PORTAL_CORRETOR: 'Portal do corretor — ver',
   SOMENTE_FINANCEIRO: 'Somente financeiro (acesso restrito)',
 };
 

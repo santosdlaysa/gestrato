@@ -227,11 +227,20 @@ const PERFIL_FINANCEIRO_RESTRITO = '00000000-0000-0000-0000-0000000000a5';
 
 // `SOMENTE_FINANCEIRO` fica DE FORA de TODAS_PERMISSOES de proposito: e um
 // confinamento; um perfil amplo (Admin/Financeiro) nunca deve carrega-lo.
+// Visibilidade por modulo do menu (VER_<modulo>). Configuracoes usa
+// GERIR_USUARIOS; Financeiro usa VER_FINANCEIRO (ja em TODAS_PERMISSOES).
+const VER_MODULOS = [
+  'VER_DASHBOARD', 'VER_COMERCIAL', 'VER_CLIENTES', 'VER_CONTRATOS',
+  'VER_LOTEAMENTOS', 'VER_COBRANCAS', 'VER_DOCUMENTOS', 'VER_CRM',
+  'VER_MOBILE', 'VER_PORTAL_CLIENTE', 'VER_PORTAL_CORRETOR',
+];
+
 const TODAS_PERMISSOES = [
   'CADASTRAR', 'GERIR_CONTRATOS', 'RECEBER_PAGAMENTO', 'EMITIR_DOCUMENTO',
   'ENVIAR_COBRANCA', 'CONFIGURAR_REGUA', 'RENEGOCIAR', 'ANEXAR_ARQUIVO',
   'REMOVER_ANEXO', 'GERIR_USUARIOS',
   'VER_FINANCEIRO', 'EDITAR_FINANCEIRO',
+  ...VER_MODULOS,
 ];
 
 interface EspecificacaoDePerfil {
@@ -253,9 +262,20 @@ const PERFIS: EspecificacaoDePerfil[] = [
     id: PERFIL_VENDEDOR,
     nome: 'Vendedor',
     descricao: 'Cadastro de clientes, contratos e documentos',
-    permissoes: ['CADASTRAR', 'GERIR_CONTRATOS', 'EMITIR_DOCUMENTO', 'ANEXAR_ARQUIVO'],
+    permissoes: [
+      'CADASTRAR', 'GERIR_CONTRATOS', 'EMITIR_DOCUMENTO', 'ANEXAR_ARQUIVO',
+      // Modulos que a operacao comercial enxerga (nao ve Financeiro/Configuracoes).
+      'VER_DASHBOARD', 'VER_COMERCIAL', 'VER_CLIENTES', 'VER_CONTRATOS',
+      'VER_LOTEAMENTOS', 'VER_COBRANCAS', 'VER_CRM', 'VER_DOCUMENTOS',
+    ],
   },
-  { id: PERFIL_CONSULTA, nome: 'Consulta', descricao: 'Somente leitura', permissoes: ['VER_FINANCEIRO'] },
+  {
+    id: PERFIL_CONSULTA,
+    nome: 'Consulta',
+    descricao: 'Somente leitura',
+    // Ve todos os modulos (leitura), sem permissoes de escrita nem administracao.
+    permissoes: ['VER_FINANCEIRO', ...VER_MODULOS],
+  },
   {
     id: PERFIL_FINANCEIRO_RESTRITO,
     nome: 'Financeiro (restrito)',

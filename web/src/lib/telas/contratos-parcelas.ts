@@ -284,7 +284,10 @@ const telas: Record<string, ConfigDeListagem> = {
     ],
   },
   '/parcelas/regeracao': {
-    titulo: 'Regeração de parcelas', descricao: 'Solicitações de regeração de plano de parcelas', textoNovo: 'Solicitar regeração',
+    titulo: 'Regeração de parcelas',
+    descricao: 'A regeração do plano é feita pela renegociação, no detalhe de cada contrato. Abra o contrato e use "Renegociar".',
+    textoNovo: 'Ir para contratos',
+    acaoPara: '/contratos',
     colunas: [
       { titulo: 'Contrato' },
       { titulo: 'Cliente', larga: true },

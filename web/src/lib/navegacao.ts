@@ -647,11 +647,22 @@ const MODULOS_ORGANIZADOS: Modulo[] = [
  * quem pode gerir usuarios.
  */
 const PERMISSAO_POR_MODULO: Record<string, Permissao | undefined> = {
-  // Cadastros gerais e Auditoria foram absorvidos por Configuracoes — a
-  // administracao inteira fica atras de GERIR_USUARIOS num unico modulo.
-  configuracoes: 'GERIR_USUARIOS',
-  // Financeiro migrado para o modelo por modulo: so aparece para quem pode ve-lo.
+  // Cada modulo do menu exige a sua permissao VER_ — quem nao a tem no perfil
+  // nao ve o modulo. Assim o acesso e atribuido modulo a modulo, pelo perfil do
+  // usuario. Configuracoes reune toda a administracao atras de GERIR_USUARIOS.
+  dashboard: 'VER_DASHBOARD',
+  comercial: 'VER_COMERCIAL',
+  clientes: 'VER_CLIENTES',
+  contratos: 'VER_CONTRATOS',
+  loteamentos: 'VER_LOTEAMENTOS',
+  cobrancas: 'VER_COBRANCAS',
   financeiro: 'VER_FINANCEIRO',
+  documentos: 'VER_DOCUMENTOS',
+  crm: 'VER_CRM',
+  mobile: 'VER_MOBILE',
+  'portal-cliente': 'VER_PORTAL_CLIENTE',
+  'portal-corretor': 'VER_PORTAL_CORRETOR',
+  configuracoes: 'GERIR_USUARIOS',
 };
 
 export const MODULOS: Modulo[] = MODULOS_ORGANIZADOS.map((modulo) => ({
