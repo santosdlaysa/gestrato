@@ -557,13 +557,54 @@ model Fornecedor {
   criadoEm       DateTime @default(now())
   atualizadoEm   DateTime @updatedAt
 
-  contasAPagar      ContaAPagar[]
-  documentosFiscais DocumentoFiscal[]
-  pedidosCompra     PedidoCompra[]
-  movimentosEstoque MovimentoEstoque[]
+  contasAPagar             ContaAPagar[]
+  documentosFiscais        DocumentoFiscal[]
+  pedidosCompra            PedidoCompra[]
+  movimentosEstoque        MovimentoEstoque[]
+  contratosDeFornecimento  ContratoDeFornecimento[]
 
   @@index([nome])
   @@map("fornecedores")
+}
+
+enum SituacaoDaEmpresa {
+  CONTRATANTE
+  CONTRATADA
+}
+
+enum TipoDeItemContrato {
+  SERVICO
+  INSUMO
+}
+
+/// Contrato de compras/fornecimento (servico ou insumo) firmado com um
+/// fornecedor. Distinto do `Contrato` de venda de lote: aqui a empresa e a
+/// parte contratante/contratada e o objeto e o fornecimento em si.
+model ContratoDeFornecimento {
+  id                String             @id @default(uuid())
+  numero            String
+  documento         String?
+  situacaoDaEmpresa SituacaoDaEmpresa  @default(CONTRATANTE)
+  tipoDeItem        TipoDeItemContrato @default(SERVICO)
+  objeto            String
+  empresa           String?
+  fornecedorId      String?
+  fornecedor        Fornecedor?        @relation(fields: [fornecedorId], references: [id])
+  tipoDoContrato    String?
+  responsavel       String?
+  dataDoContrato    DateTime?          @db.Date
+  dataBase          DateTime?          @db.Date
+  dataDeInicio      DateTime?          @db.Date
+  dataDeTermino     DateTime?          @db.Date
+  valorCentavos     Int?
+  observacaoInterna String?
+  ativo             Boolean            @default(true)
+  criadoEm          DateTime           @default(now())
+  atualizadoEm      DateTime           @updatedAt
+
+  @@index([numero])
+  @@index([fornecedorId])
+  @@map("contratos_de_fornecimento")
 }
 
 enum StatusContaAPagar {

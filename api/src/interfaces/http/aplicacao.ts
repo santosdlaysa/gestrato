@@ -21,6 +21,7 @@ import { ControladorDeAcesso } from './controllers/acesso.controller.js';
 import { criarRotasDeAcesso } from './rotas/acesso.rotas.js';
 import { criarRotasDeConfiguracoesEIntegracoes } from './rotas/configuracoes-integracoes.rotas.js';
 import { criarRotasDeContasAPagar } from './rotas/contas-a-pagar.rotas.js';
+import { criarRotasDeContratosDeFornecimento } from './rotas/contratos-de-fornecimento.rotas.js';
 import { criarRotasDeObrasECentrosDeCusto } from './rotas/obras-centros-custo.rotas.js';
 import { criarRotasDeEstoque } from './rotas/estoque.rotas.js';
 import { criarRotasFiscais } from './rotas/fiscal.rotas.js';
@@ -55,6 +56,7 @@ const PREFIXOS_PROTEGIDOS = [
   '/integracoes',
   '/fornecedores',
   '/contas-a-pagar',
+  '/contratos-de-fornecimento',
   '/obras',
   '/centros-de-custo',
   '/unidades-medida',
@@ -103,6 +105,7 @@ const PREFIXOS_FINANCEIROS = [
   '/painel',
   '/contas-a-pagar',
   '/fornecedores',
+  '/contratos-de-fornecimento',
   '/relatorios',
 ] as const;
 
@@ -195,6 +198,7 @@ export function criarAplicacao(container: Container, rotasAdicionais: Router[] =
     ),
     criarRotasDeConfiguracoesEIntegracoes(container),
     criarRotasDeContasAPagar(),
+    criarRotasDeContratosDeFornecimento(),
     criarRotasDeObrasECentrosDeCusto(),
     criarRotasDeEstoque(),
     criarRotasFiscais(),

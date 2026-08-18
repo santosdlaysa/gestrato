@@ -22,6 +22,7 @@ import { Tela } from '@/paginas/Tela';
 import { Documentos } from '@/paginas/Documentos';
 import { ContasAPagar } from '@/paginas/ContasAPagar';
 import { Fornecedores } from '@/paginas/Fornecedores';
+import { ContratosDeFornecimento } from '@/paginas/ContratosDeFornecimento';
 import { Estoque } from '@/paginas/Estoque';
 import { ContasBancarias, SociosAportadores, EmpreendimentosFinanceiros, CategoriasFinanceiras } from '@/paginas/FluxoDeCaixa';
 import { NaoEncontrada } from '@/paginas/NaoEncontrada';
@@ -59,6 +60,7 @@ const PAGINAS_PRONTAS: Record<string, ReactElement> = {
   '/financeiro/inadimplencia': <Inadimplencia />,
   '/financeiro/contas-a-pagar': <ContasAPagar />,
   '/financeiro/fornecedores': <Fornecedores />,
+  '/financeiro/contratos-de-fornecimento': <ContratosDeFornecimento />,
   '/financeiro/contas-bancarias': <ContasBancarias />,
   '/financeiro/socios': <SociosAportadores />,
   '/financeiro/empreendimentos': <EmpreendimentosFinanceiros />,

@@ -23,6 +23,10 @@ interface Props {
   loteamentos: Opcao[];
   lotes: Opcao[];
   corretores: Opcao[];
+  /** Abre o cadastro rápido de cliente sem sair da tela de contrato. */
+  aoNovoCliente?: () => void;
+  /** Abre o cadastro rápido de lote sem sair da tela de contrato. */
+  aoNovoLote?: () => void;
 }
 
 export function FormularioDeContrato({
@@ -32,6 +36,8 @@ export function FormularioDeContrato({
   loteamentos,
   lotes,
   corretores,
+  aoNovoCliente,
+  aoNovoLote,
 }: Props) {
   return (
     <div className="pilha">
@@ -43,13 +49,25 @@ export function FormularioDeContrato({
             aoMudar={(valor) => atualizar('numero', valor)}
             espacoReservado="2026/0001"
           />
-          <CampoDeSelecao
-            rotulo="Cliente"
-            valor={formulario.clienteId}
-            opcoes={clientes}
-            aoMudar={(valor) => atualizar('clienteId', valor)}
-            textoVazio="Selecione o cliente"
-          />
+          <div className="campo">
+            <CampoDeSelecao
+              rotulo="Cliente"
+              valor={formulario.clienteId}
+              opcoes={clientes}
+              aoMudar={(valor) => atualizar('clienteId', valor)}
+              textoVazio="Selecione o cliente"
+            />
+            {aoNovoCliente && (
+              <button
+                type="button"
+                className="botao botao--fantasma botao--pequeno"
+                onClick={aoNovoCliente}
+                style={{ marginTop: 4, alignSelf: 'flex-start' }}
+              >
+                + Novo cliente
+              </button>
+            )}
+          </div>
           <CampoDeSelecao
             rotulo="Corretor"
             valor={formulario.corretorId}
@@ -67,13 +85,25 @@ export function FormularioDeContrato({
             }}
             textoVazio="Todos"
           />
-          <CampoDeSelecao
-            rotulo="Lote"
-            valor={formulario.loteId}
-            opcoes={lotes}
-            aoMudar={(valor) => atualizar('loteId', valor)}
-            textoVazio="Selecione o lote"
-          />
+          <div className="campo">
+            <CampoDeSelecao
+              rotulo="Lote"
+              valor={formulario.loteId}
+              opcoes={lotes}
+              aoMudar={(valor) => atualizar('loteId', valor)}
+              textoVazio="Selecione o lote"
+            />
+            {aoNovoLote && (
+              <button
+                type="button"
+                className="botao botao--fantasma botao--pequeno"
+                onClick={aoNovoLote}
+                style={{ marginTop: 4, alignSelf: 'flex-start' }}
+              >
+                + Novo lote
+              </button>
+            )}
+          </div>
           <CampoDeTexto
             rotulo="Data de assinatura"
             tipo="date"

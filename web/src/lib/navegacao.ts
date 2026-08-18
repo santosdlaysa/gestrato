@@ -319,6 +319,7 @@ const MODULOS_BASE: Modulo[] = [
         itens: [
           { texto: 'Contas a pagar', para: '/financeiro/contas-a-pagar' },
           { texto: 'Fornecedores', para: '/financeiro/fornecedores' },
+          { texto: 'Contratos de fornecimento', para: '/financeiro/contratos-de-fornecimento' },
           { texto: 'Pagamentos', para: '/financeiro/pagamentos' },
           { texto: 'Agenda financeira', para: '/financeiro/agenda' },
           { texto: 'Programações', para: '/financeiro/programacoes' },

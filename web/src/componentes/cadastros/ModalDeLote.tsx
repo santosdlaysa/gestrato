@@ -14,7 +14,8 @@ interface Props {
   lote: Lote | null;
   loteamentos: Opcao[];
   aoFechar: () => void;
-  aoConcluir: () => void;
+  /** Recebe o lote salvo — usado para selecioná-lo em quem abriu o modal. */
+  aoConcluir: (lote?: Lote) => void;
 }
 
 const OPCOES_DE_SITUACAO = SITUACOES_DO_LOTE.map((situacao) => ({
@@ -42,11 +43,12 @@ export function ModalDeLote({ lote, loteamentos, aoFechar, aoConcluir }: Props) 
       situacao,
       descricao: descricao.trim() || null,
     };
-    const sucesso = await acao.executar(() =>
-      lote ? atualizarLote(lote.id, corpo) : criarLote(corpo),
-    );
+    let salvo: Lote | undefined;
+    const sucesso = await acao.executar(async () => {
+      salvo = lote ? await atualizarLote(lote.id, corpo) : await criarLote(corpo);
+    });
     if (sucesso) {
-      aoConcluir();
+      aoConcluir(salvo);
       aoFechar();
     }
   }

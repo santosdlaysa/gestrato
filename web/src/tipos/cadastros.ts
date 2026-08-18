@@ -25,6 +25,17 @@ export interface Cliente {
   ativo: boolean;
 }
 
+/** Endereço para envio: a API espera texto (campo em branco quando não informado). */
+export interface EntradaDeEndereco {
+  logradouro: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  uf: string;
+  cep: string;
+}
+
 export interface EntradaDeCliente {
   nome: string;
   documento: string;
@@ -32,6 +43,7 @@ export interface EntradaDeCliente {
   email: string | null;
   telefone: string | null;
   whatsapp: string | null;
+  endereco: EntradaDeEndereco;
   observacoes: string | null;
   ativo: boolean;
 }

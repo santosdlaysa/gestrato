@@ -4,6 +4,10 @@ import { CabecalhoDaPagina } from '@/componentes/layout/CabecalhoDaPagina';
 import { AvisoDeErro } from '@/componentes/comuns/Estados';
 import { FormularioDeContrato } from '@/componentes/contratos/FormularioDeContrato';
 import { PreviaDoPlano } from '@/componentes/contratos/PreviaDoPlano';
+import { ModalDeCliente } from '@/componentes/cadastros/ModalDeCliente';
+import { ModalDeLote } from '@/componentes/cadastros/ModalDeLote';
+import type { Opcao } from '@/componentes/comuns/Campo';
+import type { Cliente, Lote } from '@/tipos/cadastros';
 import { useRequisicao } from '@/ganchos/useRequisicao';
 import { useValorAtrasado } from '@/ganchos/useValorAtrasado';
 import { useAcao } from '@/ganchos/useAcao';
@@ -23,6 +27,16 @@ import {
 import type { FormularioDeContrato as Formulario } from '@/lib/contrato';
 import type { SimulacaoDeContrato } from '@/tipos/contrato';
 
+/** Junta cadastros criados agora (extras) à lista carregada, sem duplicar. */
+function mesclarOpcoes(extras: Opcao[], base: Opcao[]): Opcao[] {
+  const vistos = new Set(extras.map((opcao) => opcao.valor));
+  return [...extras, ...base.filter((opcao) => !vistos.has(opcao.valor))];
+}
+
+function rotuloDoLote(lote: Lote): string {
+  return `${lote.loteamento ?? ''} ${lote.quadra ? `Q${lote.quadra}` : ''} L${lote.numero}`.trim();
+}
+
 export function NovoContrato() {
   const navegar = useNavigate();
   const [formulario, definirFormulario] = useState<Formulario>(FORMULARIO_INICIAL);
@@ -34,8 +48,38 @@ export function NovoContrato() {
   const lotes = useOpcoesDeLotes(formulario.loteamentoId);
   const corretores = useOpcoesDeCorretores();
 
+  // Cadastros feitos pelos modais desta tela: entram nas opções na hora, sem
+  // recarregar a lista inteira, e já ficam selecionados no contrato.
+  const [clientesExtras, definirClientesExtras] = useState<Opcao[]>([]);
+  const [lotesExtras, definirLotesExtras] = useState<Opcao[]>([]);
+  const [modalClienteAberto, definirModalClienteAberto] = useState(false);
+  const [modalLoteAberto, definirModalLoteAberto] = useState(false);
+
+  const opcoesDeClientes = useMemo(
+    () => mesclarOpcoes(clientesExtras, clientes),
+    [clientesExtras, clientes],
+  );
+  const opcoesDeLotes = useMemo(() => mesclarOpcoes(lotesExtras, lotes), [lotesExtras, lotes]);
+
   function atualizar<C extends keyof Formulario>(campo: C, valor: Formulario[C]) {
     definirFormulario((atual) => ({ ...atual, [campo]: valor }));
+    definirErroDeValidacao(null);
+  }
+
+  function aoCriarCliente(cliente?: Cliente) {
+    if (!cliente) return;
+    definirClientesExtras((atuais) => [{ valor: cliente.id, texto: cliente.nome }, ...atuais]);
+    atualizar('clienteId', cliente.id);
+  }
+
+  function aoCriarLote(lote?: Lote) {
+    if (!lote) return;
+    definirLotesExtras((atuais) => [{ valor: lote.id, texto: rotuloDoLote(lote) }, ...atuais]);
+    definirFormulario((atual) => ({
+      ...atual,
+      loteamentoId: lote.loteamentoId ?? atual.loteamentoId,
+      loteId: lote.id,
+    }));
     definirErroDeValidacao(null);
   }
 
@@ -99,14 +143,32 @@ export function NovoContrato() {
           <FormularioDeContrato
             formulario={formulario}
             atualizar={atualizar}
-            clientes={clientes}
+            clientes={opcoesDeClientes}
             loteamentos={loteamentos}
-            lotes={lotes}
+            lotes={opcoesDeLotes}
             corretores={corretores}
+            aoNovoCliente={() => definirModalClienteAberto(true)}
+            aoNovoLote={() => definirModalLoteAberto(true)}
           />
           <PreviaDoPlano requisicao={simulacao} habilitada={simulavel} />
         </div>
       </div>
+
+      {modalClienteAberto && (
+        <ModalDeCliente
+          cliente={null}
+          aoFechar={() => definirModalClienteAberto(false)}
+          aoConcluir={aoCriarCliente}
+        />
+      )}
+      {modalLoteAberto && (
+        <ModalDeLote
+          lote={null}
+          loteamentos={loteamentos}
+          aoFechar={() => definirModalLoteAberto(false)}
+          aoConcluir={aoCriarLote}
+        />
+      )}
     </>
   );
 }

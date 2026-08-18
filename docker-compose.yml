@@ -25,11 +25,10 @@ services:
       LANG: pt_BR.utf8
       POSTGRES_INITDB_ARGS: "--encoding=UTF8"
 
-    # 5432 exposto no host porque a aplicacao roda fora do Docker.
-    # Se a porta ja estiver ocupada por outro Postgres, troque para "5433:5432"
-    # e ajuste a porta no DATABASE_URL do .env.
+    # 5434 no host: 5432 e do PostgreSQL nativo do Windows e 5433 e de outro
+    # projeto (agendarsala-db). O DATABASE_URL do .env aponta para localhost:5434.
     ports:
-      - "5432:5432"
+      - "5434:5432"
 
     # Volume nomeado: os dados sobrevivem a `docker compose down` e a
     # recriacao do container. So somem com `docker compose down -v`.

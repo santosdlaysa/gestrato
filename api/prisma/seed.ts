@@ -55,6 +55,14 @@ const DATA_DE_REFERENCIA = lerDataDoAmbiente('SEED_DATA_REFERENCIA', 2026, 7, 28
 const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL?.trim() || 'admin@gestrato.local';
 const ADMIN_SENHA = process.env.SEED_ADMIN_SENHA?.trim() || 'admin123';
 
+/**
+ * Com SEED_SOMENTE_ESSENCIAL=1 o seed para depois de usuários, régua e modelos:
+ * banco pronto para logar e cobrar, mas SEM a massa de demonstração. É o modo
+ * "começar do zero" para cadastrar/importar dados reais.
+ */
+const SOMENTE_ESSENCIAL =
+  process.env.SEED_SOMENTE_ESSENCIAL === '1' || process.env.SEED_SOMENTE_ESSENCIAL === 'true';
+
 const EMPRESA = 'Gestrato Empreendimentos';
 
 // ---------------------------------------------------------------- utilitarios
@@ -2361,6 +2369,15 @@ async function main(): Promise<void> {
   await semearRegua();
   await semearModelos();
   console.log('  régua de cobrança e modelos de mensagem ok');
+
+  if (SOMENTE_ESSENCIAL) {
+    console.log(
+      '\nSeed essencial concluído: admin, régua e modelos.\n' +
+        'Banco pronto para cadastrar/importar dados reais (sem massa de demonstração).\n' +
+        `Login: ${ADMIN_EMAIL} / ${ADMIN_SENHA}`,
+    );
+    return;
+  }
 
   const lotes = await semearLoteamentos();
   console.log('  loteamentos, quadras e lotes ok');
