@@ -95,6 +95,10 @@ export const ROTA_INICIAL_FINANCEIRO = '/financeiro/contas-bancarias';
  * os outros modulos e o backend recusa (403) rotas fora do Financeiro.
  */
 export function estaConfinadoAoFinanceiro(permissoes: Permissoes): boolean {
+  // Administrador (acesso geral) nunca e confinado, mesmo que a flag
+  // SOMENTE_FINANCEIRO apareca no perfil por engano — ela jamais deveria estar
+  // num perfil amplo, e um admin confinado seria sempre um erro de dados.
+  if (temAcessoGeral(permissoes)) return false;
   return tem(permissoes, 'SOMENTE_FINANCEIRO');
 }
 
