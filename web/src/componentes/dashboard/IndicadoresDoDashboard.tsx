@@ -41,6 +41,7 @@ export function IndicadoresPrincipais({ dados }: { dados: Dashboard }) {
         valor={formatarDinheiro(dados.totalAReceberCentavos)}
         detalhe="Saldo em aberto da carteira"
         tom="neutro"
+        destino="/parcelas"
       />
       <Indicador
         destaque
@@ -50,6 +51,7 @@ export function IndicadoresPrincipais({ dados }: { dados: Dashboard }) {
           dados.parcelasVencidas?.quantidade ?? 0,
         )} parcelas`}
         tom="vencido"
+        destino="/parcelas?situacao=VENCIDA"
       />
       <Indicador
         destaque
@@ -57,6 +59,7 @@ export function IndicadoresPrincipais({ dados }: { dados: Dashboard }) {
         valor={formatarDinheiro(dados.totalRecebidoNoMesCentavos)}
         detalhe={`Competência ${competencia}`}
         tom="ok"
+        destino="/relatorios?aba=recebimentos"
       />
       <Indicador
         destaque
@@ -67,6 +70,7 @@ export function IndicadoresPrincipais({ dados }: { dados: Dashboard }) {
           dados.politicaDeInadimplencia,
         )} de atraso`}
         tom="vencido"
+        destino="/financeiro/inadimplencia"
       />
     </div>
   );
@@ -84,12 +88,14 @@ export function IndicadoresDaCarteira({ dados }: { dados: Dashboard }) {
         valor={formatarNumero(dados.contratosAtivos)}
         detalhe={`${formatarNumero(dados.contratosQuitados)} quitados`}
         tom="info"
+        destino="/contratos?status=ATIVO"
       />
       <Indicador
         rotulo="Cobranças enviadas"
         valor={formatarNumero(dados.cobrancasEnviadas?.hoje ?? 0)}
         detalhe={<DetalheDeCobrancas envios={dados.cobrancasEnviadas} />}
         tom="info"
+        destino={`/cobrancas?de=${dados.data}&ate=${dados.data}`}
       />
       <Indicador
         rotulo="Taxa de recuperação"

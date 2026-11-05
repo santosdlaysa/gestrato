@@ -25,6 +25,10 @@ export function listarClientes(
   return requisitar<RespostaPaginada<Cliente>>('/clientes', { parametros: filtros, sinal });
 }
 
+export function buscarCliente(id: string, sinal?: AbortSignal): Promise<Cliente> {
+  return requisitar<Cliente>(`/clientes/${id}`, { sinal });
+}
+
 export function criarCliente(entrada: EntradaDeCliente): Promise<Cliente> {
   return requisitar<Cliente>('/clientes', { metodo: 'POST', corpo: entrada });
 }

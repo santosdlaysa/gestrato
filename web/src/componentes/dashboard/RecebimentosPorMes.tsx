@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Painel } from '@/componentes/comuns/Painel';
 import { BarraProporcional } from '@/componentes/comuns/Indicador';
 import { EstadoVazio } from '@/componentes/comuns/Estados';
@@ -9,7 +10,15 @@ export function RecebimentosPorMes({ recebimentos }: { recebimentos: Recebimento
   const maior = linhas.reduce((maximo, linha) => Math.max(maximo, linha.valorCentavos), 0);
 
   return (
-    <Painel titulo="Recebimentos por mês" semPreenchimento>
+    <Painel
+      titulo="Recebimentos por mês"
+      acoes={
+        <Link className="botao botao--pequeno" to="/relatorios?aba=recebimentos">
+          Ver relatório
+        </Link>
+      }
+      semPreenchimento
+    >
       {linhas.length === 0 ? (
         <EstadoVazio titulo="Sem recebimentos" descricao="Nenhuma baixa registrada no período." />
       ) : (

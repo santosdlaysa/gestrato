@@ -1,7 +1,7 @@
 import type { DocumentoDeCobranca } from '../../../domain/cobranca/documento-de-cobranca.js';
 import type { DemonstrativoDeDebito, Parcela } from '../../../domain/contratos/parcela.js';
 import type { SituacaoParcela } from '../../../domain/contratos/tipos.js';
-import type { DataCivil } from '../../../domain/value-objects/data-civil.js';
+import { DataCivil } from '../../../domain/value-objects/data-civil.js';
 import { Dinheiro } from '../../../domain/value-objects/dinheiro.js';
 import type { Pagina, ParametrosDePaginacao, Relogio } from '../../ports/comuns.js';
 import { montarPagina } from '../../ports/comuns.js';
@@ -90,7 +90,15 @@ export class ListarParcelasParaCobranca {
 
     switch (filtro.situacao) {
       case 'VENCIDA':
-        return { ...base, somenteEmAberto: true, vencendoDe: filtro.de, vencendoAte: referencia.somarDias(-1) };
+        // O "ate" da tela so estreita o periodo: nunca deixa entrar o que ainda nao venceu.
+        return {
+          ...base,
+          somenteEmAberto: true,
+          vencendoDe: filtro.de,
+          vencendoAte: DataCivil.minima(
+            filtro.ate ? [referencia.somarDias(-1), filtro.ate] : [referencia.somarDias(-1)],
+          ) ?? undefined,
+        };
       case 'VENCE_HOJE':
         return { ...base, somenteEmAberto: true, vencendoDe: referencia, vencendoAte: referencia };
       case 'A_VENCER':
@@ -104,7 +112,8 @@ export class ListarParcelasParaCobranca {
       case 'RENEGOCIADA':
         return { ...base, status: ['RENEGOCIADA'], vencendoDe: filtro.de, vencendoAte: filtro.ate };
       default:
-        return { ...base, vencendoDe: filtro.de, vencendoAte: filtro.ate };
+        // Sem situacao a tela mostra "todas em aberto": parcela paga nao e cobranca.
+        return { ...base, somenteEmAberto: true, vencendoDe: filtro.de, vencendoAte: filtro.ate };
     }
   }
 }

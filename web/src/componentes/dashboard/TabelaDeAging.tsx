@@ -1,7 +1,9 @@
+import { Link, useNavigate } from 'react-router-dom';
 import { Painel } from '@/componentes/comuns/Painel';
 import { BarraProporcional } from '@/componentes/comuns/Indicador';
 import { EstadoVazio } from '@/componentes/comuns/Estados';
 import { formatarDinheiro, formatarNumero, formatarPercentual } from '@/lib/formato';
+import { somarDiasIso } from '@/lib/datas';
 import type { FaixaDeAging } from '@/tipos/dashboard';
 
 const ORDEM_DAS_FAIXAS = ['1-5', '6-15', '16-30', '31-60', '61-90', '90+'];
@@ -12,7 +14,31 @@ function ordenarFaixas(aging: FaixaDeAging[]): FaixaDeAging[] {
   );
 }
 
-export function TabelaDeAging({ aging }: { aging: FaixaDeAging[] }) {
+/**
+ * Parcelas vencidas cujo atraso cai na faixa ("31-60" ou "90+"), contado a
+ * partir da data de referência: atraso de N dias = vencimento N dias antes.
+ */
+function destinoDaFaixa(faixa: string, referencia: string): string {
+  const parametros = new URLSearchParams({ situacao: 'VENCIDA' });
+  if (faixa.endsWith('+')) {
+    // "90+" vem depois de "61-90": é atraso acima de 90 dias.
+    parametros.set('ate', somarDiasIso(referencia, -(Number(faixa.slice(0, -1)) + 1)));
+  } else {
+    const [minimo, maximo] = faixa.split('-').map(Number);
+    parametros.set('de', somarDiasIso(referencia, -maximo));
+    parametros.set('ate', somarDiasIso(referencia, -minimo));
+  }
+  return `/parcelas?${parametros.toString()}`;
+}
+
+interface Props {
+  aging: FaixaDeAging[];
+  /** Data de referência do dashboard (AAAA-MM-DD), base para contar o atraso. */
+  referencia: string;
+}
+
+export function TabelaDeAging({ aging, referencia }: Props) {
+  const navegar = useNavigate();
   const faixas = ordenarFaixas(aging ?? []);
   const maiorValor = faixas.reduce((maior, faixa) => Math.max(maior, faixa.valorCentavos), 0);
   const total = faixas.reduce((soma, faixa) => soma + faixa.valorCentavos, 0);
@@ -20,7 +46,7 @@ export function TabelaDeAging({ aging }: { aging: FaixaDeAging[] }) {
   return (
     <Painel
       titulo="Aging da inadimplência"
-      descricao="Distribuição do valor vencido por faixa de dias em atraso"
+      descricao="Distribuição do valor vencido por faixa de dias em atraso · clique numa faixa para ver as parcelas"
       semPreenchimento
     >
       {faixas.length === 0 ? (
@@ -39,9 +65,19 @@ export function TabelaDeAging({ aging }: { aging: FaixaDeAging[] }) {
             </thead>
             <tbody>
               {faixas.map((faixa) => (
-                <tr key={faixa.faixa}>
+                <tr
+                  key={faixa.faixa}
+                  className="linha--clicavel"
+                  title="Ver as parcelas desta faixa"
+                  onClick={() => navegar(destinoDaFaixa(faixa.faixa, referencia))}
+                >
                   <td>
-                    <strong>{faixa.faixa}</strong>
+                    <Link
+                      to={destinoDaFaixa(faixa.faixa, referencia)}
+                      onClick={(evento) => evento.stopPropagation()}
+                    >
+                      <strong>{faixa.faixa}</strong>
+                    </Link>
                   </td>
                   <td className="numerico">{formatarNumero(faixa.quantidade)}</td>
                   <td className="numerico texto-vencido">

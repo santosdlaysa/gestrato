@@ -7,6 +7,7 @@ import {
   descricaoDoImovel,
   diasDeAtraso,
   estaEmAberto,
+  idDoCliente,
   idDoContrato,
   nomeDoCliente,
   numeroDoContrato,
@@ -64,7 +65,13 @@ export function LinhaDeParcela({
           numeroDoContrato(parcela)
         )}
       </td>
-      <td className="celula-larga">{nomeDoCliente(parcela)}</td>
+      <td className="celula-larga">
+        {idDoCliente(parcela) ? (
+          <Link to={`/clientes/${idDoCliente(parcela)}`}>{nomeDoCliente(parcela)}</Link>
+        ) : (
+          nomeDoCliente(parcela)
+        )}
+      </td>
       <td className="texto-suave">{descricaoDoImovel(parcela)}</td>
       <td className="numerico">
         {parcela.numero}

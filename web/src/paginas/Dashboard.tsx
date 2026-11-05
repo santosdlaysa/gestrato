@@ -74,6 +74,7 @@ export function Dashboard() {
               <AnaliseDetalhada
                 aging={dados.aging ?? []}
                 recebimentos={dados.recebimentosPorMes ?? []}
+                referencia={dados.data?.slice(0, 10) || data}
               />
             </div>
           )}

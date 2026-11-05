@@ -5,6 +5,7 @@ import type { FaixaDeAging, RecebimentoPorMes } from '@/tipos/dashboard';
 interface Props {
   aging: FaixaDeAging[];
   recebimentos: RecebimentoPorMes[];
+  referencia: string;
 }
 
 /**
@@ -13,7 +14,7 @@ interface Props {
  * ação, e abrem sob demanda. `<details>` dá o comportamento de abrir/fechar
  * acessível sem estado extra.
  */
-export function AnaliseDetalhada({ aging, recebimentos }: Props) {
+export function AnaliseDetalhada({ aging, recebimentos, referencia }: Props) {
   return (
     <details className="analise-detalhada">
       <summary className="analise-detalhada__resumo">
@@ -21,7 +22,7 @@ export function AnaliseDetalhada({ aging, recebimentos }: Props) {
         <span className="analise-detalhada__dica">Aging da inadimplência e recebimentos por mês</span>
       </summary>
       <div className="analise-detalhada__corpo">
-        <TabelaDeAging aging={aging} />
+        <TabelaDeAging aging={aging} referencia={referencia} />
         <RecebimentosPorMes recebimentos={recebimentos} />
       </div>
     </details>

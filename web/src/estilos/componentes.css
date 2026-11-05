@@ -37,6 +37,36 @@
   border-left: 3px solid var(--borda-forte);
 }
 
+.indicador--link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+.indicador--link:hover,
+.indicador--link:focus-visible {
+  border-color: var(--primaria);
+  box-shadow: 0 0 0 1px var(--primaria);
+}
+.indicador--link .indicador__rotulo::after {
+  content: ' →';
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.indicador--link:hover .indicador__rotulo::after,
+.indicador--link:focus-visible .indicador__rotulo::after {
+  opacity: 1;
+}
+
+/* Linha de tabela que abre o detalhe do que resume. */
+.linha--clicavel {
+  cursor: pointer;
+}
+.linha--clicavel:hover td {
+  background: var(--superficie-suave);
+}
+
 .indicador__rotulo {
   font-size: 11px;
   font-weight: 600;

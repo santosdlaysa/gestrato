@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { CabecalhoDaPagina } from '@/componentes/layout/CabecalhoDaPagina';
 import { Painel } from '@/componentes/comuns/Painel';
 import { Paginacao } from '@/componentes/comuns/Paginacao';
@@ -124,7 +125,11 @@ export function Clientes() {
                         key={cliente.id}
                         className={comDocumentos?.id === cliente.id ? 'linha--selecionada' : ''}
                       >
-                        <td className="celula-larga">{cliente.nome}</td>
+                        <td className="celula-larga">
+                          <Link to={`/clientes/${cliente.id}`}>
+                            <strong>{cliente.nome}</strong>
+                          </Link>
+                        </td>
                         <td>
                           {cliente.documentoFormatado ?? formatarDocumento(cliente.documento)}
                         </td>

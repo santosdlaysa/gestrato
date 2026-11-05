@@ -49,6 +49,7 @@ export function EscalaDeAtraso({ dados }: { dados: Dashboard }) {
             valor={formatarNumero(degrau.contagem(dados) ?? 0)}
             detalhe={criterioDoDegrau(degrau.chave, politica)}
             tom={degrau.tom}
+            destino={`/contratos?situacao=${degrau.chave}`}
           />
         ))}
       </div>

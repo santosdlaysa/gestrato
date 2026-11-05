@@ -44,7 +44,7 @@ export function TabelaDeInadimplentes({ inadimplentes }: Props) {
             return (
               <tr key={item.clienteId}>
                 <td className="celula-larga">
-                  <div>{item.cliente.nome}</div>
+                  <Link to={`/clientes/${item.clienteId}`}>{item.cliente.nome}</Link>
                   <div className="texto-suave">{formatarDocumento(item.cliente.documento)}</div>
                 </td>
                 <td>

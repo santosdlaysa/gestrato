@@ -11,6 +11,7 @@ import { Cobrancas } from '@/paginas/Cobrancas';
 import { Contratos } from '@/paginas/Contratos';
 import { NovoContrato } from '@/paginas/NovoContrato';
 import { DetalheDoContrato } from '@/paginas/DetalheDoContrato';
+import { DetalheDoCliente } from '@/paginas/DetalheDoCliente';
 import { GeracaoDeParcelas } from '@/paginas/GeracaoDeParcelas';
 import { RecalcularParcelas } from '@/paginas/RecalcularParcelas';
 import { Relatorios } from '@/paginas/Relatorios';
@@ -86,6 +87,7 @@ export function App() {
         {/* Rotas específicas (ações e detalhe) antes das geradas pelo mapa. */}
         <Route path="/contratos/novo" element={<NovoContrato />} />
         <Route path="/contratos/:id" element={<DetalheDoContrato />} />
+        <Route path="/clientes/:id" element={<DetalheDoCliente />} />
 
         {caminhosUnicos().map((caminho) => (
           <Route
